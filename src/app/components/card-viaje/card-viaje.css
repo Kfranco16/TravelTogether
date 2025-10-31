@@ -1,0 +1,44 @@
+.viaje-card {
+  position: relative;
+  cursor: pointer;
+  min-height: 630px;
+  height: 630px;
+  max-height: 330px;
+  
+  transition: box-shadow 0.2s;
+}
+.viaje-card .layer-base {
+  z-index: 1;
+}
+.viaje-card .layer-info {
+  z-index: 2;
+  background: whitesmoke;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  font: black;
+  font-weight: bold;
+  font-size: large;
+  min-height: 330px;
+  height: 330px;
+  max-height: 330px;
+  display: flex;
+  align-items: center;
+}
+.viaje-card:hover .layer-info,
+.viaje-card:focus-within .layer-info {
+  opacity: 1;
+  pointer-events: auto;
+  
+}
+
+.card-img-zoom {
+  transition: transform 0.4s cubic-bezier(.4,0,.2,1);
+  will-change: transform;
+}
+
+.viaje-card:hover .card-img-zoom,
+.viaje-card:focus-within .card-img-zoom {
+  transform: scale(1.1); /* o 0.9, ajusta el zoom-out a tu gusto */
+  
+}
