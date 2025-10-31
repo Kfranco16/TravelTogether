@@ -1,13 +1,14 @@
 <div class="container my-4">
-  <h1 class="mb-4">...</h1>
+  <h1 class="mb-4">.</h1>
 
   <div class="container my-4">
-  <h1 class="mb-4">...</h1>
-  <section class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-    @for (trip of trips; track trip.id) {
+    <section class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      @for (trip of trips; track trip.id) {
       <div class="col">
-        <article class="card h-100 shadow-sm rounded-4 overflow-hidden position-relative viaje-card" style="height: 330px;">
-
+        <article
+          class="card h-100 shadow-sm rounded-4 overflow-hidden position-relative viaje-card"
+          style="height: 330px"
+        >
           <!-- Capa base: foto + destino/titulo/estado -->
           <div class="layer-base position-absolute top-0 start-0 w-100 h-100">
             <div class="position-relative w-100 h-100">
@@ -15,37 +16,57 @@
                 [src]="trip.image || 'assets/trip-default.jpg'"
                 class="card-img-zoom w-100 h-100"
                 alt="Foto principal"
-                style="height: 150px; object-fit: cover;"
+                style="height: 150px; object-fit: cover"
               />
 
               <!-- Encima de la foto: destino y título -->
-              <div class="position-absolute top-0 start-0 w-100 text-white px-3 pt-2" style="background: rgba(0,0,0,0.40);">
-                <div class="fw-bold fs-6">
+
+              <div class="position-absolute top-0 start-0 w-100 text-white px-3 pt-2">
+                <div class="fw-semibold fs-3 me-5 text-shadow-black" style="word-break: break-word">
+                  {{ trip.title }}
+                </div>
+                <div class="fw-bold fs-6 mt-2 text-shadow-black">
                   <i class="bi bi-geo-alt"></i> {{ trip.destination }}
                 </div>
-                <div class="fw-semibold">{{ trip.title }}</div>
+                <div class="card-img-shake">
+                  @if (getShowDaysBadge(trip.start_date)) {
+                  <div class="d-flex align-items-center mt-3">
+                    <span class="badge bg-danger text-white">
+                      <i class="bi bi-clock"></i>
+                      ¡Date prisa! Quedan {{ getDaysLeft(trip.start_date) }} días para el viaje
+                    </span>
+                  </div>
+                  }
+                </div>
               </div>
 
+              <!-- Favoritos: botón corazón en la esquina arriba -->
+                <button
+                type="button"
+                class="btn p-0 position-absolute top-0 end-0 m-2"
+                style="z-index: 10"
+                >
+                
+               <i class="fs-2 bi bi-heart text-white" style="text-shadow: 0 0 2px #000, 0 0 5px #000;"></i>
+                </button>
               <!-- Estado en badge en la esquina -->
-              <span
-                class="position-absolute top-0 end-0 m-3 badge
-                  {{ trip.status === 'open' ? 'bg-success' : (trip.status === 'draft' ? 'bg-danger' : 'bg-secondary') }}"
-                style="font-size: 1rem; padding: 0.5em 1em;"
-              >
-                {{
-                  trip.status === 'open'
-                    ? 'Abierto'
-                    : trip.status === 'draft'
-                      ? 'Últimos días'
-                      : trip.status
-                }}
-              </span>
             </div>
           </div>
 
           <!-- Capa info: aparece en hover solo, ocupa todo igual -->
-          <div class="layer-info position-absolute bottom-0 start-0 w-100 h-100 card-body py-3 px-4 " style="background: rgba(255, 255, 255, 0.888)">
+          <div
+            class="layer-info position-absolute bottom-0 start-0 w-100 h-100 card-body py-3 px-4"
+            style="background: rgba(255, 255, 255, 0.888)"
+          >
+          
             <div class="d-flex flex-column h-100 justify-content-center">
+            
+            <div
+              class=" badge {{ getBadgeClass(trip.status) }} mb-2"
+              style="font-size: 1rem; padding: 0.5em 1em"
+>
+              {{ getBadgeText(trip.status) }}
+            </div>
               <div class="mb-1 text-muted">
                 <i class="bi bi-calendar3"></i>
                 {{ trip.start_date }} - {{ trip.end_date }}
@@ -65,17 +86,15 @@
                 {{ trip.description }}
               </div>
 
-              <div class="d-flex gap-2 mt-3">
+              <div class="d-flex gap-2 mt-auto mb-2">
                 <button class="btn btn-outline-secondary w-50">Ver detalles</button>
                 <button class="btn btn-dark w-50">Solicitar unirme</button>
               </div>
             </div>
           </div>
-
         </article>
       </div>
-    }
-  </section>
-</div>
-
+      }
+    </section>
+  </div>
 </div>
