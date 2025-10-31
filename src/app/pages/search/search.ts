@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-search',
   imports: [],
-  templateUrl: './login.html',
+  templateUrl: './search.html',
   styles: ``,
 })
-export class Login {
+export class Search {
 
 }
