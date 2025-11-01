@@ -22,7 +22,7 @@
               <!-- Encima de la foto: destino y título -->
 
               <div class="position-absolute top-0 start-0 w-100 text-white px-3 pt-2">
-                <div class="fw-semibold fs-3 me-5 text-shadow-black" style="word-break: break-word">
+                <div class="fw-semibold fs-3 me-5 text-shadow-black">
                   {{ trip.title }}
                 </div>
                 <div class="fw-bold fs-6 mt-2 text-shadow-black">
@@ -41,55 +41,63 @@
               </div>
 
               <!-- Favoritos: botón corazón en la esquina arriba -->
-                <button
+              <button
                 type="button"
                 class="btn p-0 position-absolute top-0 end-0 m-2"
                 style="z-index: 10"
-                >
-                
-               <i class="fs-2 bi bi-heart text-white" style="text-shadow: 0 0 2px #000, 0 0 5px #000;"></i>
-                </button>
-              <!-- Estado en badge en la esquina -->
+                (click)="toggleFavorito(trip)"
+              >
+                <i class="fs-2 bi {{ getFavoriteIconClass(trip.isFavorite) }}"></i>
+              </button>
             </div>
           </div>
 
           <!-- Capa info: aparece en hover solo, ocupa todo igual -->
           <div
-            class="layer-info position-absolute bottom-0 start-0 w-100 h-100 card-body py-3 px-4"
+            class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
             style="background: rgba(255, 255, 255, 0.888)"
           >
-          
-            <div class="d-flex flex-column h-100 justify-content-center">
-            
+            <!-- Estado del viaje centrado -->
             <div
-              class=" badge {{ getBadgeClass(trip.status) }} mb-2"
+              class="badge {{ getBadgeClass(trip.status) }} mb-2"
               style="font-size: 1rem; padding: 0.5em 1em"
->
+            >
               {{ getBadgeText(trip.status) }}
             </div>
-              <div class="mb-1 text-muted">
-                <i class="bi bi-calendar3"></i>
-                {{ trip.start_date }} - {{ trip.end_date }}
-              </div>
 
-              <div class="mb-1 text-muted">
-                <i class="bi bi-people"></i>
-                Mínimo {{ trip.min_participants }} viajeros
-              </div>
+            <!-- Fechas -->
+            <div class="mb-2 text-muted text-center w-100">
+              <i class="bi bi-calendar3"></i>
+              {{ trip.start_date }} - {{ trip.end_date }}
+            </div>
 
-              <div class="mb-1 text-success fw-bold">
-                <i class="bi bi-cash-coin"></i>
-                {{ trip.estimated_cost }}€ por persona
-              </div>
+            <!-- Transporte -->
+            <div class="mb-2 text-muted text-center w-100">
+              <i class="bi bi-arrow-left-right"></i>
+              {{ trip.transport }}
+            </div>
 
-              <div class="mb-2 text-muted">
-                {{ trip.description }}
-              </div>
+            <!-- Participantes -->
+            <div class="mb-2 text-muted text-center w-100">
+              <i class="bi bi-people"></i>
+              Mínimo {{ trip.min_participants }} viajeros
+            </div>
 
-              <div class="d-flex gap-2 mt-auto mb-2">
-                <button class="btn btn-outline-secondary w-50">Ver detalles</button>
-                <button class="btn btn-dark w-50">Solicitar unirme</button>
-              </div>
+            <!-- Precio -->
+            <div class="mb-2 text-success fw-bold text-center w-100">
+              <i class="bi bi-cash-coin"></i>
+              {{ trip.estimated_cost }}€ por persona
+            </div>
+
+            <!-- Descripción -->
+            <div class="mb-3 text-2lines text-muted text-center w-100">
+              {{ trip.description }}
+            </div>
+
+            <!-- Botones SIEMPRE centrados y del mismo tamaño -->
+            <div class="d-flex gap-2 w-100 justify-content-center mt-auto mb-2">
+              <button class="btn btn-outline-secondary flex-grow-1">Ver detalles</button>
+              <button class="btn btn-dark flex-grow-1">Solicitar unirme</button>
             </div>
           </div>
         </article>
