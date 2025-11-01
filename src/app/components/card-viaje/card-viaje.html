@@ -25,6 +25,14 @@
                 <div class="fw-semibold fs-3 me-5 text-shadow-black">
                   {{ trip.title }}
                 </div>
+
+                <!-- Tarjeta usuario -->
+                @let usuario = getUsuarioById(trip.creator_id); @if (usuario) {
+                <!-- <h6>Organizado por</h6> -->
+                <app-card-usuario [usuario]="usuario"></app-card-usuario>
+                }
+                <!-- Destino-->
+
                 <div class="fw-bold fs-6 mt-2 text-shadow-black">
                   <i class="bi bi-geo-alt"></i> {{ trip.destination }}
                 </div>
@@ -102,6 +110,8 @@
           </div>
         </article>
       </div>
+
+      <!-- Card de usuario del creador -->
       }
     </section>
   </div>

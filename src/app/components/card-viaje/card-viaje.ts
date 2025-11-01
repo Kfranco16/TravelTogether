@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { CardUsuario } from '../card-usuario/card-usuario';
 
 @Component({
   selector: 'app-card-viaje',
-  imports: [],
+  imports: [CardUsuario],
   templateUrl: './card-viaje.html',
   styleUrl: './card-viaje.css',
 })
@@ -49,6 +50,10 @@ export class CardViaje {
   }
   getFavoriteIconClass(isFavorite: any): string {
     return isFavorite ? 'bi-heart-fill text-danger' : 'bi-heart text-white';
+  }
+
+  getUsuarioById(id: number): any | undefined {
+    return this.usuarios.find((user) => user.id === id.toString());
   }
 
   trips = [
@@ -119,6 +124,43 @@ export class CardViaje {
       created_at: '2025-10-27 08:39:38',
       updated_at: '2025-10-27 08:39:38',
       isFavorite: false,
+    },
+  ];
+
+  usuarios = [
+    {
+      id: '1',
+      avatar:
+        'https://img.freepik.com/foto-gratis/estilo-vida-emociones-gente-concepto-casual-confiado-agradable-sonriente-mujer-asiatica-brazos-cruzados-pecho-seguro-listo-ayudar-escuchando-companeros-trabajo-participando-conversacion_1258-59335.jpg?semt=ais_hybrid&w=740&q=80',
+      nombre: 'Elena Vargas',
+      email: 'elena@viajera.com',
+      password: 'hashed_password_1',
+      biografia: 'Exploradora de montañas y culturas. Fotógrafa aficionada.',
+      fechaNacimiento: '1992-08-20',
+      valoracion: 4.5,
+    },
+    {
+      id: '2',
+      nombre: 'Marco Diaz',
+      avatar:
+        'https://img.freepik.com/foto-gratis/chico-guapo-confiado-posando-contra-pared-blanca_176420-32936.jpg?semt=ais_hybrid&w=740&q=80',
+      email: 'marco@viajero.com',
+      password: 'hashed_password_2',
+      biografia:
+        'Apasionado por la historia y la gastronomía. Siempre en busca del plato perfecto.',
+      fechaNacimiento: '1988-03-12',
+      valoracion: 4.2,
+    },
+    {
+      id: '3',
+      nombre: 'Kevin Franco',
+      avatar:
+        'https://media.istockphoto.com/id/1171169099/es/foto/hombre-con-brazos-cruzados-aislados-sobre-fondo-gris.jpg?s=612x612&w=0&k=20&c=8qDLKdLMm2i8DHXY6crX6a5omVh2IxqrOxJV2QGzgFg=',
+      email: 'kevin@viajera.com',
+      password: 'hashed_password_1',
+      biografia: 'Exploradora de montañas y culturas. Fotógrafa aficionada.',
+      fechaNacimiento: '1992-08-20',
+      valoracion: 4.8,
     },
   ];
 }

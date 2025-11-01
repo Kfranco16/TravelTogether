@@ -1,1 +1,22 @@
-<p>card-usuario works!</p>
+<div class="d-flex align-items-center text-shadow-black gap-2">
+  <!-- Avatar -->
+  <img
+    [src]="usuario.avatar"
+    [alt]="'Avatar de ' + usuario.nombre"
+    class="rounded-1"
+    style="width: 35px; height: 55px; object-fit: cover"
+  />
+  <!-- Info usuario -->
+  <div>
+    <!-- Nombre grande -->
+    <div class="fw-semibold fs-5">
+      {{ usuario.nombre }}
+    </div>
+    <!-- Valoración debajo, pequeño y con estrella -->
+    <div class="d-flex align-items-center gap-1 text-shadow-black">
+      <i class="bi bi-star-fill text-warning"></i> <i class="bi bi-star-fill text-warning"></i>
+      <i class="bi bi-star-fill text-warning"></i>
+      <span>{{ usuario.valoracion }}</span>
+    </div>
+  </div>
+</div>
