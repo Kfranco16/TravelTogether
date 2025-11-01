@@ -14,8 +14,10 @@
     </div>
     <!-- Valoración debajo, pequeño y con estrella -->
     <div class="d-flex align-items-center gap-1 text-shadow-black">
-      <i class="bi bi-star-fill text-warning"></i> <i class="bi bi-star-fill text-warning"></i>
-      <i class="bi bi-star-fill text-warning"></i>
+      @for (estrella of getEstrellas(usuario.valoracion); track estrella.icon + estrella.color +
+      $index) {
+      <i class="bi {{ estrella.icon }} {{ estrella.color }}"></i>
+      }
       <span>{{ usuario.valoracion }}</span>
     </div>
   </div>

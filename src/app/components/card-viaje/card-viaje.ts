@@ -149,7 +149,7 @@ export class CardViaje {
       biografia:
         'Apasionado por la historia y la gastronomía. Siempre en busca del plato perfecto.',
       fechaNacimiento: '1988-03-12',
-      valoracion: 4.2,
+      valoracion: 1,
     },
     {
       id: '3',
