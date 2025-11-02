@@ -1,1 +1,210 @@
-<p>landing works!</p>
+<!-- ====================================================================== -->
+<!-- == Bloque 1 (NUEVO): CÓMO FUNCIONA =================================== -->
+<!-- ====================================================================== -->
+<div class="container px-4 py-5 text-center">
+  <h1 class="display-5 fw-bold text-body-emphasis">Viajar en Grupo Nunca Fue Tan Fácil</h1>
+  <div class="col-lg-8 mx-auto">
+    <p class="lead mb-4">
+      Conecta, comparte y descubre el mundo con viajeros que tienen tus mismos intereses. Organiza o
+      únete a viajes grupales y ahorra en tu próxima gran aventura.
+    </p>
+  </div>
+  <div class="row g-4 pt-4 row-cols-1 row-cols-lg-3">
+    <!-- Icono 1 -->
+    <div class="feature col">
+      <div
+        class="feature-icon d-inline-flex align-items-center justify-content-center text-bg-primary bg-gradient fs-2 mb-3 rounded-circle"
+        style="width: 3rem; height: 3rem"
+      >
+        <i class="bi bi-search"></i>
+      </div>
+      <h3 class="fs-4 text-body-emphasis">1. Explora Viajes</h3>
+      <p>Encuentra tu aventura ideal entre cientos de propuestas creadas por nuestra comunidad.</p>
+    </div>
+    <!-- Icono 2 -->
+    <div class="feature col">
+      <div
+        class="feature-icon d-inline-flex align-items-center justify-content-center text-bg-primary bg-gradient fs-2 mb-3 rounded-circle"
+        style="width: 3rem; height: 3rem"
+      >
+        <i class="bi bi-people-fill"></i>
+      </div>
+      <h3 class="fs-4 text-body-emphasis">2. Únete al Grupo</h3>
+      <p>Aplica al viaje que te interese y coordina con el creador y los demás viajeros.</p>
+    </div>
+    <!-- Icono 3 -->
+    <div class="feature col">
+      <div
+        class="feature-icon d-inline-flex align-items-center justify-content-center text-bg-primary bg-gradient fs-2 mb-3 rounded-circle"
+        style="width: 3rem; height: 3rem"
+      >
+        <i class="bi bi-airplane-fill"></i>
+      </div>
+      <h3 class="fs-4 text-body-emphasis">3. ¡A Viajar!</h3>
+      <p>Disfruta de una experiencia única compartiendo gastos y creando recuerdos inolvidables.</p>
+    </div>
+  </div>
+</div>
+<hr />
+
+<!-- ====================================================================== -->
+<!-- == Bloque 2 (NUEVO): BUSCADOR Y GALERÍA DE VIAJES ===================== -->
+<!-- ====================================================================== -->
+<div class="container px-4 py-5">
+  <!-- Barra de Búsqueda y Filtros -->
+  <div class="row mb-4 g-3 align-items-center">
+    <div class="col-md-6">
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Buscar viajes por destino, título..."
+        />
+      </div>
+    </div>
+    <div class="col-md-2">
+      <select class="form-select">
+        <option selected>Tipo de viaje</option>
+        <option value="1">Aventura</option>
+        <option value="2">Cultural</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <select class="form-select">
+        <option selected>Duración</option>
+        <option value="1">1 semana</option>
+        <option value="2">2 semanas</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button class="btn btn-light w-100 border">
+        <i class="bi bi-sliders me-2"></i>Más filtros
+      </button>
+    </div>
+  </div>
+
+  <!-- Galería de Viajes con @for y Placeholders de Alta Fidelidad -->
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @for (viaje of viajesPlaceholder().slice(0, viajesVisibles()); track viaje.id) {
+    <div class="col">
+      <div class="card shadow-sm border-2 border-primary-subtle h-100">
+        <div class="card-header bg-primary-subtle">
+          <h5 class="card-title mb-0 text-primary-emphasis">Viaje #{{ viaje.id }}</h5>
+        </div>
+        <div class="position-relative" style="height: 200px">
+          <div class="position-absolute top-50 start-50 translate-middle text-center">
+            <i class="bi bi-image text-primary-subtle display-1"></i>
+            <p class="text-muted mt-2">Imagen del Viaje</p>
+          </div>
+        </div>
+        <div class="card-body bg-light">
+          <div class="placeholder-glow">
+            <span class="placeholder col-7 bg-primary-subtle"></span>
+            <span class="placeholder col-4 bg-primary-subtle"></span>
+            <span class="placeholder col-4 bg-primary-subtle"></span>
+            <span class="placeholder col-6 bg-primary-subtle"></span>
+            <span class="placeholder col-8 bg-primary-subtle"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+
+  <!-- Botón Mostrar Más -->
+  @if (viajesVisibles() < viajesPlaceholder().length) {
+  <div class="text-center mt-4">
+    <button (click)="mostrarMasViajes()" class="btn btn-primary btn-lg px-4">
+      <i class="bi bi-plus-circle me-2"></i>
+      Mostrar más viajes
+    </button>
+  </div>
+  }
+</div>
+<hr />
+
+<!-- ====================================================================== -->
+<!-- == Bloque 4: PRUEBA SOCIAL - Testimonios (Versión Moderna) =========== -->
+<!-- ====================================================================== -->
+<div class="container px-4 py-5">
+  <h2 class="pb-2 border-bottom text-center">Lo que Nuestros Viajeros Dicen</h2>
+
+  <div class="position-relative">
+    <!-- Flecha Izquierda -->
+    <button
+      class="btn btn-outline-primary border-0 position-absolute start-0 top-50 translate-middle-y d-none d-lg-block"
+      (click)="mostrarTestimoniosAnteriores()"
+      style="z-index: 2; left: -4rem"
+    >
+      <i class="bi bi-chevron-left fs-3"></i>
+    </button>
+
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3 px-5">
+      <!-- Usamos @for para iterar sobre nuestro signal de testimonios -->
+      @for (testimonio of testimonios().slice(testimonioActual(), testimonioActual() + 3); track
+      testimonio.nombre) {
+      <div class="col">
+        <div class="card h-100 shadow">
+          <div class="card-body">
+            <!-- Usamos interpolación para mostrar los datos del signal -->
+            <p class="card-text">"{{ testimonio.texto }}"</p>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 d-flex align-items-center">
+            <!-- Usamos property binding para el 'src' y 'alt' de la imagen -->
+            <img
+              [src]="'https://i.pravatar.cc/40?img=' + testimonio.avatarId"
+              class="rounded-circle me-3"
+              [alt]="'Avatar de ' + testimonio.nombre"
+            />
+            <div>
+              <h6 class="mb-0">{{ testimonio.nombre }}</h6>
+              <small class="text-muted">{{ testimonio.viaje }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+
+    <!-- Flecha Derecha -->
+    <button
+      class="btn btn-outline-primary border-0 position-absolute end-0 top-50 translate-middle-y d-none d-lg-block"
+      (click)="mostrarSiguientesTestimonios()"
+      style="z-index: 2"
+    >
+      <i class="bi bi-chevron-right fs-3"></i>
+    </button>
+  </div>
+  <hr />
+  <!-- ====================================================================== -->
+  <!-- == Bloque 5: "SOCIOS" - Publicidad Sutil ============================= -->
+  <!-- ====================================================================== -->
+  <div class="container px-4 py-5 text-center">
+    <h2 class="pb-2 border-bottom">Partners Oficiales</h2>
+    <p class="lead">Colaboramos con las mejores empresas para facilitar tu aventura.</p>
+    <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 mt-4">
+      <!-- Logos en escala de grises para un look sutil -->
+      <img
+        src="https://i.pinimg.com/originals/84/55/a2/8455a25d64d22d64d5416372e304007b.jpg"
+        alt="Logo Aerolínea"
+        style="height: 50px; object-fit: contain"
+      />
+      <img
+        src="https://tse1.mm.bing.net/th/id/OIP.kfIYtECFFGxMosvul2OSFAHaEK?rs=1&pid=ImgDetMain&o=7&rm=3"
+        alt="Logo Hotel"
+        style="height: 50px; object-fit: contain"
+      />
+      <img
+        src="https://logodix.com/logo/874813.png"
+        alt="Logo Renta de Carros"
+        style="height: 50px; object-fit: contain"
+      />
+      <img
+        src="https://clubthrifty.com/wp-content/uploads/2018/11/axa-travel-insurance-logo-300x167.png"
+        alt="Logo Seguro de Viaje"
+        style="height: 50px; object-fit: contain"
+      />
+    </div>
+  </div>
+</div>
