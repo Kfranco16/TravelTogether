@@ -60,58 +60,82 @@
             </div>
           </div>
 
-          <!-- Capa info: aparece en hover solo, ocupa todo igual -->
           <div
             class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
-            style="background: rgba(255, 255, 255, 0.888)"
           >
-            <!-- Estado del viaje centrado -->
+            @if (isLoggedIn()) {
+            <!-- Mostrar la info completa de la tarjeta como siempre -->
+            <div class="detalles-viaje">
+              <!-- ...info del viaje... -->
+              <div
+                class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
+                style="background: rgba(255, 255, 255, 0.888)"
+              >
+                <!-- Estado del viaje centrado -->
+                <div
+                  class="badge {{ getBadgeClass(trip.status) }} mb-2"
+                  style="font-size: 1rem; padding: 0.5em 1em"
+                >
+                  {{ getBadgeText(trip.status) }}
+                </div>
+
+                <!-- Fechas -->
+                <div class="mb-2 text-muted text-center w-100">
+                  <i class="bi bi-calendar3"></i>
+                  {{ trip.start_date }} - {{ trip.end_date }}
+                </div>
+
+                <!-- Transporte -->
+                <div class="mb-2 text-muted text-center w-100">
+                  <i class="bi bi-arrow-left-right"></i>
+                  {{ trip.transport }}
+                </div>
+
+                <!-- Participantes -->
+                <div class="mb-2 text-muted text-center w-100">
+                  <i class="bi bi-people"></i>
+                  Mínimo {{ trip.min_participants }} viajeros
+                </div>
+
+                <!-- Precio -->
+                <div class="mb-2 text-success fw-bold text-center w-100">
+                  <i class="bi bi-cash-coin"></i>
+                  {{ trip.estimated_cost }}€ por persona
+                </div>
+
+                <!-- Descripción -->
+                <div class="mb-3 text-2lines text-muted text-center w-100">
+                  {{ trip.description }}
+                </div>
+
+                <!-- Botones SIEMPRE centrados y del mismo tamaño -->
+                <div class="d-flex gap-2 w-100 justify-content-center mt-auto mb-2">
+                  <button class="btn btn-outline-secondary flex-grow-1">Ver detalles</button>
+                  <button class="btn btn-dark flex-grow-1">Solicitar unirme</button>
+                </div>
+              </div>
+            </div>
+            } @else {
+            <!-- Mostrar oferta de registro/login -->
             <div
-              class="badge {{ getBadgeClass(trip.status) }} mb-2"
-              style="font-size: 1rem; padding: 0.5em 1em"
+              class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
+              style="background: rgba(255, 255, 255, 0.888)"
             >
-              {{ getBadgeText(trip.status) }}
-            </div>
+              <h4 class="mb-3 text-center">
+                ¡No te pierdas nada!
+                <p>Tu próxima aventura a un solo paso..</p>
+              </h4>
 
-            <!-- Fechas -->
-            <div class="mb-2 text-muted text-center w-100">
-              <i class="bi bi-calendar3"></i>
-              {{ trip.start_date }} - {{ trip.end_date }}
+              <button class="btn btn-primary mb-2">Registrarme</button>
+              <button class="btn btn-outline-secondary">Iniciar sesión</button>
             </div>
-
-            <!-- Transporte -->
-            <div class="mb-2 text-muted text-center w-100">
-              <i class="bi bi-arrow-left-right"></i>
-              {{ trip.transport }}
-            </div>
-
-            <!-- Participantes -->
-            <div class="mb-2 text-muted text-center w-100">
-              <i class="bi bi-people"></i>
-              Mínimo {{ trip.min_participants }} viajeros
-            </div>
-
-            <!-- Precio -->
-            <div class="mb-2 text-success fw-bold text-center w-100">
-              <i class="bi bi-cash-coin"></i>
-              {{ trip.estimated_cost }}€ por persona
-            </div>
-
-            <!-- Descripción -->
-            <div class="mb-3 text-2lines text-muted text-center w-100">
-              {{ trip.description }}
-            </div>
-
-            <!-- Botones SIEMPRE centrados y del mismo tamaño -->
-            <div class="d-flex gap-2 w-100 justify-content-center mt-auto mb-2">
-              <button class="btn btn-outline-secondary flex-grow-1">Ver detalles</button>
-              <button class="btn btn-dark flex-grow-1">Solicitar unirme</button>
-            </div>
+            }
           </div>
+          <!-- Capa info: aparece en hover solo, ocupa todo igual -->
+
+          <!-- Card de usuario del creador -->
         </article>
       </div>
-
-      <!-- Card de usuario del creador -->
       }
     </section>
   </div>

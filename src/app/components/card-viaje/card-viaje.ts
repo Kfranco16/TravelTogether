@@ -56,6 +56,11 @@ export class CardViaje {
     return this.usuarios.find((user) => user.id === id.toString());
   }
 
+  isLoggedIn(): boolean {
+    // Aquí deberías implementar la lógica real para verificar si el usuario está autenticado
+    return false; // Suponiendo que el usuario está autenticado para este ejemplo
+  }
+
   trips = [
     {
       id: 1,
