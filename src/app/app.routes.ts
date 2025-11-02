@@ -1,17 +1,13 @@
 import { Routes } from '@angular/router';
-<<<<<<< HEAD
-import { searchearchComponent } from './pages/search/search';
-import { LoginComponent } from './pages/login/login';
-import { RegisterComponent } from './pages/register/register';
+
+import { Search } from './pages/search/search';
+import { Login } from './pages/login/login';
+import { Registro } from './pages/registro/registro';
 
 export const routes: Routes = [
-  { path: '', component: SearchComponent },
-  { path: 'buscar', component: SearchComponent },
-  { path: 'login', component: LoginComponent },
-  { path: 'registro', component: RegisterComponent },
+  { path: '', component: Search },
+  { path: 'buscar', component: Search },
+  { path: 'login', component: Login },
+  { path: 'registro', component: Registro },
   { path: '**', redirectTo: 'buscar' },
 ];
-=======
-
-export const routes: Routes = [];
->>>>>>> parent of b89f2f2 (corrección app.routes.ts)
