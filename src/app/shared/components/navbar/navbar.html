@@ -1,1 +1,35 @@
-<p>navbar works!</p>
+<nav class="navbar navbar-expand-md bg-white">
+  <div class="container">
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#tt-nav"
+      aria-controls="tt-nav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="tt-nav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link tt-link" routerLink="/buscar" routerLinkActive="active"
+            >Buscar Viajes</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link tt-link" routerLink="/login" routerLinkActive="active">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link tt-link" routerLink="/registro" routerLinkActive="active">Registro</a>
+        </li>
+
+        <li class="nav-item ms-md-3 mt-2 mt-md-0">
+          <a class="btn tt-btn-primary" routerLink="/crear">+ Crear viaje</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
