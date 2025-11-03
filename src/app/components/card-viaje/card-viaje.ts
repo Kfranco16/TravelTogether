@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { CardUsuario } from '../card-usuario/card-usuario';
+import { Login } from '../../pages/login/login';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-card-viaje',
-  imports: [CardUsuario],
+  imports: [CardUsuario, Login, RouterLink],
   templateUrl: './card-viaje.html',
   styleUrl: './card-viaje.css',
 })
@@ -58,7 +60,18 @@ export class CardViaje {
 
   isLoggedIn(): boolean {
     // Aquí deberías implementar la lógica real para verificar si el usuario está autenticado
-    return false; // Suponiendo que el usuario está autenticado para este ejemplo
+    return true; // Suponiendo que el usuario está autenticado para este ejemplo
+  }
+
+  toggleSolicitud(trip: any) {
+    trip.solicitado = !trip.solicitado;
+    // Aquí luego añades la llamada a la API: this.miServicio.solicitarUnirme(trip.id).subscribe(...)
+  }
+
+  getSolicitudBtnClass(solicitado: boolean): string {
+    return solicitado
+      ? 'btn  btn-success flex-grow-1'
+      : 'btn btn-outline-secondary btn-morado flex-grow-1'; // O el color original que tuvieras
   }
 
   trips = [
@@ -84,6 +97,7 @@ export class CardViaje {
       created_at: '2025-10-27 08:39:38',
       updated_at: '2025-10-27 08:39:38',
       isFavorite: false,
+      solicitado: false,
     },
     {
       id: 2,

@@ -86,19 +86,19 @@
                 </div>
 
                 <!-- Transporte -->
-                <div class="mb-2 text-muted text-center w-100">
+                <div class="mb-2 color-principal text-center w-100">
                   <i class="bi bi-arrow-left-right"></i>
                   {{ trip.transport }}
                 </div>
 
                 <!-- Participantes -->
-                <div class="mb-2 text-muted text-center w-100">
+                <div class="mb-2 text-center w-100">
                   <i class="bi bi-people"></i>
                   Mínimo {{ trip.min_participants }} viajeros
                 </div>
 
                 <!-- Precio -->
-                <div class="mb-2 text-success fw-bold text-center w-100">
+                <div class="mb-2 color-principal fw-bold text-center w-100">
                   <i class="bi bi-cash-coin"></i>
                   {{ trip.estimated_cost }}€ por persona
                 </div>
@@ -110,8 +110,19 @@
 
                 <!-- Botones SIEMPRE centrados y del mismo tamaño -->
                 <div class="d-flex gap-2 w-100 justify-content-center mt-auto mb-2">
-                  <button class="btn btn-outline-secondary flex-grow-1">Ver detalles</button>
-                  <button class="btn btn-dark flex-grow-1">Solicitar unirme</button>
+                  <button
+                    routerLink="/detalle-viaje"
+                    class="btn btn-outline-secondary btn-morado flex-grow-1"
+                  >
+                    Ver detalles
+                  </button>
+                  <button
+                    type="btn btn-outline-secondary btn-morado flex-grow-1"
+                    [class]="getSolicitudBtnClass(trip.solicitado ?? false)"
+                    (click)="toggleSolicitud(trip)"
+                  >
+                    {{ trip.solicitado ? 'Solicitado' : 'Solicitar unirme' }}
+                  </button>
                 </div>
               </div>
             </div>
@@ -121,13 +132,12 @@
               class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
               style="background: rgba(255, 255, 255, 0.888)"
             >
-              <h4 class="mb-3 text-center">
-                ¡No te pierdas nada!
-                <p>Tu próxima aventura a un solo paso..</p>
-              </h4>
-
-              <button class="btn btn-primary mb-2">Registrarme</button>
-              <button class="btn btn-outline-secondary">Iniciar sesión</button>
+              <!-- <h5 class="text-center color-principal mb-0">
+                ¡No te pierdas nada! Tu próxima aventura a un solo paso
+              </h5> -->
+              <div class="login-container">
+                <app-login></app-login>
+              </div>
             </div>
             }
           </div>

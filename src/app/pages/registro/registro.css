@@ -1,0 +1,11 @@
+.btn-morado {
+  background: linear-gradient(90deg, #8f67e8 0%, #256be6 100%);
+  color: #fff;
+}
+.btn-morado :hover {
+  filter: brightness(1.05);
+}
+
+.color-principal {
+  color: #5223b9;
+}

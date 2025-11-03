@@ -88,3 +88,25 @@
 .viaje-card:focus-within .card-img-shake {
   animation: shake-effect 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) 1;
 }
+
+.btn-morado {
+  background: linear-gradient(90deg, #8f67e8 0%, #256be6 100%);
+  color: #fff;
+}
+.btn-morado :hover {
+  filter: brightness(1.05);
+}
+
+.color-principal {
+  color: #5223b9;
+}
+
+.login-container {
+  width: 100%;
+}
+
+.app-login {
+  width: 100%;
+  max-height: 210px; /* Si tu card es 330px, reparte entre titulo y form */
+  overflow-y: auto;
+}
