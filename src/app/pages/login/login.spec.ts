@@ -8,9 +8,8 @@ describe('Login', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Login]
-    })
-    .compileComponents();
+      imports: [Login],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(Login);
     component = fixture.componentInstance;
@@ -21,3 +20,15 @@ describe('Login', () => {
     expect(component).toBeTruthy();
   });
 });
+
+localStorage.setItem('tt_token', 'fakeToken123');
+localStorage.setItem(
+  'tt_user',
+  JSON.stringify({
+    id: 1,
+    username: 'leany',
+    email: 'leany@example.com',
+    role: 'user',
+  })
+);
+location.reload();
