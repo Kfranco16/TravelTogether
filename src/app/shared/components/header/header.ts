@@ -7,6 +7,7 @@ import { Logo } from '../logo/logo';
   selector: 'app-header',
   imports: [RouterLink, Navbar, Logo],
   templateUrl: './header.html',
+  standalone: true,
   styleUrls: ['./header.css'],
 })
 export class Header {}
