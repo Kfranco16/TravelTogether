@@ -1,14 +1,40 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CardViaje } from '../../components/card-viaje/card-viaje';
 
 @Component({
   selector: 'app-landing',
-  imports: [CardViaje],
+  imports: [],
   templateUrl: './landing.html',
   styleUrl: './landing.css',
 })
 export class Landing {
+  private intervalId: any;
+  currentImageIndex = signal(0);
+
+  // Array de imágenes panorámicas para el hero
+  public heroImages = signal([
+    {
+      id: 1,
+      url: 'https://images.squarespace-cdn.com/content/v1/591d98d33a0411cffe941a45/9d277969-91dc-4230-9447-6ab9d7446f71/viajes+grupales+viajar+inspira.jpg',
+      alt: 'Viajeros caminando por un sendero en medio de la naturaleza',
+      caption: 'Comparte aventuras únicas',
+    },
+    {
+      id: 2,
+      url: 'https://cloudfront-us-east-1.images.arcpublishing.com/infobae/B6VK45VAQNDQVF3QRY5PP7IX2I.png',
+      alt: 'Viajeros caminando por un sendero en medio de la naturaleza',
+      caption: 'Descubre destinos increíbles',
+    },
+
+    {
+      id: 3,
+      url: 'https://mochilerosentailandia.com/wp-content/uploads/2016/11/1-6.jpg',
+      alt: 'Viajeros caminando por un sendero en medio de la naturaleza',
+      caption: 'Comparte aventuras únicas',
+    },
+  ]);
+
   // Usamos signals para manejar nuestros arrays de placeholders.
   // Esto nos prepara para cuando los datos vengan de una API.
   public viajesPlaceholder = signal([
@@ -32,7 +58,7 @@ export class Landing {
   }
 
   // Hacemos lo mismo para los testimonios.
-  public testimonioActual = signal(0); // Controla el grupo de testimonios visible
+  testimonioActual = signal(0); // Controla el grupo de testimonios visible
 
   public testimonios = signal([
     {
@@ -89,5 +115,20 @@ export class Landing {
     const actual = this.testimonioActual();
     const anterior = actual - 3 < 0 ? this.testimonios().length - 3 : actual - 3;
     this.testimonioActual.set(anterior);
+  }
+
+  ngOnInit() {
+    // Iniciar la rotación automática de imágenes cada 5 segundos
+    this.intervalId = setInterval(() => {
+      const nextIndex = (this.currentImageIndex() + 1) % this.heroImages().length;
+      this.currentImageIndex.set(nextIndex);
+    }, 5000);
+  }
+
+  ngOnDestroy() {
+    // Limpiar el intervalo cuando el componente se destruye
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
   }
 }

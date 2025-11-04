@@ -1,47 +1,89 @@
 <!-- ====================================================================== -->
 <!-- == Bloque 1 (NUEVO): CÓMO FUNCIONA =================================== -->
 <!-- ====================================================================== -->
-<div class="container px-4 py-5 text-center">
-  <h1 class="display-5 fw-bold text-body-emphasis">Viajar en Grupo Nunca Fue Tan Fácil</h1>
-  <div class="col-lg-8 mx-auto">
-    <p class="lead mb-4">
-      Conecta, comparte y descubre el mundo con viajeros que tienen tus mismos intereses. Organiza o
-      únete a viajes grupales y ahorra en tu próxima gran aventura.
-    </p>
-  </div>
-  <div class="row g-4 pt-4 row-cols-1 row-cols-lg-3">
-    <!-- Icono 1 -->
-    <div class="feature col">
-      <div
-        class="feature-icon d-inline-flex align-items-center justify-content-center text-bg-primary bg-gradient fs-2 mb-3 rounded-circle"
-        style="width: 3rem; height: 3rem"
-      >
-        <i class="bi bi-search"></i>
-      </div>
-      <h3 class="fs-4 text-body-emphasis">1. Explora Viajes</h3>
-      <p>Encuentra tu aventura ideal entre cientos de propuestas creadas por nuestra comunidad.</p>
+<div
+  class="container-fluid hero-bg px-4 py-5 text-center text-white opacity-55"
+  style="position: relative"
+  [style.minHeight.px]="420"
+  [style.backgroundSize]="'cover'"
+  [style.backgroundPosition]="'center'"
+  [style.backgroundRepeat]="'no-repeat'"
+  [style.transition]="'background-image 1s ease-in-out'"
+  [style.backgroundImage]="'url(' + heroImages()[currentImageIndex()].url + ')'"
+>
+  <!-- Overlay para asegurarnos de que el contenido sea legible sobre la imagen -->
+  <div
+    class="hero-overlay"
+    style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.35); z-index: 0"
+  ></div>
+
+  <!-- Contenido (por encima del background y el overlay) -->
+  <div class="container px-4 py-5 text-center" style="position: relative; z-index: 1">
+    <h1 class="display-5 fw-bold text-shadow-1px text-shadow">
+      Viajar en Grupo Nunca Fue Tan Fácil
+    </h1>
+    <div class="col-lg-8 mx-auto">
+      <h5 class="mb-4 text-shadow">
+        Conecta, comparte y descubre el mundo con viajeros que tienen tus mismos intereses. Organiza
+        o únete a viajes grupales y ahorra en tu próxima gran aventura.
+      </h5>
     </div>
-    <!-- Icono 2 -->
-    <div class="feature col">
-      <div
-        class="feature-icon d-inline-flex align-items-center justify-content-center text-bg-primary bg-gradient fs-2 mb-3 rounded-circle"
-        style="width: 3rem; height: 3rem"
-      >
-        <i class="bi bi-people-fill"></i>
+
+    <!-- Tres iconos tipo panorámico (se adaptan al padding del contenedor) -->
+    <div class="row g-4 pt-4 row-cols-1 row-cols-lg-3">
+      <!-- Icono 1 -->
+      <div class="feature col text-white">
+        <div
+          class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3 rounded-circle"
+          style="
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+          "
+        >
+          <i class="bi bi-search"></i>
+        </div>
+        <h2 class="text-shadow">1. Explora Viajes</h2>
+        <h5 class="text-shadow">
+          Encuentra tu aventura ideal entre cientos de propuestas creadas por nuestra comunidad.
+        </h5>
       </div>
-      <h3 class="fs-4 text-body-emphasis">2. Únete al Grupo</h3>
-      <p>Aplica al viaje que te interese y coordina con el creador y los demás viajeros.</p>
-    </div>
-    <!-- Icono 3 -->
-    <div class="feature col">
-      <div
-        class="feature-icon d-inline-flex align-items-center justify-content-center text-bg-primary bg-gradient fs-2 mb-3 rounded-circle"
-        style="width: 3rem; height: 3rem"
-      >
-        <i class="bi bi-airplane-fill"></i>
+
+      <!-- Icono 2 -->
+      <div class="feature col text-white">
+        <div
+          class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3 rounded-circle"
+          style="
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+          "
+        >
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <h2 class="text-shadow">2. Únete al Grupo</h2>
+        <h5 class="text-shadow">
+          Aplica al viaje que te interese y coordina con el creador y los demás viajeros.
+        </h5>
       </div>
-      <h3 class="fs-4 text-body-emphasis">3. ¡A Viajar!</h3>
-      <p>Disfruta de una experiencia única compartiendo gastos y creando recuerdos inolvidables.</p>
+
+      <!-- Icono 3 -->
+      <div class="feature col text-white">
+        <div
+          class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3 rounded-circle"
+          style="
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+          "
+        >
+          <i class="bi bi-airplane-fill"></i>
+        </div>
+        <h2 class="text-shadow">3. ¡A Viajar!</h2>
+        <h5 class="text-shadow">
+          Disfruta de una experiencia única compartiendo gastos y creando recuerdos inolvidables.
+        </h5>
+      </div>
     </div>
   </div>
 </div>
@@ -115,7 +157,15 @@
   <!-- Botón Mostrar Más -->
   @if (viajesVisibles() < viajesPlaceholder().length) {
   <div class="text-center mt-4">
-    <button (click)="mostrarMasViajes()" class="btn btn-primary btn-lg px-4">
+    <button
+      (click)="mostrarMasViajes()"
+      class="btn btn-lg px-4 text-white"
+      style="
+        background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+        border: none;
+        box-shadow: 0 4px 14px rgba(111, 66, 193, 0.25);
+      "
+    >
       <i class="bi bi-plus-circle me-2"></i>
       Mostrar más viajes
     </button>
@@ -132,8 +182,26 @@
 
   <div class="position-relative">
     <!-- Flecha Izquierda -->
+    <style>
+      .testimonials-arrow-left {
+        transition: background 0.3s ease, color 0.3s ease, transform 0.15s ease;
+        background: transparent;
+        color: rgb(74, 1, 74);
+        border: none;
+      }
+      .testimonials-arrow-left:hover {
+        background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+        color: #fff;
+        transform: translateY(-2px);
+      }
+      .testimonials-arrow-left:focus {
+        box-shadow: 0 0 0 0.25rem rgba(123, 97, 255, 0.25);
+        outline: none;
+      }
+    </style>
+
     <button
-      class="btn btn-outline-primary border-0 position-absolute start-0 top-50 translate-middle-y d-none d-lg-block"
+      class="btn testimonials-arrow-left position-absolute start-0 top-50 translate-middle-y d-none d-lg-block"
       (click)="mostrarTestimoniosAnteriores()"
       style="z-index: 2; left: -4rem"
     >
@@ -168,8 +236,26 @@
     </div>
 
     <!-- Flecha Derecha -->
+    <style>
+      .testimonials-arrow-left {
+        transition: background 0.3s ease, color 0.3s ease, transform 0.15s ease;
+        background: transparent;
+        color: rgb(74, 1, 74);
+        border: none;
+      }
+      .testimonials-arrow-left:hover {
+        background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+        color: #fff;
+        transform: translateY(-2px);
+      }
+      .testimonials-arrow-left:focus {
+        box-shadow: 0 0 0 0.25rem rgba(123, 97, 255, 0.25);
+        outline: none;
+      }
+    </style>
+
     <button
-      class="btn btn-outline-primary border-0 position-absolute end-0 top-50 translate-middle-y d-none d-lg-block"
+      class="btn testimonials-arrow-left position-absolute end-0 top-50 translate-middle-y d-none d-lg-block"
       (click)="mostrarSiguientesTestimonios()"
       style="z-index: 2"
     >
