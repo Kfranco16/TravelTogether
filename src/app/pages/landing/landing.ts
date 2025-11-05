@@ -13,7 +13,7 @@ export class Landing {
   currentImageIndex = signal(0);
 
   // Array de imágenes panorámicas para el hero
-  public heroImages = signal([
+  heroImages = signal([
     {
       id: 1,
       url: 'https://images.squarespace-cdn.com/content/v1/591d98d33a0411cffe941a45/9d277969-91dc-4230-9447-6ab9d7446f71/viajes+grupales+viajar+inspira.jpg',
@@ -37,7 +37,7 @@ export class Landing {
 
   // Usamos signals para manejar nuestros arrays de placeholders.
   // Esto nos prepara para cuando los datos vengan de una API.
-  public viajesPlaceholder = signal([
+  viajesPlaceholder = signal([
     { id: 1 },
     { id: 2 },
     { id: 3 },
@@ -49,9 +49,9 @@ export class Landing {
     { id: 9 },
   ]);
 
-  public viajesVisibles = signal(6); // Mostrar 6 viajes inicialmente
+  viajesVisibles = signal(6); // Mostrar 6 viajes inicialmente
 
-  public mostrarMasViajes() {
+  mostrarMasViajes() {
     const actual = this.viajesVisibles();
     const nuevo = Math.min(actual + 6, this.viajesPlaceholder().length);
     this.viajesVisibles.set(nuevo);
@@ -60,7 +60,7 @@ export class Landing {
   // Hacemos lo mismo para los testimonios.
   testimonioActual = signal(0); // Controla el grupo de testimonios visible
 
-  public testimonios = signal([
+  testimonios = signal([
     {
       texto:
         '¡Una experiencia increíble! Encontré un grupo para ir a Costa Rica y fue el mejor viaje de mi vida. La organización a través de la app fue impecable.',
@@ -105,13 +105,13 @@ export class Landing {
     },
   ]);
 
-  public mostrarSiguientesTestimonios() {
+  mostrarSiguientesTestimonios() {
     const actual = this.testimonioActual();
     const siguiente = actual + 3 >= this.testimonios().length ? 0 : actual + 3;
     this.testimonioActual.set(siguiente);
   }
 
-  public mostrarTestimoniosAnteriores() {
+  mostrarTestimoniosAnteriores() {
     const actual = this.testimonioActual();
     const anterior = actual - 3 < 0 ? this.testimonios().length - 3 : actual - 3;
     this.testimonioActual.set(anterior);
