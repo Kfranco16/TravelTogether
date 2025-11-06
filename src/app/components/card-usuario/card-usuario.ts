@@ -7,37 +7,32 @@ import { Component, Input } from '@angular/core';
   styleUrl: './card-usuario.css',
 })
 export class CardUsuario {
-  @Input() usuario!: any; // Ajusta el tipo si usas interfaz propia
+  @Input() usuario!: any;
 
   getUsuarioById(id: number): any | undefined {
     return this.usuarios.find((user) => user.id === id.toString());
   }
 
   getEstrellas(valoracion: number): { icon: string; color: string }[] {
-    // Devuelve un array de objetos por cada estrella
     if (valoracion <= 2) {
-      // 1 roja rellena, 2 vacías
       return [
         { icon: 'bi-star-fill', color: 'text-danger' },
         { icon: 'bi-star', color: 'text-secondary' },
         { icon: 'bi-star', color: 'text-secondary' },
       ];
     } else if (valoracion <= 3) {
-      // 2 amarillas rellenas, 1 vacía
       return [
         { icon: 'bi-star-fill', color: 'text-warning' },
         { icon: 'bi-star', color: 'text-secondary' },
         { icon: 'bi-star', color: 'text-secondary' },
       ];
     } else if (valoracion <= 4) {
-      // 2 amarillas rellenas, 1 vacía
       return [
         { icon: 'bi-star-fill', color: 'text-warning' },
         { icon: 'bi-star-fill', color: 'text-warning' },
         { icon: 'bi-star', color: 'text-secondary' },
       ];
     } else {
-      // 3 amarillas rellenas
       return [
         { icon: 'bi-star-fill', color: 'text-warning' },
         { icon: 'bi-star-fill', color: 'text-warning' },

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, ValidationErrors } from '@angular/forms';
 
 @Component({
   selector: 'app-registro',
@@ -8,6 +9,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
   styleUrl: './registro.css',
 })
 export class Registro {
+  submitted = false;
   userForm: FormGroup;
 
   constructor(private fb: FormBuilder) {
@@ -17,51 +19,32 @@ export class Registro {
         email: ['', [Validators.required, Validators.email]],
         password: ['', [Validators.required, Validators.minLength(6)]],
         repeatPassword: ['', [Validators.required]],
-        image: ['', [Validators.pattern(/^(https?:\/\/)[^\s]+$/)]],
-        telefono: ['', [Validators.pattern(/^[\d\+\s()-]{6,}$/)]],
+        image: ['', [Validators.pattern(/^https?:\/\/.+/i)]],
+        telefono: ['', [Validators.pattern(/^\+?\d{7,15}$/)]],
         descripcion: [''],
         intereses: [''],
       },
-      { validators: passwordsMatchValidator() }
+      { validators: passwordsMatch }
     );
   }
 
-  submit() {
-    if (this.userForm.valid) {
-      // Procesa el registro, enviar a API, etc.
-      console.log(this.userForm.value);
-    } else {
+  isInvalid(controlName: string): boolean {
+    const c = this.userForm.get(controlName);
+    return !!(c && c.invalid && (c.touched || this.submitted));
+  }
+
+  onSubmit(): void {
+    this.submitted = true;
+    if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();
+      return;
     }
+    console.log('Formulario enviado', this.userForm.value);
   }
 }
-function passwordsMatchValidator(): any {
-  return (group: FormGroup) => {
-    const passwordControl = group.get('password');
-    const repeatControl = group.get('repeatPassword');
-    if (!passwordControl || !repeatControl) return null;
 
-    const password = passwordControl.value;
-    const repeat = repeatControl.value;
-
-    // If another validator has set an error on repeatPassword, don't clear it here
-    if (repeatControl.errors && !repeatControl.errors['passwordMismatch']) {
-      return null;
-    }
-
-    if (password !== repeat) {
-      repeatControl.setErrors({ ...(repeatControl.errors || {}), passwordMismatch: true });
-      return { passwordMismatch: true };
-    } else {
-      if (repeatControl.errors) {
-        const { passwordMismatch, ...otherErrors } = repeatControl.errors;
-        if (Object.keys(otherErrors).length) {
-          repeatControl.setErrors(otherErrors);
-        } else {
-          repeatControl.setErrors(null);
-        }
-      }
-      return null;
-    }
-  };
+export function passwordsMatch(group: AbstractControl): ValidationErrors | null {
+  const pass = group.get('password')?.value;
+  const rep = group.get('repeatPassword')?.value;
+  return pass && rep && pass !== rep ? { passwordsMismatch: true } : null;
 }

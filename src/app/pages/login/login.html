@@ -1,37 +1,53 @@
-<form class="login-form mx-auto my-4 p-4" style="max-width: 360px" novalidate>
+<form
+  [formGroup]="loginForm"
+  (ngSubmit)="onSubmit()"
+  class="login-form mx-auto my-4 p-4"
+  style="max-width: 360px"
+  novalidate
+>
   <div class="d-flex flex-column align-items-center">
-    <!-- Campo email, con validación -->
     <input
       type="email"
       id="email"
+      formControlName="email"
       class="form-control mb-3 text-center"
+      [class.is-invalid]="isFieldInvalid('email')"
       placeholder="Correo electrónico"
       autocomplete="email"
-      required
     />
-    <div class="invalid-feedback text-center">Introduce un correo válido.</div>
+    @if (isFieldInvalid('email')) {
+    <div class="invalid-feedback d-block text-center mt-1">
+      <!-- {{ getErrorMessage('email') }} -->
+    </div>
+    }
 
-    <!-- Contraseña -->
     <input
       type="password"
       id="password"
+      formControlName="password"
       class="form-control mb-3 text-center"
+      [class.is-invalid]="isFieldInvalid('password')"
       placeholder="Contraseña"
       autocomplete="current-password"
-      required
     />
-    <div class="invalid-feedback text-center">Introduce tu contraseña.</div>
+    @if (isFieldInvalid('password')) {
+    <div class="invalid-feedback d-block text-center mt-1">
+      <!-- {{ getErrorMessage('password') }} -->
+    </div>
+    }
 
-    <!-- Botón Entrar -->
     <button type="submit" class="btn btn-outline-secondary btn-morado w-100 mb-3">Entrar</button>
 
-    <!-- Recuerdame -->
     <div class="mb-2 form-check w-100 fs-6">
-      <input type="checkbox" class="form-check-input" id="exampleCheck1" />
-      <label class="form-check-label" for="exampleCheck1">Recuérdame</label>
+      <input
+        type="checkbox"
+        formControlName="rememberMe"
+        class="form-check-input"
+        id="rememberMe"
+      />
+      <label class="form-check-label" for="rememberMe">Recuérdame</label>
     </div>
 
-    <!-- Registro -->
     <h5 class="text-center mb-3">¿Aún no estás registrado?</h5>
     <button
       routerLink="/registro"

@@ -17,14 +17,14 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.3s;
-  color: black; /* Cambiado de font: black; */
+  color: black;
   font-weight: bold;
-  font-size: 1.15rem; /* Ejemplo fijo */
+  font-size: 1.15rem;
   min-height: 330px;
   height: 330px;
   max-height: 330px;
   display: flex;
-  flex-direction: column; /* Asegura que la columna flex sea vertical */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
@@ -60,7 +60,7 @@
 
 .viaje-card:hover .card-img-zoom,
 .viaje-card:focus-within .card-img-zoom {
-  transform: scale(1.1); /* o 0.9, ajusta el zoom-out a tu gusto */
+  transform: scale(1.1);
 }
 
 @keyframes shake-effect {
@@ -90,7 +90,7 @@
 }
 
 .btn-morado {
-  background: linear-gradient(90deg, #8f67e8 0%, #256be6 100%);
+  background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
   color: #fff;
 }
 .btn-morado :hover {
@@ -107,6 +107,6 @@
 
 .app-login {
   width: 100%;
-  max-height: 210px; /* Si tu card es 330px, reparte entre titulo y form */
+  max-height: 210px;
   overflow-y: auto;
 }

@@ -45,13 +45,8 @@ export class CardViaje {
     }
   }
 
-  // isFavorite: boolean = false;
-
   toggleFavorito(trip: any) {
     trip.isFavorite = !trip.isFavorite;
-  }
-  getFavoriteIconClass(isFavorite: any): string {
-    return isFavorite ? 'bi-heart-fill text-danger' : 'bi-heart text-white';
   }
 
   getUsuarioById(id: number): any | undefined {
@@ -59,19 +54,19 @@ export class CardViaje {
   }
 
   isLoggedIn(): boolean {
-    // Aquí deberías implementar la lógica real para verificar si el usuario está autenticado
-    return true; // Suponiendo que el usuario está autenticado para este ejemplo
+    // Futura función para verificar si el usuario está logueado.
+    return false;
   }
 
+  getFavoriteIconClass(isFavorite: any): string {
+    if (this.isLoggedIn() === false) {
+      return 'bi-heart text-white disabled';
+    }
+    return isFavorite ? 'bi-heart-fill text-danger' : 'bi-heart text-white';
+  }
   toggleSolicitud(trip: any) {
     trip.solicitado = !trip.solicitado;
-    // Aquí luego añades la llamada a la API: this.miServicio.solicitarUnirme(trip.id).subscribe(...)
-  }
-
-  getSolicitudBtnClass(solicitado: boolean): string {
-    return solicitado
-      ? 'btn  btn-success flex-grow-1'
-      : 'btn btn-outline-secondary btn-morado flex-grow-1'; // O el color original que tuvieras
+    // Futura llamada a la API para la solicitud de unirse al viaje.
   }
 
   trips = [

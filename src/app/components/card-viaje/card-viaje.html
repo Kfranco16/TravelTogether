@@ -9,7 +9,6 @@
           class="card h-100 shadow-sm rounded-4 overflow-hidden position-relative viaje-card"
           style="height: 330px"
         >
-          <!-- Capa base: foto + destino/titulo/estado -->
           <div class="layer-base position-absolute top-0 start-0 w-100 h-100">
             <div class="position-relative w-100 h-100">
               <img
@@ -19,19 +18,15 @@
                 style="height: 150px; object-fit: cover"
               />
 
-              <!-- Encima de la foto: destino y título -->
-
               <div class="position-absolute top-0 start-0 w-100 text-white px-3 pt-2">
                 <div class="fw-semibold fs-3 me-5 text-shadow-black">
                   {{ trip.title }}
                 </div>
 
-                <!-- Tarjeta usuario -->
                 @let usuario = getUsuarioById(trip.creator_id); @if (usuario) {
-                <!-- <h6>Organizado por</h6> -->
-                <app-card-usuario [usuario]="usuario"></app-card-usuario>
+
+                <app-card-usuario routerLink="perfil" [usuario]="usuario"></app-card-usuario>
                 }
-                <!-- Destino-->
 
                 <div class="fw-bold fs-6 mt-2 text-shadow-black">
                   <i class="bi bi-geo-alt"></i> {{ trip.destination }}
@@ -48,7 +43,6 @@
                 </div>
               </div>
 
-              <!-- Favoritos: botón corazón en la esquina arriba -->
               <button
                 type="button"
                 class="btn p-0 position-absolute top-0 end-0 m-2"
@@ -64,14 +58,12 @@
             class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
           >
             @if (isLoggedIn()) {
-            <!-- Mostrar la info completa de la tarjeta como siempre -->
+
             <div class="detalles-viaje">
-              <!-- ...info del viaje... -->
               <div
                 class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
                 style="background: rgba(255, 255, 255, 0.888)"
               >
-                <!-- Estado del viaje centrado -->
                 <div
                   class="badge {{ getBadgeClass(trip.status) }} mb-2"
                   style="font-size: 1rem; padding: 0.5em 1em"
@@ -79,46 +71,43 @@
                   {{ getBadgeText(trip.status) }}
                 </div>
 
-                <!-- Fechas -->
                 <div class="mb-2 text-muted text-center w-100">
                   <i class="bi bi-calendar3"></i>
                   {{ trip.start_date }} - {{ trip.end_date }}
                 </div>
 
-                <!-- Transporte -->
                 <div class="mb-2 color-principal text-center w-100">
                   <i class="bi bi-arrow-left-right"></i>
                   {{ trip.transport }}
                 </div>
 
-                <!-- Participantes -->
                 <div class="mb-2 text-center w-100">
                   <i class="bi bi-people"></i>
                   Mínimo {{ trip.min_participants }} viajeros
                 </div>
 
-                <!-- Precio -->
                 <div class="mb-2 color-principal fw-bold text-center w-100">
                   <i class="bi bi-cash-coin"></i>
                   {{ trip.estimated_cost }}€ por persona
                 </div>
 
-                <!-- Descripción -->
                 <div class="mb-3 text-2lines text-muted text-center w-100">
                   {{ trip.description }}
                 </div>
 
-                <!-- Botones SIEMPRE centrados y del mismo tamaño -->
                 <div class="d-flex gap-2 w-100 justify-content-center mt-auto mb-2">
                   <button
                     routerLink="/detalle-viaje"
-                    class="btn btn-outline-secondary btn-morado flex-grow-1"
+                    class="btn btn-outline-secondary btn-morado w-50"
                   >
                     Ver detalles
                   </button>
                   <button
-                    type="btn btn-outline-secondary btn-morado flex-grow-1"
-                    [class]="getSolicitudBtnClass(trip.solicitado ?? false)"
+                    type="button"
+                    class="btn w-50"
+                    [class.btn-success]="trip.solicitado"
+                    [class.btn-outline-secondary]="!trip.solicitado"
+                    [class.btn-morado]="!trip.solicitado"
                     (click)="toggleSolicitud(trip)"
                   >
                     {{ trip.solicitado ? 'Solicitado' : 'Solicitar unirme' }}
@@ -127,23 +116,17 @@
               </div>
             </div>
             } @else {
-            <!-- Mostrar oferta de registro/login -->
+
             <div
               class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
               style="background: rgba(255, 255, 255, 0.888)"
             >
-              <!-- <h5 class="text-center color-principal mb-0">
-                ¡No te pierdas nada! Tu próxima aventura a un solo paso
-              </h5> -->
               <div class="login-container">
                 <app-login></app-login>
               </div>
             </div>
             }
           </div>
-          <!-- Capa info: aparece en hover solo, ocupa todo igual -->
-
-          <!-- Card de usuario del creador -->
         </article>
       </div>
       }
