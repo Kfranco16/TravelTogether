@@ -1,9 +1,8 @@
 <!-- Usamos la rejilla de Bootstrap para crear nuestro layout asimétrico -->
 <div class="container my-5">
   <div class="row g-4">
-    <!-- ====================================================================== -->
-    <!-- == Columna Izquierda: La "Tarjeta" de Identidad ====================== -->
-    <!-- ====================================================================== -->
+    <!-- Columna Izquierda: La "Tarjeta" de Identidad -->
+
     <div class="col-lg-4">
       <!-- 
         Usamos una card de Bootstrap con colores y padding para crear el panel.
@@ -15,22 +14,21 @@
         style="top: 2rem; background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
       >
         <img
-          [src]="user().profilePhotoUrl"
-          [alt]="'Foto de perfil de ' + user().nombre"
+          [src]="user.image"
+          [alt]="'Foto de perfil de ' + user.username"
           class="profile-photo mx-auto mb-3 rounded-circle img-fluid"
           style="width: 200px; height: 200px"
         />
-        <h2 class="h1 mb-1">{{ user().nombre }}</h2>
+        <h2 class="h1 mb-1">{{ user.username }}</h2>
         <p class="mb-3 fs-5">
           <i class="bi bi-star-fill text-warning"></i>
-          {{ user().rating }} ({{ user().reviews }} reseñas)
+          "4.9/5 - Excelente anfitrión"
         </p>
       </div>
     </div>
 
-    <!-- ====================================================================== -->
-    <!-- == Columna Derecha: El Contenido Principal ========================== -->
-    <!-- ====================================================================== -->
+    <!-- Columna Derecha: El Contenido Principal -->
+
     <div class="col-lg-8">
       <!-- Card para la Biografía -->
       <div class="card shadow-sm border-0 rounded-4 mb-4">
@@ -48,7 +46,7 @@
             </span>
             Sobre mí
           </h4>
-          <p class="card-text text-muted">{{ user().biografia }}</p>
+          <p class="card-text text-muted">{{ user.bio }}</p>
         </div>
       </div>
 
@@ -69,9 +67,9 @@
             Intereses
           </h4>
           <div class="d-flex flex-wrap gap-2">
-            @for (interes of user().intereses; track interes) {
+            @for (interests of user.interests; track interests) {
             <span class="badge rounded-pill text-bg-light border px-3 py-2 fw-normal">{{
-              interes
+              interests
             }}</span>
             }
           </div>
