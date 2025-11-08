@@ -80,5 +80,12 @@ export class AuthService {
   }
   get token(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
+  getUser(user: Iuser): Promise<Iuser | any> {
+    return lastValueFrom(this.httpClient.get<Iuser>(this.baseUrl));
   }
 }
+/* export class AuthService {
+  login(token: string): void {
+    localStorage.setItem('authToken', token);
+  }
+} */
