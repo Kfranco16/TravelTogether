@@ -1,0 +1,21 @@
+.logo-circle {
+  background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+  border-radius: 50%;
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.15);
+}
+
+.logo-text {
+  font-weight: 700;
+  font-size: clamp(18px, 3.2vw, 28px);
+  background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+@media (max-width: 420px) {
+  .logo-text {
+    display: none;
+  }
+}

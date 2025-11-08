@@ -6,7 +6,7 @@ import { Router, RouterLink } from '@angular/router';
   selector: 'app-login',
   imports: [RouterLink, ReactiveFormsModule],
   templateUrl: './login.html',
-  styleUrl: './login.css',
+  styles: ``,
 })
 export class Login {
   private formBuilder = inject(FormBuilder);

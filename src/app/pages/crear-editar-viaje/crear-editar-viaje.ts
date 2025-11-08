@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-crear-editar-viaje',
   imports: [],
   templateUrl: './crear-editar-viaje.html',
-  styleUrl: './crear-editar-viaje.css',
+  styleUrls: ['./crear-editar-viaje.css'],
 })
-export class CrearEditarViaje {
-
-}
+export class CrearEditarViaje {}

@@ -1,1 +1,76 @@
-<p>navbar works!</p>
+<nav class="navbar navbar-expand-md bg-white">
+  <div class="container align-items-center tt-mobile-wrap">
+    @if (!open) {
+    <button
+      class="navbar-toggler tt-toggler d-md-none"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#ttNav"
+      aria-controls="ttNav"
+      aria-expanded="false"
+      aria-label="Abrir menú"
+      (click)="onToggleOpen()"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    } @if (open) {
+    <button
+      class="tt-close-x-fixed d-md-none"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#ttNav"
+      aria-controls="ttNav"
+      aria-expanded="true"
+      aria-label="Cerrar menú"
+      (click)="onToggleOpen()"
+    >
+      ×
+    </button>
+    }
+
+    <div
+      id="ttNav"
+      class="collapse navbar-collapse justify-content-end"
+      (shown.bs.collapse)="onOpen()"
+      (hidden.bs.collapse)="onClose()"
+    >
+      <ul class="navbar-nav align-items-md-center gap-md-3 tt-navlist">
+        <li class="nav-item">
+          <a class="nav-link tt-link" routerLink="/buscar" routerLinkActive="active"
+            >Buscar viajes</a
+          >
+        </li>
+
+        <li class="nav-item d-md-inline-flex">
+          <a class="btn tt-btn-primary" routerLink="/crear">+ Crear viaje</a>
+        </li>
+
+        <li class="nav-item dropdown">
+          <a
+            class="nav-link tt-link dropdown-toggle"
+            id="espacioMenu"
+            role="button"
+            data-bs-toggle="dropdown"
+            data-bs-display="static"
+            aria-expanded="false"
+          >
+            Mi espacio
+          </a>
+
+          <ul class="dropdown-menu dropdown-menu-end tt-dropdown" aria-labelledby="espacioMenu">
+            <li><a class="dropdown-item tt-dd-link" routerLink="/perfil">Mi perfil</a></li>
+            <li><a class="dropdown-item tt-dd-link" routerLink="/perfil">Mis datos</a></li>
+            <li><a class="dropdown-item tt-dd-link" routerLink="/reservas">Mis reservas</a></li>
+            <li><a class="dropdown-item tt-dd-link" routerLink="/mis-viajes">Mis viajes</a></li>
+            <li><a class="dropdown-item tt-dd-link" routerLink="/favoritos">Favoritos</a></li>
+            <li><a class="dropdown-item tt-dd-link" routerLink="/foros">Foros</a></li>
+            <li><hr class="dropdown-divider" /></li>
+            <li>
+              <button class="dropdown-item tt-dd-danger" (click)="onLogout()">Cerrar sesión</button>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
