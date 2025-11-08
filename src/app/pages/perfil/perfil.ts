@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Auth } from '../../core/services/auth';
+import { AuthService } from '../../core/services/auth';
 import { Iuser } from '../../interfaces/iuser';
 @Component({
   selector: 'app-perfil',
@@ -8,7 +8,7 @@ import { Iuser } from '../../interfaces/iuser';
   styleUrl: './perfil.css',
 })
 export class Perfil {
-  userService = inject(Auth);
+  userService = inject(AuthService);
   user: Iuser = {
     id: 0,
     username: '',
@@ -23,7 +23,7 @@ export class Perfil {
     updated_at: '',
   };
 
-  async ngOnInit() {
+  /* async ngOnInit() {
     try {
       this.user = await this.userService.getUser(this.user);
 
@@ -34,5 +34,5 @@ export class Perfil {
     } catch (error) {
       console.log(error, 'ERROR AL OBTENER EL USUARIO');
     }
-  }
+  } */
 }
