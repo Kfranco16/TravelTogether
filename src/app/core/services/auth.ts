@@ -11,5 +11,8 @@ export class Auth {
 
   getUser(user: Iuser): Promise<Iuser | any> {
     return lastValueFrom(this.httpClient.get<Iuser>(this.baseUrl));
+export class AuthService {
+  login(token: string): void {
+    localStorage.setItem('authToken', token);
   }
 }
