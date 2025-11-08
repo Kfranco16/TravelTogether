@@ -10,22 +10,20 @@ import { AuthService } from '../../../core/services/auth';
   styleUrls: ['./navbar.css'],
 })
 export class Navbar {
-  private auth = inject<AuthService>(AuthService);
-
+  private auth = inject(AuthService);
   open = false;
-
   get isAuthenticated() {
     return this.auth.isAuth();
   }
-
   onToggleOpen() {
+    this.open = !this.open;
+  }
+  onOpen() {
     this.open = true;
   }
-
   onClose() {
     this.open = false;
   }
-
   onLogout() {
     this.auth.logout();
   }
