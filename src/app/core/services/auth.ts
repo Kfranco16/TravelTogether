@@ -78,10 +78,8 @@ export class AuthService {
   isAuth(): boolean {
     return !!localStorage.getItem(this.TOKEN_KEY);
   }
-  get token(): string | null {
+  gettoken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
-  getUser(user: Iuser): Promise<Iuser | any> {
-    return lastValueFrom(this.httpClient.get<Iuser>(this.baseUrl));
   }
 }
 /* export class AuthService {

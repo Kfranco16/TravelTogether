@@ -10,9 +10,6 @@ import { Footer } from './shared/components/footer/footer';
   imports: [RouterOutlet, Header, Footer],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
-  imports: [RouterOutlet, CardViaje],
-  templateUrl: './app.html',
-  styleUrl: './app.css',
 })
 export class App {
   protected readonly title = signal('TravelTogether');
