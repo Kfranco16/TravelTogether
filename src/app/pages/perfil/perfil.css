@@ -1,0 +1,8 @@
+/* Estilo para la foto de perfil en la tarjeta lateral */
+.profile-photo {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%; /*  La hace perfectamente redonda */
+  border: 4px solid rgba(255, 255, 255, 0.5); /* // Borde semitransparente para un efecto sutil */
+  object-fit: cover;
+}

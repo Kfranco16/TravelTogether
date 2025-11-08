@@ -1,0 +1,112 @@
+.viaje-card {
+  position: relative;
+  cursor: pointer;
+  min-height: 630px;
+  height: 630px;
+  max-height: 330px;
+
+  transition: box-shadow 0.2s;
+}
+
+.viaje-card .layer-base {
+  z-index: 1;
+}
+.viaje-card .layer-info {
+  z-index: 2;
+  background: whitesmoke;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  color: black;
+  font-weight: bold;
+  font-size: 1.15rem;
+  min-height: 330px;
+  height: 330px;
+  max-height: 330px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+.viaje-card:hover .layer-info,
+.viaje-card:focus-within .layer-info {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.text-2lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+
+.badge {
+  font-size: 0.95rem;
+}
+
+.text-shadow-black {
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.card-img-zoom {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.viaje-card:hover .card-img-zoom,
+.viaje-card:focus-within .card-img-zoom {
+  transform: scale(1.1);
+}
+
+@keyframes shake-effect {
+  0% {
+    transform: translate(0px, 0px);
+  }
+  20% {
+    transform: translate(-3px, 2px);
+  }
+  40% {
+    transform: translate(3px, -2px);
+  }
+  60% {
+    transform: translate(-2px, 3px);
+  }
+  80% {
+    transform: translate(2px, -3px);
+  }
+  100% {
+    transform: translate(0px, 0px);
+  }
+}
+
+.viaje-card:hover .card-img-shake,
+.viaje-card:focus-within .card-img-shake {
+  animation: shake-effect 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) 1;
+}
+
+.btn-morado {
+  background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+  color: #fff;
+}
+.btn-morado :hover {
+  filter: brightness(1.05);
+}
+
+.color-principal {
+  color: #5223b9;
+}
+
+.login-container {
+  width: 100%;
+}
+
+.app-login {
+  width: 100%;
+  max-height: 210px;
+  overflow-y: auto;
+}

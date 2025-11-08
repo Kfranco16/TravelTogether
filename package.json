@@ -33,6 +33,7 @@
     "bootstrap-icons": "^1.13.1",
     "icons": "^1.0.0",
     "lucide-angular": "^0.552.0",
+    "ngx-sonner": "^3.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
