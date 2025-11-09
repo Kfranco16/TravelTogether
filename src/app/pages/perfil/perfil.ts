@@ -1,6 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, Input } from '@angular/core';
 import { AuthService } from '../../core/services/auth';
 import { Iuser } from '../../interfaces/iuser';
+import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-perfil',
   imports: [],
@@ -8,6 +9,8 @@ import { Iuser } from '../../interfaces/iuser';
   styleUrl: './perfil.css',
 })
 export class Perfil {
+  /*  route = inject(ActivatedRoute); */
+  @Input() id: number = 0;
   userService = inject(AuthService);
   user: Iuser = {
     id: 0,
@@ -23,9 +26,10 @@ export class Perfil {
     updated_at: '',
   };
 
-  /* async ngOnInit() {
+  async ngOnInit() {
     try {
-      this.user = await this.userService.getUser(this.user);
+      this.user = await this.userService.getUserById(this.id);
+      console.log(this.user);
 
       // Normalizar intereses: siempre convertir a array
       if (typeof this.user.interests === 'string') {
@@ -34,5 +38,5 @@ export class Perfil {
     } catch (error) {
       console.log(error, 'ERROR AL OBTENER EL USUARIO');
     }
-  } */
+  }
 }

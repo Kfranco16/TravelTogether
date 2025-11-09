@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-
+import { AuthService } from '../../core/services/auth';
 @Component({
   selector: 'app-login',
   imports: [RouterLink, ReactiveFormsModule],
@@ -9,6 +9,7 @@ import { Router, RouterLink } from '@angular/router';
   styles: ``,
 })
 export class Login {
+  authService = inject(AuthService);
   private formBuilder = inject(FormBuilder);
 
   private router = inject(Router);
@@ -17,8 +18,8 @@ export class Login {
 
   loginForm: FormGroup = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
-    rememberMe: [false],
+    password: ['', [Validators.required, Validators.minLength(5)]],
+    /* rememberMe: [false], */
   });
 
   isFieldInvalid(fieldName: string): boolean {
@@ -48,15 +49,24 @@ export class Login {
     this.formSubmitAttempt = true;
 
     if (this.loginForm.valid) {
-      const { email, password, rememberMe } = this.loginForm.value;
+      const { email, password /* , rememberMe  */ } = this.loginForm.value;
 
-      this.login(email, password, rememberMe);
+      this.login(email, password /* , rememberMe */);
     } else {
       this.markFormGroupTouched(this.loginForm);
     }
   }
 
-  private login(email: string, password: string, rememberMe: boolean): void {
+  private async login(email: string, password: string) {
+    try {
+      const response = await this.authService.login({ email, password });
+      if (response) {
+        localStorage.setItem('token', response.token);
+        this.router.navigate(['/dashboard']);
+      }
+    } catch (msg: any) {
+      alert(msg.error.message || 'Error en el inicio de sesión');
+    }
     // Futura llamada a la API para el login
   }
 
