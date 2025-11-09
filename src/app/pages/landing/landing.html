@@ -124,33 +124,15 @@
     </div>
   </div>
 
-  <!-- Galería de Viajes con @for  -->
-  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-    @for (viaje of viajesPlaceholder().slice(0, viajesVisibles()); track viaje.id) {
-    <div class="col">
-      <div class="card shadow-sm border-2 border-primary-subtle h-100">
-        <div class="card-header bg-primary-subtle">
-          <h5 class="card-title mb-0 text-primary-emphasis">Viaje #{{ viaje.id }}</h5>
-        </div>
-        <div class="position-relative" style="height: 200px">
-          <div class="position-absolute top-50 start-50 translate-middle text-center">
-            <i class="bi bi-image text-primary-subtle display-1"></i>
-            <p class="text-muted mt-2">Imagen del Viaje</p>
-          </div>
-        </div>
-        <div class="card-body bg-light">
-          <div class="placeholder-glow">
-            <span class="placeholder col-7 bg-primary-subtle"></span>
-            <span class="placeholder col-4 bg-primary-subtle"></span>
-            <span class="placeholder col-4 bg-primary-subtle"></span>
-            <span class="placeholder col-6 bg-primary-subtle"></span>
-            <span class="placeholder col-8 bg-primary-subtle"></span>
-          </div>
-        </div>
-      </div>
-    </div>
+  <!-- Galería de Viajes -->
+
+  <section class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @for (trip of trips; track trip.id) {
+    <app-card-viaje [trip]="trip"></app-card-viaje>
     }
-  </div>
+  </section>
+
+  <!-- Fin Galería de Viajes -->
 
   <!-- Botón Mostrar Más -->
   @if (viajesVisibles() < viajesPlaceholder().length) {

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CardUsuario } from '../card-usuario/card-usuario';
 import { Login } from '../../pages/login/login';
 import { RouterLink } from '@angular/router';
@@ -10,6 +10,8 @@ import { RouterLink } from '@angular/router';
   styleUrl: './card-viaje.css',
 })
 export class CardViaje {
+  @Input() trip!: any;
+
   getShowDaysBadge(startDate: string): boolean {
     const today = new Date();
     const start = new Date(startDate);
