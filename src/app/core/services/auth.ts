@@ -30,6 +30,9 @@ export class AuthService {
   private _user$ = new BehaviorSubject<Iuser | null>(this.readUserFromStorage());
   readonly user$ = this._user$.asObservable();
 
+  //stream booleano para que el navbar reaccione sin preguntar a localStorage cada vez
+  readonly isAuth$ = this.user$.pipe(map((u) => !!u));
+
   //almacenamiento de ayuda
   private readUserFromStorage(): Iuser | null {
     const raw = localStorage.getItem(this.USER_KEY);
@@ -56,9 +59,24 @@ export class AuthService {
       .post<LoginResponse>(`${environment.apiUrl}/users/login`, payload)
       .pipe(tap((res) => this.writeAuth(res.token, res.user)));
   } */
+
+  //dejamos tu versión en Promise tal cual para no romper llamadas existentes
   login(user: userlogin): Promise<LoginResponse | undefined> {
     return lastValueFrom(this.http.post<any>(`${environment.apiUrl}/users/login`, user));
   }
+
+  //alternativa observable por si preferimos reactivar el flujo reactivo más adelante
+  login$(payload: LoginPayload) {
+    return this.http
+      .post<LoginResponse>(`${environment.apiUrl}/users/login`, payload)
+      .pipe(tap((res) => this.writeAuth(res.token, res.user)));
+  }
+
+  //helper por si ya tienes el response en alguna parte y sólo quieres reflejar login en el estado
+  applyLogin(res: LoginResponse) {
+    this.writeAuth(res.token, res.user);
+  }
+
   getUserById(id: number): Promise<Iuser> {
     return lastValueFrom(this.http.get<Iuser>(`${environment.apiUrl}/users/${id}`));
   }

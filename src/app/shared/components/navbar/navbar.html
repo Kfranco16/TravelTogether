@@ -34,13 +34,18 @@
       (shown.bs.collapse)="onOpen()"
       (hidden.bs.collapse)="onClose()"
     >
+      <!-- Ajuste clave: el menú ahora reacciona al estado de sesión -->
+      <!-- Si hay sesión: mostramos Crear + Mi espacio; si no, Login + Registro -->
       <ul class="navbar-nav align-items-md-center gap-md-3 tt-navlist">
+        <!-- Siempre visible -->
         <li class="nav-item">
-          <a class="nav-link tt-link" routerLink="/buscar" routerLinkActive="active"
-            >Buscar viajes</a
-          >
+          <a class="nav-link tt-link" routerLink="/buscar" routerLinkActive="active">
+            Buscar viajes
+          </a>
         </li>
 
+        @if (isAuth$ | async) {
+        <!--Sesión iniciada: botón Crear y menú Mi espacio -->
         <li class="nav-item d-md-inline-flex">
           <a class="btn tt-btn-primary" routerLink="/crear">+ Crear viaje</a>
         </li>
@@ -70,6 +75,15 @@
             </li>
           </ul>
         </li>
+        } @else {
+        <!-- Sin sesión: mostramos acceso -->
+        <li class="nav-item">
+          <a class="nav-link tt-link" routerLink="/login" routerLinkActive="active">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link tt-link" routerLink="/registro" routerLinkActive="active">Registro</a>
+        </li>
+        }
       </ul>
     </div>
   </div>
