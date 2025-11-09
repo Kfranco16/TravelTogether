@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, lastValueFrom, map, tap } from 'rxjs';
 import { environment } from '../../../environment/environment';
 import { Iuser } from '../../interfaces/iuser';
+import { HttpHeaders } from '@angular/common/http';
 
 type LoginPayload = { email: string; password: string };
 type LoginResponse = { message: string; token: string; user: Iuser };
@@ -69,11 +70,14 @@ export class AuthService {
   }
 
   getUserById(id: number): Promise<Iuser> {
-    return lastValueFrom(this.http.get<Iuser>(`${environment.apiUrl}/users/${id}`));
+    const token = this.gettoken();
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return lastValueFrom(this.http.get<Iuser>(`${environment.apiUrl}/users/${id}`, { headers }));
   }
 
   logout() {
     this.clearAuth();
+    window.location.reload();
   }
 
   // --- Estado autenticación ---

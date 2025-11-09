@@ -1,18 +1,29 @@
+<strong>DEBUG 2</strong>
+@if (!usuario) {
 <div class="d-flex align-items-center text-shadow-black gap-2">
-  <!-- Avatar -->
   <img
-    [src]="usuario.avatar"
-    [alt]="'Avatar de ' + usuario.nombre"
+    src="https://i.pravatar.cc/150?u=default"
+    alt="Avatar genérico"
     class="rounded-1"
     style="width: 35px; height: 55px; object-fit: cover"
   />
-  <!-- Info usuario -->
   <div>
-    <!-- Nombre grande -->
+    <div class="fw-semibold fs-5">¡Registrate y descubrelo!</div>
+  </div>
+</div>
+} @else {
+<div class="d-flex align-items-center text-shadow-black gap-2">
+  <img
+    [src]="usuario.image || 'https://i.pravatar.cc/150?u=default'"
+    [alt]="usuario.username ? 'Avatar de ' + usuario.username : 'Avatar genérico'"
+    class="rounded-1"
+    style="width: 35px; height: 55px; object-fit: cover"
+  />
+  <div>
     <div class="fw-semibold fs-5">
-      {{ usuario.nombre }}
+      {{ usuario.username || 'Usuario anónimo' }}
     </div>
-    <!-- Valoración debajo, pequeño y con estrella -->
+    <!-- @if (usuario.valoracion) {
     <div class="d-flex align-items-center gap-1 text-shadow-black">
       @for (estrella of getEstrellas(usuario.valoracion); track estrella.icon + estrella.color +
       $index) {
@@ -20,5 +31,7 @@
       }
       <span>{{ usuario.valoracion }}</span>
     </div>
+    } -->
   </div>
 </div>
+}

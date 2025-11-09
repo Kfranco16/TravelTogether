@@ -26,10 +26,15 @@ export class Perfil {
     updated_at: '',
   };
 
+  usuario: any | null = null;
+  constructor(private route: ActivatedRoute, private authService: AuthService) {}
+
   async ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
     try {
-      this.user = await this.userService.getUserById(this.id);
-      console.log(this.user);
+      if (id) {
+        this.usuario = await this.authService.getUserById(Number(id));
+      }
 
       // Normalizar intereses: siempre convertir a array
       if (typeof this.user.interests === 'string') {

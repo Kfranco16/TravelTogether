@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
+import { toast } from 'ngx-sonner';
+
 @Component({
   selector: 'app-login',
   imports: [RouterLink, ReactiveFormsModule],
@@ -36,14 +38,14 @@ export class Login {
 
   private async login(email: string, password: string) {
     try {
-      // Usa el método login adaptado que guarda token y usuario
       const response = await this.authService.login({ email, password });
       if (response) {
-        // Ya guarda token/usuario, solo navega al área privada
-        this.router.navigate(['/dashboard']);
+        toast.success('¡Usuario logueado correctamente!'); // Notificación de éxito
+        this.router.navigate(['/home']);
+        window.location.reload();
       }
     } catch (err: any) {
-      alert(err?.error?.message || 'Error en el inicio de sesión');
+      toast.error(err?.error?.message || 'Error en el inicio de sesión'); // Notificación de error
     }
   }
 
