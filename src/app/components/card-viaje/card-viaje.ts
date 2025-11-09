@@ -57,7 +57,7 @@ export class CardViaje {
 
   isLoggedIn(): boolean {
     // Futura función para verificar si el usuario está logueado.
-    return false;
+    return true;
   }
 
   getFavoriteIconClass(isFavorite: any): string {

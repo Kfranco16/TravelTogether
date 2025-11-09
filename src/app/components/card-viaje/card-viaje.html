@@ -21,7 +21,7 @@
                 </div>
 
                 @let usuario = getUsuarioById(trip?.creator_id); @if (usuario) {
-                <app-card-usuario routerLink="perfil" [usuario]="usuario"></app-card-usuario>
+                <app-card-usuario routerLink="/perfil/:id" [usuario]="usuario"></app-card-usuario>
                 }
 
                 <div class="fw-bold fs-6 mt-2 text-shadow-black">
