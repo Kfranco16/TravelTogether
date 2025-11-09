@@ -39,6 +39,25 @@ export class AuthService {
     this._user$.next(null);
   }
 
+  // --- Registro ---
+  /** Registro adaptado: POST, guarda token, usuario y BehaviorSubject */
+
+  async register(payload: {
+    username: string;
+    email: string;
+    password: string;
+    image?: string;
+    phone?: string;
+    bio?: string;
+    interests?: string;
+  }): Promise<LoginResponse> {
+    const response = await lastValueFrom(
+      this.http.post<LoginResponse>(`${environment.apiUrl}/users/register`, payload)
+    );
+    this.writeAuth(response.token, response.user); // Guarda token y usuario
+    return response;
+  }
+
   // --- API ---
   /** Login adaptado: POST, guarda token, usuario y BehaviorSubject */
   async login(payload: LoginPayload): Promise<LoginResponse> {
