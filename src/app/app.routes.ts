@@ -18,7 +18,7 @@ import { Login } from './pages/login/login';
 >>>>>>> origin/develop
 import { Registro } from './pages/registro/registro';
 import { BuscadorViajes } from './pages/buscador-viajes/buscador-viajes';
-/* import { authGuard } from './guards/auth.guard'; */
+import { authGuard } from './core/guards/auth-guard';
 import { DetalleViaje } from './pages/detalle-viaje/detalle-viaje';
 import { Perfil } from './pages/perfil/perfil';
 import { Dashboard } from './pages/dashboard/dashboard';
@@ -48,13 +48,13 @@ export const routes: Routes = [
     component: BuscadorViajes,
   },
   // RUTAS PRIVADAS (Requieren inicio de sesión)
-  { path: 'viaje/:id', component: DetalleViaje /*  canActivate: [authGuard] */ },
+  { path: 'viaje/:id', component: DetalleViaje, canActivate: [authGuard] },
 
-  { path: 'perfil/:id', component: Perfil /* canActivate: [authGuard] */ },
+  { path: 'perfil/:id', component: Perfil, canActivate: [authGuard] },
   {
     path: 'dashboard',
     component: Dashboard,
-    /* canActivate: [authGuard] */ // PROTEGIDA: La ruta padre protege a todas las hijas.
+    /* canActivate: [authGuard], */ // PROTEGIDA: La ruta padre protege a todas las hijas.
     children: [
       // Aquí irán todas las páginas de gestión del usuario.
       // Por ejemplo:

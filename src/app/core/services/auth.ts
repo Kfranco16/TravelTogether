@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, map, tap } from 'rxjs';
+import { BehaviorSubject, lastValueFrom, map, tap } from 'rxjs';
 import { environment } from '../../../environment/environment';
+import { Iuser } from '../../interfaces/iuser';
 
 type LoginPayload = { email: string; password: string };
 type RegisterPayload = {
@@ -13,19 +14,11 @@ type RegisterPayload = {
   bio?: string;
   interests?: string;
 };
-type User = {
-  id: number;
-  username: string;
-  email: string;
-  image?: string;
-  phone?: string;
-  bio?: string;
-  interests?: string;
-  role?: string;
-};
 
-type LoginResponse = { message: string; token: string; user: User };
-type RegisterResponse = { message?: string; user: User };
+type userlogin = { email: string; password: string };
+
+type LoginResponse = { message: string; token: string; user: Iuser };
+type RegisterResponse = { message?: string; user: Iuser };
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -34,19 +27,19 @@ export class AuthService {
   private TOKEN_KEY = 'tt_token';
   private USER_KEY = 'tt_user';
 
-  private _user$ = new BehaviorSubject<User | null>(this.readUserFromStorage());
+  private _user$ = new BehaviorSubject<Iuser | null>(this.readUserFromStorage());
   readonly user$ = this._user$.asObservable();
 
   //almacenamiento de ayuda
-  private readUserFromStorage(): User | null {
+  private readUserFromStorage(): Iuser | null {
     const raw = localStorage.getItem(this.USER_KEY);
     try {
-      return raw ? (JSON.parse(raw) as User) : null;
+      return raw ? (JSON.parse(raw) as Iuser) : null;
     } catch {
       return null;
     }
   }
-  private writeAuth(token: string, user: User) {
+  private writeAuth(token: string, user: Iuser) {
     localStorage.setItem(this.TOKEN_KEY, token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     this._user$.next(user);
@@ -58,10 +51,16 @@ export class AuthService {
   }
 
   //API
-  login(payload: LoginPayload) {
+  /*  login(payload: LoginPayload) {
     return this.http
       .post<LoginResponse>(`${environment.apiUrl}/users/login`, payload)
       .pipe(tap((res) => this.writeAuth(res.token, res.user)));
+  } */
+  login(user: userlogin): Promise<LoginResponse | undefined> {
+    return lastValueFrom(this.http.post<any>(`${environment.apiUrl}/users/login`, user));
+  }
+  getUserById(id: number): Promise<Iuser> {
+    return lastValueFrom(this.http.get<Iuser>(`${environment.apiUrl}/users/${id}`));
   }
 
   register(payload: RegisterPayload) {
