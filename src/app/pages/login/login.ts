@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
+import { toast } from 'ngx-sonner';
+
 @Component({
   selector: 'app-login',
   imports: [RouterLink, ReactiveFormsModule],
@@ -11,15 +13,12 @@ import { AuthService } from '../../core/services/auth';
 export class Login {
   authService = inject(AuthService);
   private formBuilder = inject(FormBuilder);
-
   private router = inject(Router);
-
   formSubmitAttempt = false;
 
   loginForm: FormGroup = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(5)]],
-    /* rememberMe: [false], */
+    password: ['', [Validators.required, Validators.minLength(4)]],
   });
 
   isFieldInvalid(fieldName: string): boolean {
@@ -27,31 +26,11 @@ export class Login {
     return !!(field && field.invalid && (field.touched || this.formSubmitAttempt));
   }
 
-  // getErrorMessage(fieldName: string): string {
-  //   const field = this.loginForm.get(fieldName);
-
-  //   if (field?.hasError('required')) {
-  //     return fieldName === 'email' ? 'Introduce un correo válido.' : 'Introduce tu contraseña.';
-  //   }
-
-  //   if (field?.hasError('email')) {
-  //     return 'El formato del correo no es válido.';
-  //   }
-
-  //   if (field?.hasError('minlength')) {
-  //     return 'La contraseña debe tener al menos 6 caracteres.';
-  //   }
-
-  //   return '';
-  // }
-
   onSubmit(): void {
     this.formSubmitAttempt = true;
-
     if (this.loginForm.valid) {
-      const { email, password /* , rememberMe  */ } = this.loginForm.value;
-
-      this.login(email, password /* , rememberMe */);
+      const { email, password } = this.loginForm.value;
+      this.login(email, password);
     } else {
       this.markFormGroupTouched(this.loginForm);
     }
@@ -61,20 +40,19 @@ export class Login {
     try {
       const response = await this.authService.login({ email, password });
       if (response) {
-        localStorage.setItem('token', response.token);
-        this.router.navigate(['/dashboard']);
+        toast.success('¡Usuario logueado correctamente!'); // Notificación de éxito
+        this.router.navigate(['/home']);
+        window.location.reload();
       }
-    } catch (msg: any) {
-      alert(msg.error.message || 'Error en el inicio de sesión');
+    } catch (err: any) {
+      toast.error(err?.error?.message || 'Error en el inicio de sesión'); // Notificación de error
     }
-    // Futura llamada a la API para el login
   }
 
   private markFormGroupTouched(formGroup: FormGroup): void {
     Object.keys(formGroup.controls).forEach((key) => {
       const control = formGroup.get(key);
       control?.markAsTouched();
-
       if (control instanceof FormGroup) {
         this.markFormGroupTouched(control);
       }

@@ -1,13 +1,13 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CardViaje } from './components/card-viaje/card-viaje';
 
 import { Header } from './shared/components/header/header';
 import { Footer } from './shared/components/footer/footer';
+import { NgxSonnerToaster } from 'ngx-sonner';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Header, Footer],
+  imports: [RouterOutlet, Header, Footer, NgxSonnerToaster],
   templateUrl: './app.html',
   styleUrls: ['./app.css'],
 })

@@ -14,12 +14,12 @@
         style="top: 2rem; background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
       >
         <img
-          [src]="user.image"
-          [alt]="'Foto de perfil de ' + user.username"
+          [src]="usuario?.image"
+          [alt]="'Foto de perfil de ' + usuario?.username"
           class="profile-photo mx-auto mb-3 rounded-circle img-fluid"
           style="width: 200px; height: 200px"
         />
-        <h2 class="h1 mb-1">{{ user.username }}</h2>
+        <h2 class="h1 mb-1">{{ usuario?.username }}</h2>
         <p class="mb-3 fs-5">
           <i class="bi bi-star-fill text-warning"></i>
           "4.9/5 - Excelente anfitrión"
@@ -46,7 +46,7 @@
             </span>
             Sobre mí
           </h4>
-          <p class="card-text text-muted">{{ user.bio }}</p>
+          <p class="card-text text-muted">{{ usuario?.bio }}</p>
         </div>
       </div>
 
@@ -67,7 +67,7 @@
             Intereses
           </h4>
           <div class="d-flex flex-wrap gap-2">
-            @for (interests of user.interests; track interests) {
+            @for (interests of usuario?.interests ?? []; track interests) {
             <span class="badge rounded-pill text-bg-light border px-3 py-2 fw-normal">{{
               interests
             }}</span>

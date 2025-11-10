@@ -1,6 +1,31 @@
-import { Component, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component, signal, OnInit, OnDestroy, Inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CardViaje } from '../../components/card-viaje/card-viaje';
+import { TripService } from '../../core/services/viajes';
+
+export interface Trip {
+  id: number;
+  origin?: string;
+  destination?: string;
+  title?: string;
+  image?: string;
+  description?: string;
+  creator_id?: number;
+  start_date?: string;
+  end_date?: string;
+  estimated_cost?: string; // Change to string to match the API response
+  min_participants?: number;
+  transport?: string;
+  accommodation?: string;
+  itinerary?: string;
+  status?: string;
+  latitude?: string; // Change to string to match the API response
+  longitude?: string; // Change to string to match the API response
+  created_at?: string;
+  updated_at?: string;
+  isFavorite?: boolean;
+  solicitado?: boolean;
+}
 
 @Component({
   selector: 'app-landing',
@@ -11,6 +36,12 @@ import { CardViaje } from '../../components/card-viaje/card-viaje';
 export class Landing {
   private intervalId: any;
   currentImageIndex = signal(0);
+
+  trips: Trip[] = [];
+  // Sustituye esto por el sistema real de manejo de tokens en producción
+  private token =
+    'yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsInVzZXJuYW1lIjoiZWxlbmFnYXJjaWEiLCJlbWFpbCI6ImVsZW5hZ2FyY2lhQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYyNzAzNTc5LCJleHAiOjE3NjI3MTA3Nzl9.DGinLb3bWqRh2dRY8RvJ-GZqgMzUuHcvS9kb4S6OAMo'; // tu token completo
+  constructor(@Inject(TripService) private tripService: TripService) {}
 
   // Array de imágenes panorámicas para el hero
   heroImages = signal([
@@ -123,6 +154,16 @@ export class Landing {
       const nextIndex = (this.currentImageIndex() + 1) % this.heroImages().length;
       this.currentImageIndex.set(nextIndex);
     }, 5000);
+
+    this.tripService.getTrips(this.token).subscribe({
+      next: (data: { results: Trip[] }) => {
+        // Los viajes están dentro de data.results
+        this.trips = data.results;
+      },
+      error: (err: any) => {
+        console.error('Error al cargar viajes', err);
+      },
+    });
   }
 
   ngOnDestroy() {
@@ -131,113 +172,4 @@ export class Landing {
       clearInterval(this.intervalId);
     }
   }
-
-  trips = [
-    {
-      id: 1,
-      origin: 'Barcelona',
-      destination: 'Lisboa',
-      title: 'Aventura Costera',
-      image:
-        'https://content-viajes.nationalgeographic.com.es/medio/2024/11/07/alfama_151256d3_241107153719_1200x800.webp',
-      description: 'Un viaje de 5 días recorriendo la costa ibérica.',
-      creator_id: 1,
-      start_date: '2025-11-11',
-      end_date: '2025-11-25',
-      estimated_cost: 450.0,
-      min_participants: 3,
-      transport: 'Coche',
-      accommodation: 'Hostal',
-      itinerary: 'Día 1: Salida hacia Valencia, Día 2: Alicante...',
-      status: 'open',
-      latitude: 38.7169,
-      longitude: -9.1399,
-      created_at: '2025-10-27 08:39:38',
-      updated_at: '2025-10-27 08:39:38',
-      isFavorite: false,
-      solicitado: false,
-    },
-    {
-      id: 2,
-      origin: 'Madrid',
-      destination: 'Granada',
-      title: 'Escapada Cultural',
-      image: 'https://content.r9cdn.net/rimg/dimg/3b/c2/b4c4bfb9-city-27138-55689ae0.jpg',
-      description: 'Visita a la Alhambra y degustación de comida andaluza.',
-      creator_id: 2,
-      start_date: '2025-08-01',
-      end_date: '2025-08-05',
-      estimated_cost: 300.0,
-      min_participants: 2,
-      transport: 'Tren',
-      accommodation: 'Hotel',
-      itinerary: 'Día 1: Llegada, Día 2: Recorrido por la ciudad...',
-      status: 'open',
-      latitude: 37.1773,
-      longitude: -3.5986,
-      created_at: '2025-10-27 08:39:38',
-      updated_at: '2025-10-27 08:39:38',
-      isFavorite: true,
-    },
-    {
-      id: 3,
-      origin: 'Bilbao',
-      destination: 'Picos de Europa',
-      title: 'Experiencia de Senderismo',
-      image: 'https://cdn.bookatrekking.com/data/images/2023/11/naranjo-de-bulnes.jpg',
-      description:
-        'Ruta guiada por el norte de España. Visita los Picos de Europa y disfruta de la naturaleza.',
-      creator_id: 3,
-      start_date: '2025-09-05',
-      end_date: '2025-09-10',
-      estimated_cost: 400.0,
-      min_participants: 4,
-      transport: 'Furgoneta',
-      accommodation: 'Camping',
-      itinerary: 'Día 1: Encuentro en Bilbao...',
-      status: 'open',
-      latitude: 43.2551,
-      longitude: -4.6333,
-      created_at: '2025-10-27 08:39:38',
-      updated_at: '2025-10-27 08:39:38',
-      isFavorite: false,
-    },
-  ];
-
-  usuarios = [
-    {
-      id: '1',
-      avatar:
-        'https://img.freepik.com/foto-gratis/estilo-vida-emociones-gente-concepto-casual-confiado-agradable-sonriente-mujer-asiatica-brazos-cruzados-pecho-seguro-listo-ayudar-escuchando-companeros-trabajo-participando-conversacion_1258-59335.jpg?semt=ais_hybrid&w=740&q=80',
-      nombre: 'Elena Vargas',
-      email: 'elena@viajera.com',
-      password: 'hashed_password_1',
-      biografia: 'Exploradora de montañas y culturas. Fotógrafa aficionada.',
-      fechaNacimiento: '1992-08-20',
-      valoracion: 4.5,
-    },
-    {
-      id: '2',
-      nombre: 'Marco Diaz',
-      avatar:
-        'https://img.freepik.com/foto-gratis/chico-guapo-confiado-posando-contra-pared-blanca_176420-32936.jpg?semt=ais_hybrid&w=740&q=80',
-      email: 'marco@viajero.com',
-      password: 'hashed_password_2',
-      biografia:
-        'Apasionado por la historia y la gastronomía. Siempre en busca del plato perfecto.',
-      fechaNacimiento: '1988-03-12',
-      valoracion: 1,
-    },
-    {
-      id: '3',
-      nombre: 'Kevin Franco',
-      avatar:
-        'https://media.istockphoto.com/id/1171169099/es/foto/hombre-con-brazos-cruzados-aislados-sobre-fondo-gris.jpg?s=612x612&w=0&k=20&c=8qDLKdLMm2i8DHXY6crX6a5omVh2IxqrOxJV2QGzgFg=',
-      email: 'kevin@viajera.com',
-      password: 'hashed_password_1',
-      biografia: 'Exploradora de montañas y culturas. Fotógrafa aficionada.',
-      fechaNacimiento: '1992-08-20',
-      valoracion: 4.8,
-    },
-  ];
 }
