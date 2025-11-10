@@ -10,23 +10,23 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class Perfil {
   /*  route = inject(ActivatedRoute); */
-  @Input() id: number = 0;
-  userService = inject(AuthService);
-  user: Iuser = {
-    id: 0,
-    username: '',
-    email: '',
-    image: '',
-    phone: '',
-    bio: '',
-    interests: [],
-    role: '',
-    is_active: 0,
-    created_at: '',
-    updated_at: '',
-  };
+  // @Input() id: number = 0;
+  // userService = inject(AuthService);
+  // user: Iuser = {
+  //   id: 0,
+  //   username: '',
+  //   email: '',
+  //   image: '',
+  //   phone: '',
+  //   bio: '',
+  //   interests: [],
+  //   role: '',
+  //   is_active: 0,
+  //   created_at: '',
+  //   updated_at: '',
+  // };
 
-  usuario: any | null = null;
+  usuario: Iuser | null = null;
   constructor(private route: ActivatedRoute, private authService: AuthService) {}
 
   async ngOnInit() {
@@ -37,8 +37,8 @@ export class Perfil {
       }
 
       // Normalizar intereses: siempre convertir a array
-      if (typeof this.user.interests === 'string') {
-        this.user.interests = this.user.interests.split(',').map((i) => i.trim());
+      if (this.usuario && typeof this.usuario.interests === 'string') {
+        this.usuario.interests = this.usuario.interests.split(',').map((i: string) => i.trim());
       }
     } catch (error) {
       console.log(error, 'ERROR AL OBTENER EL USUARIO');
