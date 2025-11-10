@@ -1,21 +1,6 @@
 import { Routes } from '@angular/router';
-<<<<<<< HEAD
-<<<<<<< HEAD
-import { SearchComponent } from './pages/search/search';
-import { LoginComponent } from './pages/loging/loging';
-import { RegisterComponent } from './pages/register/register';
-
-export const routes: Routes = [
-  { path: '', component: SearchComponent },
-  { path: ' buscar', component: SearchComponent },
-  { path: 'login', component: LogingComponent },
-  { path: 'registro', component: registroComponent },
-  { path: '**', redirectTo: 'buscar' },
-=======
-=======
 import { Landing } from './pages/landing/landing';
 import { Login } from './pages/login/login';
->>>>>>> origin/develop
 import { Registro } from './pages/registro/registro';
 import { BuscadorViajes } from './pages/buscador-viajes/buscador-viajes';
 import { authGuard } from './core/guards/auth-guard';
@@ -24,12 +9,6 @@ import { Perfil } from './pages/perfil/perfil';
 import { Dashboard } from './pages/dashboard/dashboard';
 
 export const routes: Routes = [
-<<<<<<< HEAD
-  { path: 'registro', component: Registro },
-  { path: 'detalle-viaje', component: DetalleViaje },
-  { path: 'perfil', component: Perfil },
->>>>>>> origin/develop
-=======
   //RUTAS PÚBLICAS (Accesibles por todos)
   {
     path: '',
@@ -64,5 +43,5 @@ export const routes: Routes = [
     ],
   },
   { path: '**', redirectTo: '' },
->>>>>>> origin/develop
 ];
+
