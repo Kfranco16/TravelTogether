@@ -1,6 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, Injectable } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AbstractControl, ValidationErrors } from '@angular/forms';
+import { AuthService } from '../../core/services/auth';
+import { Router } from '@angular/router';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-registro',
@@ -8,11 +11,14 @@ import { AbstractControl, ValidationErrors } from '@angular/forms';
   templateUrl: './registro.html',
   styleUrl: './registro.css',
 })
+@Injectable({
+  providedIn: 'root',
+})
 export class Registro {
   submitted = false;
   userForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.userForm = this.fb.group(
       {
         username: ['', [Validators.required, Validators.minLength(3)]],
@@ -33,13 +39,40 @@ export class Registro {
     return !!(c && c.invalid && (c.touched || this.submitted));
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     this.submitted = true;
     if (this.userForm.invalid) {
       this.userForm.markAllAsTouched();
       return;
     }
-    console.log('Formulario enviado', this.userForm.value);
+    const { username, email, password, image, telefono, descripcion, intereses } =
+      this.userForm.value;
+    try {
+      // Llamada a la API para registro y guardado de token/usuario
+      await this.authService.register({
+        username,
+        email,
+        password,
+        image,
+        phone: telefono,
+        bio: descripcion,
+        interests: intereses,
+      });
+      toast.success('Registrado correctamente'); // <--- notificación
+
+      this.router.navigate(['/home']);
+    } catch (err: any) {
+      // Intenta tomar el mensaje específico del backend
+      const backendMsg = err?.error?.message;
+      if (
+        backendMsg?.toLowerCase().includes('existe') ||
+        backendMsg?.toLowerCase().includes('ya registrado')
+      ) {
+        toast.error(backendMsg);
+      } else {
+        toast.error('Error en el registro, revisa los datos.');
+      }
+    }
   }
 }
 

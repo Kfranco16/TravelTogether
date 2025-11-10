@@ -14,7 +14,8 @@ export const authGuard: CanActivateFn = (route, state) => {
   //si me logado y si existe token ()
   // redux, stagejs. Pero de forma nativa localstorage
   //existe token en el localstorage
-  let token = localStorage.getItem('token') || null;
+  let token = localStorage.getItem('tt_token') || null;
+
   if (!token) {
     router.navigate(['/login']);
     return false;

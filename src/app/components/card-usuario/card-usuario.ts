@@ -1,4 +1,5 @@
 import { Component, Input } from '@angular/core';
+import { Iuser } from '../../interfaces/iuser';
 
 @Component({
   selector: 'app-card-usuario',
@@ -7,10 +8,14 @@ import { Component, Input } from '@angular/core';
   styleUrl: './card-usuario.css',
 })
 export class CardUsuario {
-  @Input() usuario!: any;
+  @Input() usuario: Iuser | null = null;
 
-  getUsuarioById(id: number): any | undefined {
-    return this.usuarios.find((user) => user.id === id.toString());
+  ngOnInit() {
+    console.log('usuario recibido en CardUsuario:', this.usuario);
+  }
+
+  getUsuarioById(id: number): Iuser | undefined {
+    return this.usuario?.id === id ? this.usuario : undefined;
   }
 
   getEstrellas(valoracion: number): { icon: string; color: string }[] {
@@ -40,38 +45,4 @@ export class CardUsuario {
       ];
     }
   }
-
-  usuarios = [
-    {
-      id: '1',
-      avatar: 'https://i.pravatar.cc/500?u=norma.torresnevarez@peticiones.online"',
-      nombre: 'Elena Vargas',
-      email: 'elena@viajera.com',
-      password: 'hashed_password_1',
-      biografia: 'Exploradora de montañas y culturas. Fotógrafa aficionada.',
-      fechaNacimiento: '1992-08-20',
-      valoracion: 4.5,
-    },
-    {
-      id: '2',
-      nombre: 'Marco Diaz',
-      avatar: 'https://placehold.co/60x60',
-      email: 'marco@viajero.com',
-      password: 'hashed_password_2',
-      biografia:
-        'Apasionado por la historia y la gastronomía. Siempre en busca del plato perfecto.',
-      fechaNacimiento: '1988-03-12',
-      valoracion: 4.2,
-    },
-    {
-      id: '3',
-      nombre: 'Kevin Franco',
-      avatar: 'https://placehold.co/60x60',
-      email: 'kevin@viajera.com',
-      password: 'hashed_password_1',
-      biografia: 'Exploradora de montañas y culturas. Fotógrafa aficionada.',
-      fechaNacimiento: '1992-08-20',
-      valoracion: 4.8,
-    },
-  ];
 }
