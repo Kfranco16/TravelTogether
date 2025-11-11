@@ -1,1 +1,202 @@
-<p>detalle-viaje works!</p>
+@if (viaje; as trip) {
+<div class="card border-0 rounded-3 overflow-hidden mb-4">
+  <!-- Imagen del viaje/paisaje -->
+  <img
+    [src]="imagenes[1] || 'assets/trip-default.jpg'"
+    class="card-img-top object-fit-cover"
+    style="height: 320px"
+    alt="Paisaje destino"
+  />
+
+  <div class="container my-4">
+    <div class="row g-4">
+      <!-- Columna principal -->
+      <div class="col-lg-8">
+        <!-- Imagen principal -->
+        <div class="position-relative rounded overflow-hidden">
+          <img
+            [src]="imagenes[0] || 'assets/trip-default.jpg'"
+            alt="Foto del destino"
+            class="img-fluid w-100"
+            style="max-height: 300px; object-fit: cover"
+          />
+          <div
+            class="position-absolute bottom-0 start-0 w-100 bg-gradient-dark text-white p-3 d-flex flex-wrap align-items-center"
+          >
+            <div
+              class="position-absolute bottom-0 start-0 w-100 bg-gradient-dark text-white p-3 d-flex flex-column align-items-start"
+            >
+              <div class="fw-bold fs-2 mb-2 text-shadow-black">{{ trip.title }}</div>
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <a
+                  [href]="getGoogleMapsUrl(trip.latitude, trip.longitude, 12)"
+                  target="_blank"
+                  rel="noopener"
+                  class="text-decoration-none text-white text-shadow-black"
+                  ><i class="bi bi-geo-alt"></i> {{ trip?.destination }}
+                </a>
+
+                <span class="badge bg-light text-dark"
+                  >{{ trip.start_date | date : 'd MMM' }} -
+                  {{ trip.end_date | date : 'd MMM' }}</span
+                >
+                <span class="badge bg-success">{{ trip.estimated_cost }}€ /persona</span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            class="btn btn-outline-secondary btn-morado position-absolute top-0 end-0 m-3"
+            type="button"
+            [class.btn-success]="trip?.solicitado"
+            [class.btn-outline-secondary]="!trip?.solicitado"
+            [class.btn-morado]="!trip?.solicitado"
+            (click)="toggleSolicitud(trip)"
+          >
+            {{ trip?.solicitado ? 'Solicitado' : 'Solicitar unirme' }}
+          </button>
+        </div>
+
+        <!-- Descripción -->
+        <section class="mt-4">
+          <div class="fw-semibold fs-5 mb-1">Descripción del Viaje</div>
+          <p class="mb-3">{{ trip.description }}</p>
+        </section>
+
+        <!-- Itinerario -->
+        <section class="mb-4">
+          <div class="fw-semibold mb-2"><i class="bi bi-list-ul"></i> Itinerario</div>
+          <ul class="list-group">
+            @for (dia of itinerarioPorDia; track dia) {
+            <li class="list-group-item p-2">
+              {{ dia }}
+            </li>
+            }
+          </ul>
+        </section>
+        <!-- Incluye / No incluye -->
+        <section class="mb-4">
+          <div class="fw-semibold mb-2"><i class="bi bi-check-circle"></i> ¿Qué incluye?</div>
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="text-success"><i class="bi bi-check-lg"></i> Vuelos ida y vuelta</div>
+              <div class="text-success"><i class="bi bi-check-lg"></i> Alojamiento 14 noches</div>
+              <div class="text-success"><i class="bi bi-check-lg"></i> Desayunos</div>
+              <div class="text-success"><i class="bi bi-check-lg"></i> Traslados aeropuerto</div>
+              <div class="text-success"><i class="bi bi-check-lg"></i> Seguro de viaje</div>
+            </div>
+            <div class="col-6">
+              <div class="text-danger"><i class="bi bi-x-lg"></i> Comidas y cenas</div>
+              <div class="text-danger"><i class="bi bi-x-lg"></i> Actividades opcionales</div>
+              <div class="text-danger"><i class="bi bi-x-lg"></i> Visados</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Requisitos -->
+        <section>
+          <div class="fw-semibold mb-1"><i class="bi bi-exclamation-circle"></i> Requisitos</div>
+          <div class="">
+            Carnet de conducir (rotaremos para conducir). Ropa térmica imprescindible.
+          </div>
+        </section>
+      </div>
+      <!-- /Columna principal -->
+
+      <!-- Columna lateral -->
+      <div class="col-lg-4">
+        <div class="card shadow-sm mb-3 border-0 rounded-4 overflow-hidden">
+          <div
+            class="card-body d-flex align-items-center"
+            style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
+          >
+            <div class="user-link text-white" (click)="irADetalleUsuario()">
+              <app-card-usuario [usuario]="usuario"></app-card-usuario>
+            </div>
+          </div>
+        </div>
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <div class="fw-semibold mb-3">Detalles</div>
+            <div>
+              <i class="bi bi-calendar-date"></i> <b>Fecha de inicio:</b>
+              {{ trip.start_date | date : 'fullDate' }}
+            </div>
+            <div>
+              <i class="bi bi-calendar-date"></i> <b>Fecha de fin:</b>
+              {{ trip.end_date | date : 'fullDate' }}
+            </div>
+            <div class="my-2">
+              <i class="bi bi-currency-euro"></i> <b>Coste por persona:</b>
+              {{ trip.estimated_cost }}€
+            </div>
+            <!-- <div>
+              <i class="bi bi-people"></i> <b>Viajeros:</b> {{ trip.travelers }}/{{
+                trip.group_size
+              }}
+              <span class="small text-muted">Mínimo: {{ trip.min_travelers }}</span>
+            </div> -->
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <div class="fw-semibold mb-2">Transporte</div>
+            <div class="small">{{ trip.transport }}</div>
+            <div class="fw-semibold mt-3 mb-2">Alojamiento</div>
+            <!-- <div class="small">{{ trip.accommodation_details }}</div> -->
+          </div>
+        </div>
+
+        <!-- Compañeros de viaje -->
+        <div class="fw-semibold mb-3 mt-3">Compañeros de viaje:</div>
+        <div class="card shadow-sm mb-4 border-0 rounded-4 overflow-hidden">
+          <div
+            class="card-body d-flex align-items-center"
+            style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 85%, #3b82f6 100%)"
+          >
+            <div class="user-link text-white" (click)="irADetalleUsuario()">
+              <app-card-usuario [usuario]="usuario"></app-card-usuario>
+            </div>
+          </div>
+        </div>
+        <div class="card shadow-sm mb-4 border-0 rounded-4 overflow-hidden">
+          <div
+            class="card-body d-flex align-items-center"
+            style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 85%, #3b82f6 100%)"
+          >
+            <div class="user-link text-white" (click)="irADetalleUsuario()">
+              <app-card-usuario [usuario]="usuario"></app-card-usuario>
+            </div>
+          </div>
+        </div>
+        <div class="card shadow-sm mb-4 border-0 rounded-4 overflow-hidden">
+          <div
+            class="card-body d-flex align-items-center"
+            style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 85%, #3b82f6 100%)"
+          >
+            <div class="user-link text-white" (click)="irADetalleUsuario()">
+              <app-card-usuario [usuario]="usuario"></app-card-usuario>
+            </div>
+          </div>
+        </div>
+
+        <!-- Foro del viaje -->
+        <div class="card shadow-sm mb-3 rounded-4">
+          <div class="card-body">
+            <div class="fw-semibold mb-2">Foro del viaje</div>
+            <div class="small">Ultimos comentarios...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- /Columna lateral -->
+    </div>
+  </div>
+</div>
+} @else {
+<div class="card border-0 rounded-3 overflow-hidden mb-4 text-center p-5">
+  <span class="spinner-border"></span>
+  <div class="mt-3">Cargando datos del viaje...</div>
+</div>
+}

@@ -13,8 +13,9 @@ export interface Trip {
   accommodation: string;
   itinerary: string;
   status: string;
-  latitude: string;
-  longitude: string;
+  latitude: number;
+  longitude: number;
   created_at: string;
   updated_at: string;
+  solicitado: boolean;
 }

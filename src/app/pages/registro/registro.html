@@ -70,6 +70,7 @@
             class="form-control"
             formControlName="repeatPassword"
             placeholder="Repite la contraseña"
+            (paste)="(false)"
             [class.is-invalid]="isInvalid('repeatPassword') || ((submitted || userForm.get('repeatPassword')?.touched) && userForm.errors?.['passwordsMismatch'])"
           />
           @if ( (isInvalid('repeatPassword') && userForm.get('repeatPassword')?.errors) ||
@@ -86,20 +87,16 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Imagen (URL)</label>
+          <label class="upload-label">Imagen (Archivo, máx. 200kb)</label>
           <input
+            type="file"
+            accept="image/*"
             class="form-control"
-            formControlName="image"
-            placeholder="https://..."
             [class.is-invalid]="isInvalid('image')"
           />
-          @if (isInvalid('image') && userForm.get('image')?.errors) {
-          <div class="invalid-feedback">
-            @if (userForm.get('image')?.errors?.['pattern']) {
-            <div>Debe comenzar por http:// o https://</div>
-            }
-          </div>
-          }
+          <!-- @if (imageError) {
+          <div class="invalid-feedback">{{ imageError }}</div>
+          } -->
         </div>
 
         <div class="mb-3">
@@ -125,8 +122,12 @@
             class="form-control"
             formControlName="descripcion"
             rows="4"
+            maxlength="500"
             placeholder="Breve descripción"
           ></textarea>
+          <small class="text-muted">
+            {{ userForm.get('descripcion')?.value?.length || 0 }}/500 caracteres
+          </small>
         </div>
 
         <div class="mb-3">
@@ -135,8 +136,12 @@
             class="form-control"
             formControlName="intereses"
             rows="4"
+            maxlength="500"
             placeholder="Cuenta al resto de viajeros sobre tus intereses"
           ></textarea>
+          <small class="text-muted">
+            {{ userForm.get('intereses')?.value?.length || 0 }}/500 caracteres
+          </small>
         </div>
 
         <div class="d-flex gap-2 mt-3">

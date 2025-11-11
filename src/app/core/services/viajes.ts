@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { Trip } from '../../interfaces/trip';
 
 // Interfaz para la respuesta paginada completa
@@ -23,5 +23,12 @@ export class TripService {
       Authorization: `Bearer ${token}`,
     });
     return this.http.get<TripApiResponse>(this.apiUrl, { headers });
+  }
+
+  async getTripById(id: number): Promise<Trip> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    const url = `${this.apiUrl}/${id}`;
+    return firstValueFrom(this.http.get<Trip>(url, { headers }));
   }
 }
