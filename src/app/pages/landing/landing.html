@@ -127,7 +127,7 @@
   <!-- Galería de Viajes -->
 
   <section class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-    @for (trip of trips; track trip.id) {
+    @for (trip of viajesVisibles; track trip.id) {
     <app-card-viaje [trip]="trip"></app-card-viaje>
     }
   </section>
@@ -135,7 +135,8 @@
   <!-- Fin Galería de Viajes -->
 
   <!-- Botón Mostrar Más -->
-  @if (viajesVisibles() < viajesPlaceholder().length) {
+
+  @if (hayMasViajes) {
   <div class="text-center mt-4">
     <button
       (click)="mostrarMasViajes()"
@@ -151,125 +152,125 @@
     </button>
   </div>
   }
-</div>
-<hr />
+  <hr />
 
-<!--  Bloque 4: PRUEBA SOCIAL - Testimonios   -->
+  <!--  Bloque 4: PRUEBA SOCIAL - Testimonios   -->
 
-<div class="container px-4 py-5">
-  <h2 class="pb-2 border-bottom text-center">Lo que Nuestros Viajeros Dicen</h2>
+  <div class="container px-4 py-5">
+    <h2 class="pb-2 border-bottom text-center">Lo que Nuestros Viajeros Dicen</h2>
 
-  <div class="position-relative">
-    <!-- Flecha Izquierda -->
-    <style>
-      .testimonials-arrow-left {
-        transition: background 0.3s ease, color 0.3s ease, transform 0.15s ease;
-        background: transparent;
-        color: rgb(74, 1, 74);
-        border: none;
-      }
-      .testimonials-arrow-left:hover {
-        background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
-        color: #fff;
-        transform: translateY(-2px);
-      }
-      .testimonials-arrow-left:focus {
-        box-shadow: 0 0 0 0.25rem rgba(123, 97, 255, 0.25);
-        outline: none;
-      }
-    </style>
+    <div class="position-relative">
+      <!-- Flecha Izquierda -->
+      <style>
+        .testimonials-arrow-left {
+          transition: background 0.3s ease, color 0.3s ease, transform 0.15s ease;
+          background: transparent;
+          color: rgb(74, 1, 74);
+          border: none;
+        }
+        .testimonials-arrow-left:hover {
+          background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+          color: #fff;
+          transform: translateY(-2px);
+        }
+        .testimonials-arrow-left:focus {
+          box-shadow: 0 0 0 0.25rem rgba(123, 97, 255, 0.25);
+          outline: none;
+        }
+      </style>
 
-    <button
-      class="btn testimonials-arrow-left position-absolute start-0 top-50 translate-middle-y d-none d-lg-block"
-      (click)="mostrarTestimoniosAnteriores()"
-      style="z-index: 2; left: -4rem"
-    >
-      <i class="bi bi-chevron-left fs-3"></i>
-    </button>
+      <button
+        class="btn testimonials-arrow-left position-absolute start-0 top-50 translate-middle-y d-none d-lg-block"
+        (click)="mostrarTestimoniosAnteriores()"
+        style="z-index: 2; left: -4rem"
+      >
+        <i class="bi bi-chevron-left fs-3"></i>
+      </button>
 
-    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3 px-5">
-      <!-- Usamos @for para iterar sobre nuestro signal de testimonios -->
-      @for (testimonio of testimonios().slice(testimonioActual(), testimonioActual() + 3); track
-      testimonio.nombre) {
-      <div class="col">
-        <div class="card h-100 shadow">
-          <div class="card-body">
-            <!-- Usamos interpolación para mostrar los datos del signal -->
-            <p class="card-text">"{{ testimonio.texto }}"</p>
-          </div>
-          <div class="card-footer bg-transparent border-top-0 d-flex align-items-center">
-            <!-- Usamos property binding para el 'src' y 'alt' de la imagen -->
-            <img
-              [src]="'https://i.pravatar.cc/40?img=' + testimonio.avatarId"
-              class="rounded-circle me-3"
-              [alt]="'Avatar de ' + testimonio.nombre"
-            />
-            <div>
-              <h6 class="mb-0">{{ testimonio.nombre }}</h6>
-              <small class="text-muted">{{ testimonio.viaje }}</small>
+      <div class="row g-4 py-5 row-cols-1 row-cols-lg-3 px-5">
+        <!-- Usamos @for para iterar sobre nuestro signal de testimonios -->
+        @for (testimonio of testimonios().slice(testimonioActual(), testimonioActual() + 3); track
+        testimonio.nombre) {
+        <div class="col">
+          <div class="card h-100 shadow">
+            <div class="card-body">
+              <!-- Usamos interpolación para mostrar los datos del signal -->
+              <p class="card-text">"{{ testimonio.texto }}"</p>
+            </div>
+            <div class="card-footer bg-transparent border-top-0 d-flex align-items-center">
+              <!-- Usamos property binding para el 'src' y 'alt' de la imagen -->
+              <img
+                [src]="'https://i.pravatar.cc/40?img=' + testimonio.avatarId"
+                class="rounded-circle me-3"
+                [alt]="'Avatar de ' + testimonio.nombre"
+              />
+              <div>
+                <h6 class="mb-0">{{ testimonio.nombre }}</h6>
+                <small class="text-muted">{{ testimonio.viaje }}</small>
+              </div>
             </div>
           </div>
         </div>
+        }
       </div>
-      }
+
+      <!-- Flecha Derecha -->
+      <style>
+        .testimonials-arrow-left {
+          transition: background 0.3s ease, color 0.3s ease, transform 0.15s ease;
+          background: transparent;
+          color: rgb(74, 1, 74);
+          border: none;
+        }
+        .testimonials-arrow-left:hover {
+          background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+          color: #fff;
+          transform: translateY(-2px);
+        }
+        .testimonials-arrow-left:focus {
+          box-shadow: 0 0 0 0.25rem rgba(123, 97, 255, 0.25);
+          outline: none;
+        }
+      </style>
+
+      <button
+        class="btn testimonials-arrow-left position-absolute end-0 top-50 translate-middle-y d-none d-lg-block"
+        (click)="mostrarSiguientesTestimonios()"
+        style="z-index: 2"
+      >
+        <i class="bi bi-chevron-right fs-3"></i>
+      </button>
     </div>
+    <hr />
 
-    <!-- Flecha Derecha -->
-    <style>
-      .testimonials-arrow-left {
-        transition: background 0.3s ease, color 0.3s ease, transform 0.15s ease;
-        background: transparent;
-        color: rgb(74, 1, 74);
-        border: none;
-      }
-      .testimonials-arrow-left:hover {
-        background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
-        color: #fff;
-        transform: translateY(-2px);
-      }
-      .testimonials-arrow-left:focus {
-        box-shadow: 0 0 0 0.25rem rgba(123, 97, 255, 0.25);
-        outline: none;
-      }
-    </style>
+    <!--  Bloque 5: "SOCIOS" - Publicidad Sutil  -->
 
-    <button
-      class="btn testimonials-arrow-left position-absolute end-0 top-50 translate-middle-y d-none d-lg-block"
-      (click)="mostrarSiguientesTestimonios()"
-      style="z-index: 2"
-    >
-      <i class="bi bi-chevron-right fs-3"></i>
-    </button>
-  </div>
-  <hr />
-
-  <!--  Bloque 5: "SOCIOS" - Publicidad Sutil  -->
-
-  <div class="container px-4 py-5 text-center">
-    <h2 class="pb-2 border-bottom">Partners Oficiales</h2>
-    <p class="lead">Colaboramos con las mejores empresas para facilitar tu aventura.</p>
-    <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 mt-4">
-      <!-- Logos  -->
-      <img
-        src="https://i.pinimg.com/originals/84/55/a2/8455a25d64d22d64d5416372e304007b.jpg"
-        alt="Logo Aerolínea"
-        style="height: 50px; object-fit: contain"
-      />
-      <img
-        src="https://tse1.mm.bing.net/th/id/OIP.kfIYtECFFGxMosvul2OSFAHaEK?rs=1&pid=ImgDetMain&o=7&rm=3"
-        alt="Logo Hotel"
-        style="height: 50px; object-fit: contain"
-      />
-      <img
-        src="https://logodix.com/logo/874813.png"
-        alt="Logo Renta de Carros"
-        style="height: 50px; object-fit: contain"
-      />
-      <img
-        src="https://clubthrifty.com/wp-content/uploads/2018/11/axa-travel-insurance-logo-300x167.png"
-        alt="Logo Seguro de Viaje"
-        style="height: 50px; object-fit: contain"
-      />
+    <div class="container px-4 py-5 text-center">
+      <h2 class="pb-2 border-bottom">Partners Oficiales</h2>
+      <p class="lead">Colaboramos con las mejores empresas para facilitar tu aventura.</p>
+      <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 mt-4">
+        <!-- Logos  -->
+        <img
+          src="https://i.pinimg.com/originals/84/55/a2/8455a25d64d22d64d5416372e304007b.jpg"
+          alt="Logo Aerolínea"
+          style="height: 50px; object-fit: contain"
+        />
+        <img
+          src="https://tse1.mm.bing.net/th/id/OIP.kfIYtECFFGxMosvul2OSFAHaEK?rs=1&pid=ImgDetMain&o=7&rm=3"
+          alt="Logo Hotel"
+          style="height: 50px; object-fit: contain"
+        />
+        <img
+          src="https://logodix.com/logo/874813.png"
+          alt="Logo Renta de Carros"
+          style="height: 50px; object-fit: contain"
+        />
+        <img
+          src="https://clubthrifty.com/wp-content/uploads/2018/11/axa-travel-insurance-logo-300x167.png"
+          alt="Logo Seguro de Viaje"
+          style="height: 50px; object-fit: contain"
+        />
+      </div>
     </div>
   </div>
 </div>

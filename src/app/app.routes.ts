@@ -33,7 +33,7 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     component: Dashboard,
-    /* canActivate: [authGuard], */ // PROTEGIDA: La ruta padre protege a todas las hijas.
+    canActivate: [authGuard], // PROTEGIDA: La ruta padre protege a todas las hijas.
     children: [
       // Aquí irán todas las páginas de gestión del usuario.
       // Por ejemplo:
@@ -44,4 +44,3 @@ export const routes: Routes = [
   },
   { path: '**', redirectTo: '' },
 ];
-

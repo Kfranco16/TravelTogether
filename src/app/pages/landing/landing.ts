@@ -38,6 +38,10 @@ export class Landing {
   currentImageIndex = signal(0);
 
   trips: Trip[] = [];
+  viajesVisibles: Trip[] = [];
+  itemsPorPagina: number = 6;
+  indiceActuakl: number = 0;
+
   // Sustituye esto por el sistema real de manejo de tokens en producción
   private token =
     'yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsInVzZXJuYW1lIjoiZWxlbmFnYXJjaWEiLCJlbWFpbCI6ImVsZW5hZ2FyY2lhQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYyNzAzNTc5LCJleHAiOjE3NjI3MTA3Nzl9.DGinLb3bWqRh2dRY8RvJ-GZqgMzUuHcvS9kb4S6OAMo'; // tu token completo
@@ -66,26 +70,15 @@ export class Landing {
     },
   ]);
 
-  // Usamos signals para manejar nuestros arrays de placeholders.
-  // Esto nos prepara para cuando los datos vengan de una API.
-  viajesPlaceholder = signal([
-    { id: 1 },
-    { id: 2 },
-    { id: 3 },
-    { id: 4 },
-    { id: 5 },
-    { id: 6 },
-    { id: 7 },
-    { id: 8 },
-    { id: 9 },
-  ]);
-
-  viajesVisibles = signal(6); // Mostrar 6 viajes inicialmente
+  // Mostrar 6 viajes inicialmente
 
   mostrarMasViajes() {
-    const actual = this.viajesVisibles();
-    const nuevo = Math.min(actual + 6, this.viajesPlaceholder().length);
-    this.viajesVisibles.set(nuevo);
+    const siguienteIndice = this.indiceActuakl + this.itemsPorPagina;
+    this.viajesVisibles = this.trips.slice(0, siguienteIndice);
+    this.indiceActuakl = siguienteIndice;
+  }
+  get hayMasViajes(): boolean {
+    return this.viajesVisibles.length < this.trips.length;
   }
 
   // Hacemos lo mismo para los testimonios.
@@ -159,6 +152,7 @@ export class Landing {
       next: (data: { results: Trip[] }) => {
         // Los viajes están dentro de data.results
         this.trips = data.results;
+        this.mostrarMasViajes(); // Mostrar los primeros viajes
       },
       error: (err: any) => {
         console.error('Error al cargar viajes', err);
