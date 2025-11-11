@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
 
@@ -9,12 +9,17 @@ import { AuthService } from '../../../core/services/auth';
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.css'],
 })
-export class Navbar {
+export class Navbar implements OnDestroy {
   private auth = inject(AuthService);
+
   open = false;
-  get isAuthenticated() {
+
+  // Estado de autenticación: leemos directamente del servicio (token en localStorage)
+  get isAuthenticated(): boolean {
     return this.auth.isAuth();
   }
+
+  // Mantener UX móvil
   onToggleOpen() {
     this.open = !this.open;
   }
@@ -24,7 +29,18 @@ export class Navbar {
   onClose() {
     this.open = false;
   }
+
   onLogout() {
     this.auth.logout();
+    this.onClose();
+  }
+
+  // Mantener la UI sincronizada si el token cambia desde otra pestaña
+  private onStorage = () => { /* al acceder a isAuthenticated, Angular reevaluará */ };
+  constructor() {
+    window.addEventListener('storage', this.onStorage);
+  }
+  ngOnDestroy() {
+    window.removeEventListener('storage', this.onStorage);
   }
 }
