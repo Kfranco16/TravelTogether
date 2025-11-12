@@ -41,8 +41,8 @@ export class Login {
       const response = await this.authService.login({ email, password });
       if (response) {
         toast.success('¡Usuario logueado correctamente!'); // Notificación de éxito
-        this.router.navigate(['/home']);
-        window.location.reload();
+        this.router.navigate(['']);
+        /* window.location.reload(); */
       }
     } catch (err: any) {
       toast.error(err?.error?.message || 'Error en el inicio de sesión'); // Notificación de error
