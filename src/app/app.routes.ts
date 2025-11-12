@@ -7,6 +7,7 @@ import { authGuard } from './core/guards/auth-guard';
 import { DetalleViaje } from './pages/detalle-viaje/detalle-viaje';
 import { Perfil } from './pages/perfil/perfil';
 import { Dashboard } from './pages/dashboard/dashboard';
+import { CrearEditarViaje } from './pages/crear-editar-viaje/crear-editar-viaje';
 
 export const routes: Routes = [
   //RUTAS PÚBLICAS (Accesibles por todos)
@@ -28,6 +29,7 @@ export const routes: Routes = [
   },
   // RUTAS PRIVADAS (Requieren inicio de sesión)
   { path: 'viaje/:id', component: DetalleViaje, canActivate: [authGuard] },
+  { path: 'crear-viaje', component: CrearEditarViaje, canActivate: [authGuard] },
 
   { path: 'perfil/:id', component: Perfil, canActivate: [authGuard] },
   {

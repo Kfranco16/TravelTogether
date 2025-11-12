@@ -45,4 +45,5 @@ export class CardUsuario {
       ];
     }
   }
+  usuarioProvisional = [{ valoracion: 4.2 }];
 }

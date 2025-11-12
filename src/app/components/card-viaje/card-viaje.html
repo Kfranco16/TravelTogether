@@ -1,128 +1,132 @@
-<div class="container my-4">
-  <div class="container my-4">
-    <section class="">
-      <div class="col">
-        <article
-          class="card h-100 shadow-sm rounded-4 overflow-hidden position-relative viaje-card"
-          style="height: 330px"
-        >
-          <div class="layer-base position-absolute top-0 start-0 w-100 h-100">
-            <div class="position-relative w-100 h-100">
-              <img
-                [src]="trip?.image || 'assets/trip-default.jpg'"
-                class="card-img-zoom w-100 h-100"
-                alt="Foto principal"
-                style="height: 150px; object-fit: cover"
-              />
+<div class="container my-3 g-4">
+  <section class="">
+    <div class="col">
+      <article
+        class="card h-100 shadow-sm rounded-4 overflow-hidden position-relative viaje-card"
+        style="height: 330px"
+      >
+        <div class="layer-base position-absolute top-0 start-0 w-100 h-100">
+          <div class="position-relative w-100 h-100">
+            <img
+              [src]="imagenes[1] || 'assets/trip-default.jpg'"
+              class="card-img-zoom w-100 h-100"
+              alt="Foto principal"
+              style="height: 150px; object-fit: cover"
+            />
 
-              <div class="position-absolute top-0 start-0 w-100 text-white px-3 pt-2">
-                <div class="fw-semibold fs-3 me-5 text-shadow-black">
-                  {{ trip?.title }}
-                </div>
-
-                <div class="user-link" (click)="irADetalleUsuario()">
-                  <app-card-usuario [usuario]="usuario"></app-card-usuario>
-                </div>
-                <div class="fw-bold fs-6 mt-2 text-shadow-black">
-                  <i class="bi bi-geo-alt"></i> {{ trip?.destination }}
-                </div>
-                <div class="card-img-shake">
-                  @if (getShowDaysBadge(trip?.start_date)) {
-                  <div class="d-flex align-items-center mt-3">
-                    <span class="badge bg-danger text-white">
-                      <i class="bi bi-clock"></i>
-                      ¡Date prisa! Quedan {{ getDaysLeft(trip?.start_date) }} días para el viaje
-                    </span>
-                  </div>
-                  }
-                </div>
+            <div class="position-absolute top-0 start-0 w-100 text-white px-3 pt-2 lh-1">
+              <div class="fw-semibold fs-4 me-5 text-shadow-black">
+                {{ trip?.title | capitalizeFirst }}
               </div>
 
-              <button
-                type="button"
-                class="btn p-0 position-absolute top-0 end-0 m-2"
-                style="z-index: 10"
-                (click)="toggleFavorito(trip)"
-              >
-                <i class="fs-2 bi {{ getFavoriteIconClass(trip?.isFavorite) }}"></i>
-              </button>
+              <div class="user-link mt-2" (click)="irADetalleUsuario()">
+                <app-card-usuario [usuario]="usuario"></app-card-usuario>
+              </div>
+              <div class="fw-bold fs-6 mt-2">
+                <a
+                  [href]="getGoogleMapsUrl(trip.latitude, trip.longitude, 12)"
+                  target="_blank"
+                  rel="noopener"
+                  class="text-decoration-none text-white text-shadow-black"
+                  ><i class="bi bi-geo-alt"></i> {{ trip?.destination }}
+                </a>
+              </div>
+              <div class="card-img-shake">
+                @if (getShowDaysBadge(trip?.start_date)) {
+                <div class="d-flex align-items-center mt-3">
+                  <span class="badge bg-danger text-white">
+                    <i class="bi bi-clock"></i>
+                    ¡Date prisa! Quedan {{ getDaysLeft(trip?.start_date) }} días para el viaje
+                  </span>
+                </div>
+                }
+              </div>
             </div>
+
+            <button
+              type="button"
+              class="btn p-0 position-absolute top-0 end-0 m-2"
+              style="z-index: 10"
+              (click)="toggleFavorito(trip)"
+            >
+              <i class="fs-2 bi {{ getFavoriteIconClass(trip?.isFavorite) }}"></i>
+            </button>
           </div>
+        </div>
 
-          <div
-            class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
-          >
-            @if (isLoggedIn()) {
-            <div class="detalles-viaje">
-              <div
-                class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
-                style="background: rgba(255, 255, 255, 0.888)"
-              >
-                <div
-                  class="badge {{ getBadgeClass(trip?.status) }} mb-2"
-                  style="font-size: 1rem; padding: 0.5em 1em"
-                >
-                  {{ getBadgeText(trip?.status) }}
-                </div>
-
-                <div class="mb-2 text-muted text-center w-100">
-                  <i class="bi bi-calendar3"></i>
-                  {{ trip.start_date | date : 'dd/MM/yyyy' }} -
-                  {{ trip.end_date | date : 'dd/MM/yyyy' }}
-                </div>
-
-                <div class="mb-2 color-principal text-center w-100">
-                  <i class="bi bi-arrow-left-right"></i>
-                  {{ trip?.transport }}
-                </div>
-
-                <div class="mb-2 text-center w-100">
-                  <i class="bi bi-people"></i>
-                  Mínimo {{ trip?.min_participants }} viajeros
-                </div>
-
-                <div class="mb-2 color-principal fw-bold text-center w-100">
-                  <i class="bi bi-cash-coin"></i>
-                  {{ trip.estimated_cost | number : '0.0' }}€ por persona
-                </div>
-
-                <div class="mb-3 text-2lines text-muted text-center w-100">
-                  {{ trip?.description }}
-                </div>
-
-                <div class="d-flex gap-2 w-100 justify-content-center mt-auto mb-2">
-                  <button
-                    [routerLink]="['/viaje', trip?.id]"
-                    class="btn btn-outline-secondary btn-morado w-50"
-                  >
-                    Ver detalles
-                  </button>
-                  <button
-                    type="button"
-                    class="btn w-50"
-                    [class.btn-success]="trip?.solicitado"
-                    [class.btn-outline-secondary]="!trip?.solicitado"
-                    [class.btn-morado]="!trip?.solicitado"
-                    (click)="toggleSolicitud(trip)"
-                  >
-                    {{ trip?.solicitado ? 'Solicitado' : 'Solicitar unirme' }}
-                  </button>
-                </div>
-              </div>
-            </div>
-            } @else {
+        <div
+          class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
+        >
+          @if (isLoggedIn()) {
+          <div class="detalles-viaje">
             <div
               class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
               style="background: rgba(255, 255, 255, 0.888)"
             >
-              <div class="login-container">
-                <app-login></app-login>
+              <div
+                class="badge {{ getBadgeClass(trip?.status) }} mb-2"
+                style="font-size: 1rem; padding: 0.5em 1em"
+              >
+                {{ getBadgeText(trip?.status) }}
+              </div>
+
+              <div class="mb-2 text-muted text-center w-100">
+                <i class="bi bi-calendar3"></i>
+                {{ trip.start_date | date : 'dd/MM/yyyy' }} -
+                {{ trip.end_date | date : 'dd/MM/yyyy' }}
+              </div>
+
+              <div class="mb-2 color-principal text-center w-100">
+                <i class="bi bi-arrow-left-right"></i>
+                {{ trip?.transport }}
+              </div>
+
+              <div class="mb-2 text-center w-100">
+                <i class="bi bi-people"></i>
+                Mínimo {{ trip?.min_participants }} viajeros
+              </div>
+
+              <div class="mb-2 color-principal fw-bold text-center w-100">
+                <i class="bi bi-cash-coin"></i>
+                {{ trip.estimated_cost | number : '0.0' }}€ por persona
+              </div>
+
+              <div class="mb-3 text-2lines text-muted text-center w-100">
+                {{ trip?.description }}
+              </div>
+
+              <div class="d-flex gap-2 w-100 justify-content-center mt-auto mb-2">
+                <button
+                  (click)="irADetalleViaje()"
+                  class="btn btn-outline-secondary btn-morado w-50"
+                >
+                  Ver detalles
+                </button>
+                <button
+                  type="button"
+                  class="btn w-50"
+                  [class.btn-success]="trip?.solicitado"
+                  [class.btn-outline-secondary]="!trip?.solicitado"
+                  [class.btn-morado]="!trip?.solicitado"
+                  (click)="toggleSolicitud(trip)"
+                >
+                  {{ trip?.solicitado ? 'Solicitado' : 'Solicitar unirme' }}
+                </button>
               </div>
             </div>
-            }
           </div>
-        </article>
-      </div>
-    </section>
-  </div>
+          } @else {
+          <div
+            class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
+            style="background: rgba(255, 255, 255, 0.888)"
+          >
+            <div class="login-container">
+              <app-login></app-login>
+            </div>
+          </div>
+          }
+        </div>
+      </article>
+    </div>
+  </section>
 </div>

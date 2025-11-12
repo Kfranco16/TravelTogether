@@ -19,8 +19,8 @@ export interface Trip {
   accommodation?: string;
   itinerary?: string;
   status?: string;
-  latitude?: string; // Change to string to match the API response
-  longitude?: string; // Change to string to match the API response
+  latitude?: number; // Change to string to match the API response
+  longitude?: number; // Change to string to match the API response
   created_at?: string;
   updated_at?: string;
   isFavorite?: boolean;
