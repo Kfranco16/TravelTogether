@@ -2,7 +2,8 @@ import { Component, signal, OnInit, OnDestroy, Inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CardViaje } from '../../components/card-viaje/card-viaje';
 import { TripService } from '../../core/services/viajes';
-
+import { AuthService } from '../../core/services/auth';
+import { Iuser } from '../../interfaces/iuser';
 export interface Trip {
   id: number;
   origin?: string;
@@ -42,10 +43,15 @@ export class Landing {
   itemsPorPagina: number = 6;
   indiceActuakl: number = 0;
 
+  currentUser: Iuser | null = null;
+
   // Sustituye esto por el sistema real de manejo de tokens en producción
   private token =
     'yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTIsInVzZXJuYW1lIjoiZWxlbmFnYXJjaWEiLCJlbWFpbCI6ImVsZW5hZ2FyY2lhQGdtYWlsLmNvbSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzYyNzAzNTc5LCJleHAiOjE3NjI3MTA3Nzl9.DGinLb3bWqRh2dRY8RvJ-GZqgMzUuHcvS9kb4S6OAMo'; // tu token completo
-  constructor(@Inject(TripService) private tripService: TripService) {}
+  constructor(
+    @Inject(TripService) private tripService: TripService,
+    private authservice: AuthService
+  ) {}
 
   // Array de imágenes panorámicas para el hero
   heroImages = signal([
@@ -140,6 +146,9 @@ export class Landing {
     const anterior = actual - 3 < 0 ? this.testimonios().length - 3 : actual - 3;
     this.testimonioActual.set(anterior);
   }
+  get isAuthenticated(): boolean {
+    return this.authservice.isAuth();
+  }
 
   ngOnInit() {
     // Iniciar la rotación automática de imágenes cada 5 segundos
@@ -156,6 +165,11 @@ export class Landing {
       },
       error: (err: any) => {
         console.error('Error al cargar viajes', err);
+      },
+    });
+    this.authservice.user$.subscribe({
+      next: (user) => {
+        this.currentUser = user;
       },
     });
   }

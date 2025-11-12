@@ -17,7 +17,10 @@
   ></div>
 
   <!-- Contenido (por encima del background y el overlay) -->
+
   <div class="container px-4 py-5 text-center" style="position: relative; z-index: 1">
+    @if(!isAuthenticated){
+
     <h1 class="display-5 fw-bold text-shadow-1px text-shadow">
       Viajar en Grupo Nunca Fue Tan Fácil
     </h1>
@@ -27,11 +30,25 @@
         o únete a viajes grupales y ahorra en tu próxima gran aventura.
       </h5>
     </div>
+    } @if(isAuthenticated){
+
+    <h1 class="display-1 fw-bold text-shadow-1px text-shadow mb-4">
+      ¡Bienvenido de nuevo<br />
+      {{ currentUser?.username }}!
+    </h1>
+    <div class="col-lg-8 mx-auto">
+      <h2 class="mb-4 text-shadow">
+        Explora nuevos destinos y conecta con otros viajeros para planear tu próxima aventura
+        juntos.
+      </h2>
+    </div>
+    }
 
     <!-- Tres iconos tipo panorámico -->
     <div class="row g-4 pt-4 row-cols-1 row-cols-lg-3">
       <!-- Icono 1 -->
-      <div class="feature col text-white">
+      @if (!isAuthenticated){
+      <div class="feature col text-white hidden">
         <div
           class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3 rounded-circle"
           style="
@@ -83,6 +100,7 @@
           Disfruta de una experiencia única compartiendo gastos y creando recuerdos inolvidables.
         </h5>
       </div>
+      }
     </div>
   </div>
 </div>

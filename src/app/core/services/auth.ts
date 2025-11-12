@@ -82,6 +82,7 @@ export class AuthService {
 
   // --- Estado autenticación ---
   isAuth(): boolean {
+    const keyUser = localStorage.getItem(this.USER_KEY);
     return !!localStorage.getItem(this.TOKEN_KEY);
   }
 
