@@ -23,9 +23,7 @@
       aria-expanded="true"
       aria-label="Cerrar menú"
       (click)="onToggleOpen()"
-    >
-      ×
-    </button>
+    ></button>
     }
 
     <div
@@ -55,7 +53,7 @@
         <!-- Estado: autenticado -->
         @if (isAuthenticated) {
         <li class="nav-item d-md-inline-flex">
-          <a class="btn tt-btn-primary" routerLink="/crear">+ Crear viaje</a>
+          <a class="btn tt-btn-primary" routerLink="/crear-viaje">+ Crear viaje</a>
         </li>
 
         <li class="nav-item dropdown">
@@ -69,7 +67,6 @@
           >
             Mi espacio
           </a>
-
           <ul class="dropdown-menu dropdown-menu-end tt-dropdown" aria-labelledby="espacioMenu">
             <li><a class="dropdown-item tt-dd-link">Mi perfil</a></li>
             <li><a class="dropdown-item tt-dd-link">Mis datos</a></li>
@@ -83,6 +80,29 @@
             </li>
           </ul>
         </li>
+
+        <!-- Usuario en navbar -->
+
+        <li class="nav-item dropdown">
+          <div class="d-flex align-items-center text-shadow-black gap-2">
+            <img
+              [src]="
+                usuario?.image ||
+                'https://img.freepik.com/psd-gratis/ilustracion-3d-avatar-o-perfil-humano_23-2150671142.jpg?semt=ais_hybrid&w=740&q=80'
+              "
+              [alt]="usuario?.username ? 'Avatar de ' + usuario?.username : 'Avatar genérico'"
+              class="rounded-1"
+              style="width: 35px; height: 55px; object-fit: cover"
+            />
+
+            <div>
+              <div class="fw-semibold fs-5">
+                {{ usuario?.username || 'Usuario anónimo' }}
+              </div>
+            </div>
+          </div>
+        </li>
+
         }
       </ul>
     </div>

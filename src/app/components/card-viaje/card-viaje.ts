@@ -16,7 +16,7 @@ export class CapitalizeFirstPipe implements PipeTransform {
 
 @Component({
   selector: 'app-card-viaje',
-  imports: [CardUsuario, Login, RouterLink, DatePipe, DecimalPipe, CapitalizeFirstPipe],
+  imports: [CardUsuario, Login, DatePipe, DecimalPipe, CapitalizeFirstPipe],
   templateUrl: './card-viaje.html',
   styleUrl: './card-viaje.css',
 })
@@ -29,22 +29,21 @@ export class CardViaje {
 
   irADetalleViaje() {
     if (this.trip && this.trip.id) {
-      // this.router.navigate([`viajes/${this.trip.id}`]);
-      // O si tus rutas son /detalle-viaje/:id
       this.router.navigate([`viaje/${this.trip.id}`]);
     }
   }
 
-  async ngOnInit() {
-    if (this.trip?.creator_id) {
-      try {
-        this.usuario = await this.authService.getUserById(this.trip.creator_id);
-        console.log('Usuario obtenido:', this.usuario);
-      } catch (err) {
-        console.error('Error obteniendo usuario:', err);
-        this.usuario = null;
+  ngOnInit() {
+    // mostrar cambios sin recargar pagina
+    this.authService.user$.subscribe((globalUser) => {
+      if (globalUser && this.trip?.creator_id === globalUser.id) {
+        this.usuario = globalUser;
+      } else if (this.trip?.creator_id) {
+        this.authService.getUserById(this.trip.creator_id).then((user) => {
+          this.usuario = user;
+        });
       }
-    }
+    });
   }
 
   irADetalleUsuario() {
@@ -112,7 +111,7 @@ export class CardViaje {
   }
 
   imagenes = [
-    'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=800&q=80', // Montañas y río, Nueva Zelanda
-    'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80', // Lago helado, Islandia
+    'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80',
   ];
 }

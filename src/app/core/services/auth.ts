@@ -60,13 +60,18 @@ export class AuthService {
   }
 
   // --- API ---
-  /** Login adaptado: POST, guarda token, usuario y BehaviorSubject */
+  /** Login */
   async login(payload: LoginPayload): Promise<LoginResponse> {
     const response = await lastValueFrom(
       this.http.post<LoginResponse>(`${environment.apiUrl}/users/login`, payload)
     );
     this.writeAuth(response.token, response.user);
     return response;
+  }
+
+  setCurrentUser(user: Iuser) {
+    localStorage.setItem('usuario', JSON.stringify(user));
+    this._user$.next(user);
   }
 
   getUserById(id: number): Promise<Iuser> {

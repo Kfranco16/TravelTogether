@@ -1,6 +1,7 @@
-import { Component, inject, OnDestroy } from '@angular/core';
+import { Component, inject, Input, OnDestroy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
+import { Iuser } from '../../../interfaces/iuser';
 
 @Component({
   selector: 'app-navbar',
@@ -10,6 +11,8 @@ import { AuthService } from '../../../core/services/auth';
   styleUrls: ['./navbar.css'],
 })
 export class Navbar implements OnDestroy {
+  @Input() usuario: Iuser | null = null;
+
   private auth = inject(AuthService);
 
   open = false;
@@ -36,11 +39,23 @@ export class Navbar implements OnDestroy {
   }
 
   // Mantener la UI sincronizada si el token cambia desde otra pestaña
-  private onStorage = () => { /* al acceder a isAuthenticated, Angular reevaluará */ };
+  private onStorage = () => {
+    /* al acceder a isAuthenticated, Angular reevaluará */
+  };
   constructor() {
     window.addEventListener('storage', this.onStorage);
   }
   ngOnDestroy() {
     window.removeEventListener('storage', this.onStorage);
+  }
+
+  ngOnInit() {
+    this.auth.user$.subscribe((user) => {
+      this.usuario = user;
+    });
+  }
+
+  getUsuarioById(id: number): Iuser | undefined {
+    return this.usuario?.id === id ? this.usuario : undefined;
   }
 }

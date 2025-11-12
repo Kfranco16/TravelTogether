@@ -4,6 +4,11 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
 import { toast } from 'ngx-sonner';
 
+interface LoginResponse {
+  user: any;
+  token: string;
+}
+
 @Component({
   selector: 'app-login',
   imports: [RouterLink, ReactiveFormsModule],
@@ -38,14 +43,19 @@ export class Login {
 
   private async login(email: string, password: string) {
     try {
-      const response = await this.authService.login({ email, password });
-      if (response) {
-        toast.success('¡Usuario logueado correctamente!'); // Notificación de éxito
-        this.router.navigate(['']);
-        /* window.location.reload(); */
+      const response: LoginResponse = await this.authService.login({ email, password });
+
+      if (response && response.user) {
+        // Actualiza el usuario en el BehaviorSubject
+        this.authService.setCurrentUser(response.user);
+
+        localStorage.setItem('token', response.token);
+
+        toast.success('¡Usuario logueado correctamente!');
+        this.router.navigate(['/home']);
       }
     } catch (err: any) {
-      toast.error(err?.error?.message || 'Error en el inicio de sesión'); // Notificación de error
+      toast.error(err?.error?.message || 'Error en el inicio de sesión');
     }
   }
 
