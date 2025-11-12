@@ -1,1 +1,98 @@
-<p>dashboard works!</p>
+<section class="tt-grid">
+  <!-- Mi perfil -->
+  <div class="tt-card">
+    <div class="tt-card-head">
+      <h5>Mi perfil</h5>
+      <a routerLink="/dashboard/mi-datos" class="tt-link-acc">Editar</a>
+    </div>
+
+    <div class="tt-card-body">
+      @if (user) {
+      <div class="tt-row">
+        <span>Nombre</span><strong>{{ user.username }}</strong>
+      </div>
+      <div class="tt-row">
+        <span>Email</span><strong>{{ user.email }}</strong>
+      </div>
+      } @else {
+      <div class="text-muted">Cargando…</div>
+      }
+    </div>
+  </div>
+
+  <!-- Mis viajes -->
+  <div class="tt-card">
+    <div class="tt-card-head">
+      <h5>Mis viajes</h5>
+      <a routerLink="/crear-viaje" class="tt-link-acc">+ Crear</a>
+    </div>
+
+    <div class="tt-card-body">
+      @if (!cargando && misViajes.length) { @for (v of misViajes; track v.id) {
+      <div class="tt-item">
+        <div class="tt-item-title">{{ v.titulo }}</div>
+        <div class="tt-item-actions">
+          <a [routerLink]="['/detalle-viaje', v.id]" class="btn btn-sm btn-link">Ver</a>
+        </div>
+      </div>
+      } } @else if (!cargando) {
+      <div class="text-muted">Aún no has creado viajes.</div>
+      } @else {
+      <div class="text-muted">Cargando…</div>
+      }
+    </div>
+  </div>
+
+  <!-- Mis reservas -->
+  <div class="tt-card">
+    <div class="tt-card-head"><h5>Mis reservas</h5></div>
+    <div class="tt-card-body">
+      @if (!cargando && misReservas.length) { @for (r of misReservas; track r.id) {
+      <div class="tt-item">
+        <div class="tt-item-title">{{ r.trip?.title || r.viaje || 'Reserva' }}</div>
+        <div class="small text-muted">Salida: {{ r.departure || r.salida }}</div>
+      </div>
+      } } @else if (!cargando) {
+      <div class="text-muted">Aún no tienes reservas.</div>
+      } @else {
+      <div class="text-muted">Cargando…</div>
+      }
+    </div>
+  </div>
+
+  <!-- Favoritos -->
+  <div class="tt-card">
+    <div class="tt-card-head"><h5>Favoritos</h5></div>
+    <div class="tt-card-body">
+      @if (!cargando && favoritos.length) { @for (f of favoritos; track f.id) {
+      <div class="tt-item">
+        <div class="tt-item-title">{{ f.title || f.titulo }}</div>
+        <div class="tt-item-actions">
+          <a [routerLink]="['/detalle-viaje', f.id]" class="btn btn-sm btn-link">Ver</a>
+        </div>
+      </div>
+      } } @else if (!cargando) {
+      <div class="text-muted">Aún no has marcado favoritos.</div>
+      } @else {
+      <div class="text-muted">Cargando…</div>
+      }
+    </div>
+  </div>
+
+  <!-- Notificaciones -->
+  <div class="tt-card tt-col-span-2">
+    <div class="tt-card-head"><h5>Notificaciones</h5></div>
+    <div class="tt-card-body">
+      @if (!cargando && notificaciones.length) { @for (n of notificaciones; track n.id) {
+      <div class="tt-item">
+        <div class="tt-item-title">{{ n.texto }}</div>
+        <div class="small text-muted">{{ n.fecha }}</div>
+      </div>
+      } } @else if (!cargando) {
+      <div class="text-muted">Nada nuevo por aquí.</div>
+      } @else {
+      <div class="text-muted">Cargando…</div>
+      }
+    </div>
+  </div>
+</section>
