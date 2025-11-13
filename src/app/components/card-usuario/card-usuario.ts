@@ -10,14 +10,6 @@ import { Iuser } from '../../interfaces/iuser';
 export class CardUsuario {
   @Input() usuario: Iuser | null = null;
 
-  ngOnInit() {
-    console.log('usuario recibido en CardUsuario:', this.usuario);
-  }
-
-  getUsuarioById(id: number): Iuser | undefined {
-    return this.usuario?.id === id ? this.usuario : undefined;
-  }
-
   getEstrellas(valoracion: number): { icon: string; color: string }[] {
     if (valoracion <= 2) {
       return [
@@ -45,5 +37,5 @@ export class CardUsuario {
       ];
     }
   }
-  usuarioProvisional = [{ valoracion: 4.2 }];
+  usuarioProvisional = [{ valoracion: 4.5 }];
 }
