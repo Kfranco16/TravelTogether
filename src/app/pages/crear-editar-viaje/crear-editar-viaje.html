@@ -1,29 +1,319 @@
-<section class="mb-4">
-  <div class="fw-semibold mb-2"><i class="bi bi-check-circle"></i> ¿Qué incluye?</div>
-  <div class="row g-2">
-    <div class="col-6">
-      <div class="mb-2 fw-semibold">Incluye</div>
-      @for (item of incluye.controls; let i = $index; track i) {
+<div class="container my-5">
+  <form [formGroup]="tripForm" (ngSubmit)="onSubmit()" class="trip-form bg-white mt-4">
+    <h2 class="mb-4 color-principal">Nuevo viaje</h2>
+
+    <div class="mb-3">
+      <label class="form-label">Título para el viaje</label>
       <input
         type="text"
-        [formControl]="$any(item)"
-        class="form-control mb-2"
-        maxlength="50"
-        placeholder="Ej. Vuelos ida y vuelta"
+        formControlName="title"
+        class="form-control"
+        placeholder="Ej. Aventura Cafetera y Caribe Colombiano"
       />
-      }
     </div>
-    <div class="col-6">
-      <div class="mb-2 fw-semibold">No incluye</div>
-      @for (item of noIncluye.controls; let i = $index; track i) {
+
+    <div class="mb-3">
+      <label for="destino" class="form-label">Destino</label>
       <input
         type="text"
-        [formControl]="$any(item)"
-        class="form-control mb-2"
-        maxlength="50"
-        placeholder="Ej. Comidas y cenas"
+        formControlName="destination"
+        class="form-control"
+        id="destino"
+        placeholder="Introduce ciudad de destino"
+        #destinationInput
+        autocomplete="off"
+        spellcheck="false"
       />
-      }
+      <div class="form-text">
+        Escribe y selecciona la ciudad para autocompletarla correctamente.
+      </div>
     </div>
-  </div>
-</section>
+
+    <div class="row">
+      <div class="mb-3 col">
+        <label class="form-label">Fecha de inicio</label>
+        <input type="date" formControlName="start_date" class="form-control" />
+      </div>
+      <div class="mb-3 col">
+        <label class="form-label">Fecha de fin</label>
+        <input type="date" formControlName="end_date" class="form-control" />
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Descripción del viaje</label>
+      <textarea formControlName="description" rows="2" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">
+        Itinerario del viaje
+        <span class="text-muted d-block small"
+          >Recuerda: cada día debe empezar por la palabra <strong>Dia</strong></span
+        >
+      </label>
+      <textarea
+        formControlName="itinerary"
+        rows="4"
+        class="form-control"
+        placeholder="Dia 1: Llegada..."
+      ></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Requisitos mínimos</label>
+      <input type="text" formControlName="min_requirements" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">¿Qué incluye?</label>
+      <div class="form-group mb-4">
+        <div class="row">
+          <div class="col-12 col-sm-6 col-lg-4 mb-3">
+            <label
+              class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+              for="inc0"
+            >
+              <input
+                class="form-check-input me-2"
+                type="checkbox"
+                formControlName="inc0"
+                id="inc0"
+              />
+              <span class="include-icon me-2"><i class="bi bi-house-door"></i></span>
+              <span class="flex-grow-1">Alojamiento</span>
+            </label>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-4 mb-3">
+            <label
+              class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+              for="inc1"
+            >
+              <input
+                class="form-check-input me-2"
+                type="checkbox"
+                formControlName="inc1"
+                id="inc1"
+              />
+              <span class="include-icon me-2"><i class="bi bi-egg-fried"></i></span>
+              <span class="flex-grow-1">Pensión completa (comida y cena)</span>
+            </label>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-4 mb-3">
+            <label
+              class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+              for="inc2"
+            >
+              <input
+                class="form-check-input me-2"
+                type="checkbox"
+                formControlName="inc2"
+                id="inc2"
+              />
+              <span class="include-icon me-2"><i class="bi bi-person-walking"></i></span>
+              <span class="flex-grow-1">Guía turístico</span>
+            </label>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-4 mb-3">
+            <label
+              class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+              for="inc3"
+            >
+              <input
+                class="form-check-input me-2"
+                type="checkbox"
+                formControlName="inc3"
+                id="inc3"
+              />
+              <span class="include-icon me-2"><i class="bi bi-ticket"></i></span>
+              <span class="flex-grow-1">Entradas a museos y atracciones</span>
+            </label>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-4 mb-3">
+            <label
+              class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+              for="inc4"
+            >
+              <input
+                class="form-check-input me-2"
+                type="checkbox"
+                formControlName="inc4"
+                id="inc4"
+              />
+              <span class="include-icon me-2"><i class="bi bi-shield-check"></i></span>
+              <span class="flex-grow-1">Seguro de viaje</span>
+            </label>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-4 mb-3">
+            <label
+              class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+              for="inc5"
+            >
+              <input
+                class="form-check-input me-2"
+                type="checkbox"
+                formControlName="inc5"
+                id="inc5"
+              />
+              <span class="include-icon me-2"><i class="bi bi-egg-fried"></i></span>
+              <span class="flex-grow-1">Desayuno</span>
+            </label>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-4 mb-3">
+            <label
+              class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+              for="inc6"
+            >
+              <input
+                class="form-check-input me-2"
+                type="checkbox"
+                formControlName="inc6"
+                id="inc6"
+              />
+              <span class="include-icon me-2"><i class="bi bi-airplane"></i></span>
+              <span class="flex-grow-1">Vuelos</span>
+            </label>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-4 mb-3">
+            <label
+              class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+              for="inc7"
+            >
+              <input
+                class="form-check-input me-2"
+                type="checkbox"
+                formControlName="inc7"
+                id="inc7"
+              />
+              <span class="include-icon me-2"><i class="bi bi-map"></i></span>
+              <span class="flex-grow-1">Excursiones</span>
+            </label>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-4 mb-3">
+            <label
+              class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+              for="inc8"
+            >
+              <input
+                class="form-check-input me-2"
+                type="checkbox"
+                formControlName="inc8"
+                id="inc8"
+              />
+              <span class="include-icon me-2"><i class="bi bi-taxi-front"></i></span>
+              <span class="flex-grow-1">Visados</span>
+            </label>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-4 mb-3">
+            <label
+              class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+              for="inc9"
+            >
+              <input
+                class="form-check-input me-2"
+                type="checkbox"
+                formControlName="inc9"
+                id="inc9"
+              />
+              <span class="include-icon me-2"><i class="bi bi-people"></i></span>
+              <span class="flex-grow-1">Visitas guiadas</span>
+            </label>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-4 mb-3">
+            <label
+              class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+              for="inc10"
+            >
+              <input
+                class="form-check-input me-2"
+                type="checkbox"
+                formControlName="inc10"
+                id="inc10"
+              />
+              <span class="include-icon me-2"><i class="bi bi-journal"></i></span>
+              <span class="flex-grow-1">Material informativo</span>
+            </label>
+          </div>
+          <div class="col-12 col-sm-6 col-lg-4 mb-3">
+            <label
+              class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+              for="inc11"
+            >
+              <input
+                class="form-check-input me-2"
+                type="checkbox"
+                formControlName="inc11"
+                id="inc11"
+              />
+              <span class="include-icon me-2"><i class="bi bi-telephone-forward"></i></span>
+              <span class="flex-grow-1">Asistencia 24h</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="mb-3 col">
+        <label class="form-label">Nº mínimo de participantes</label>
+        <input type="number" min="1" formControlName="min_participants" class="form-control" />
+      </div>
+      <div class="mb-3 col">
+        <label class="form-label">Precio estimado por persona</label>
+        <input
+          type="number"
+          step="0.01"
+          formControlName="estimated_cost"
+          class="form-control"
+          placeholder="Ej. 1750.00"
+        />
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Transporte</label>
+      <input
+        type="text"
+        formControlName="transport"
+        class="form-control"
+        placeholder="Ej. Avión y Autobús"
+      />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Tipo de alojamiento</label>
+      <input
+        type="text"
+        formControlName="accommodation"
+        class="form-control"
+        placeholder="Ej. Hoteles de 4 estrellas"
+      />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Foto de portada</label>
+      <input type="file" class="form-control" (change)="onPhotoChange($event, 'cover_photo')" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Foto principal</label>
+      <input type="file" class="form-control" (change)="onPhotoChange($event, 'main_photo')" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Galería de fotos (máx. 5 imágenes)</label>
+      <input
+        type="file"
+        class="form-control"
+        (change)="onPhotoChange($event, 'gallery_photos', true)"
+        multiple
+      />
+    </div>
+
+    <div class="d-flex gap-2 mt-3">
+      <button class="btn btn-outline-secondary btn-morado w-100 mb-2" type="submit">
+        Aceptar y publicar viaje
+      </button>
+    </div>
+  </form>
+</div>
