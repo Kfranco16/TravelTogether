@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterOutlet } from '@angular/router';
 //import { if, for } from '@angular/common';
 
 import { AuthService } from '../../core/services/auth';
@@ -9,7 +9,7 @@ import { TripService } from '../../core/services/viajes';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, RouterOutlet],
   templateUrl: './dashboard.html',
   styleUrls: ['./dashboard.css'],
 })

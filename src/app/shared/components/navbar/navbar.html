@@ -37,22 +37,22 @@
       <ul class="navbar-nav align-items-md-center gap-md-3 tt-navlist">
         <!-- Siempre visible -->
         <li class="nav-item">
-          <a class="nav-link tt-link" routerLink="/buscar" routerLinkActive="active"
-            >Buscar viajes</a
-          >
+          <a class="nav-link tt-link" routerLink="/buscar" routerLinkActive="active">
+            Buscar viajes
+          </a>
         </li>
 
         <!-- Estado: NO autenticado -->
         @if (!isAuthenticated) {
         <li class="nav-item">
-          <a class="nav-link tt-link">Login</a>
+          <a class="nav-link tt-link" routerLink="/login">Login</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link tt-link">Registro</a>
+          <a class="nav-link tt-link" routerLink="/registro">Registro</a>
         </li>
         }
 
-        <!-- Estado: autenticado -->
+        <!-- Estado: AUTENTICADO -->
         @if (isAuthenticated) {
         <li class="nav-item d-md-inline-flex">
           <a class="btn tt-btn-primary" routerLink="/crear">+ Crear viaje</a>
@@ -66,18 +66,30 @@
             data-bs-toggle="dropdown"
             data-bs-display="static"
             aria-expanded="false"
-            routerLink="/dashboard"
           >
             Mi espacio
           </a>
 
           <ul class="dropdown-menu dropdown-menu-end tt-dropdown" aria-labelledby="espacioMenu">
-            <li><a class="dropdown-item tt-dd-link">Mi perfil</a></li>
-            <li><a class="dropdown-item tt-dd-link">Mis datos</a></li>
-            <li><a class="dropdown-item tt-dd-link">Mis reservas</a></li>
-            <li><a class="dropdown-item tt-dd-link">Mis viajes</a></li>
-            <li><a class="dropdown-item tt-dd-link">Favoritos</a></li>
-            <li><a class="dropdown-item tt-dd-link">Foros</a></li>
+            <!-- Implementación de Mi Espacio -->
+            <li>
+              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/perfil">Mi perfil</a>
+            </li>
+            <li>
+              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/datos">Mis datos</a>
+            </li>
+            <li>
+              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/reservas">Mis reservas</a>
+            </li>
+            <li>
+              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/mis-viajes">Mis viajes</a>
+            </li>
+            <li>
+              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/favoritos">Favoritos</a>
+            </li>
+            <li>
+              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/foros">Foros</a>
+            </li>
             <li><hr class="dropdown-divider" /></li>
             <li>
               <button class="dropdown-item tt-dd-danger" (click)="onLogout()">Cerrar sesión</button>
