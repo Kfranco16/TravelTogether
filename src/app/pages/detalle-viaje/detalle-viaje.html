@@ -32,7 +32,7 @@
                   [href]="getGoogleMapsUrl(trip.latitude, trip.longitude, 12)"
                   target="_blank"
                   rel="noopener"
-                  class="text-decoration-none text-white text-shadow-black"
+                  class="badge bg-light text-dark text-decoration-none"
                   ><i class="bi bi-geo-alt"></i> {{ trip?.destination }}
                 </a>
 
@@ -105,7 +105,7 @@
 
       <!-- Columna lateral -->
       <div class="col-lg-4">
-        <div class="card shadow-sm mb-3 border-0 rounded-4 overflow-hidden">
+        <div class="card shadow-sm mb-0 border-0 rounded-4 overflow-hidden">
           <div
             class="card-body d-flex align-items-center"
             style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
@@ -115,36 +115,40 @@
             </div>
           </div>
         </div>
+        <div class="">
+          <div class="card-body">
+            <div class="fw-semibold text-end small">
+              Ultima actualización: {{ trip.updated_at | date : 'dd/MM/yyyy -  HH:mm' }}
+            </div>
+          </div>
+        </div>
         <div class="card shadow-sm mb-3">
           <div class="card-body">
             <div class="fw-semibold mb-3">Detalles</div>
             <div>
-              <i class="bi bi-calendar-date"></i> <b>Fecha de inicio:</b>
-              {{ trip.start_date | date : 'fullDate' }}
+              <i class="bi bi-calendar-date"></i> <b> Fecha de inicio:</b>
+              {{ trip.start_date | date : 'dd/MM/yyyy' }}
             </div>
             <div>
-              <i class="bi bi-calendar-date"></i> <b>Fecha de fin:</b>
-              {{ trip.end_date | date : 'fullDate' }}
+              <i class="bi bi-calendar-date"></i> <b> Fecha de fin:</b>
+              {{ trip.end_date | date : 'dd/MM/yyyy' }}
             </div>
             <div class="my-2">
-              <i class="bi bi-currency-euro"></i> <b>Coste por persona:</b>
+              <i class="bi bi-currency-euro"></i> <b> Coste por persona:</b>
               {{ trip.estimated_cost }}€
             </div>
-            <!-- <div>
-              <i class="bi bi-people"></i> <b>Viajeros:</b> {{ trip.travelers }}/{{
-                trip.group_size
-              }}
-              <span class="small text-muted">Mínimo: {{ trip.min_travelers }}</span>
-            </div> -->
+            <div>
+              <i class="bi bi-people"></i> <b> Minimo de viajeros:</b> {{ trip.min_participants }}
+            </div>
           </div>
         </div>
 
         <div class="card shadow-sm mb-3">
           <div class="card-body">
             <div class="fw-semibold mb-2">Transporte</div>
-            <div class="small">{{ trip.transport }}</div>
+            <div class="">{{ trip.transport }}</div>
             <div class="fw-semibold mt-3 mb-2">Alojamiento</div>
-            <!-- <div class="small">{{ trip.accommodation_details }}</div> -->
+            <div class="">{{ trip.accommodation }}</div>
           </div>
         </div>
 
