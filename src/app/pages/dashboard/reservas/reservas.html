@@ -1,1 +1,18 @@
-<p>reservas works!</p>
+<section class="tt-panel">
+  <h2 class="tt-title mb-3">Mis reservas</h2>
+
+  @if (!cargando && reservas.length) {
+  <ul class="list-group">
+    @for (r of reservas; track r.id) {
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <span>{{ r.viaje }}</span>
+      <span class="text-muted small">Salida: {{ r.salida }}</span>
+    </li>
+    }
+  </ul>
+  } @else if (!cargando) {
+  <p class="text-muted">Aún no tienes reservas.</p>
+  } @else {
+  <p class="text-muted">Cargando…</p>
+  }
+</section>

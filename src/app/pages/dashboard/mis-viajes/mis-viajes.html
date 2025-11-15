@@ -1,1 +1,21 @@
-<p>mis-viajes works!</p>
+<section class="tt-panel">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="tt-title mb-0">Mis viajes</h2>
+    <a routerLink="/crear" class="btn tt-btn-primary">+ Crear viaje</a>
+  </div>
+
+  @if (!cargando && viajes.length) {
+  <ul class="list-group">
+    @for (v of viajes; track v.id) {
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <span>{{ v.titulo }}</span>
+      <a [routerLink]="['/detalle-viaje', v.id]" class="btn btn-sm btn-link">Ver</a>
+    </li>
+    }
+  </ul>
+  } @else if (!cargando) {
+  <p class="text-muted">Aún no has creado viajes.</p>
+  } @else {
+  <p class="text-muted">Cargando…</p>
+  }
+</section>

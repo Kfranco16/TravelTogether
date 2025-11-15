@@ -1,1 +1,18 @@
-<p>favoritos works!</p>
+<section class="tt-panel">
+  <h2 class="tt-title mb-3">Favoritos</h2>
+
+  @if (!cargando && favoritos.length) {
+  <ul class="list-group">
+    @for (f of favoritos; track f.id) {
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+      <span>{{ f.titulo }}</span>
+      <a [routerLink]="['/detalle-viaje', f.id]" class="btn btn-sm btn-link">Ver</a>
+    </li>
+    }
+  </ul>
+  } @else if (!cargando) {
+  <p class="text-muted">Aún no has marcado viajes como favoritos.</p>
+  } @else {
+  <p class="text-muted">Cargando…</p>
+  }
+</section>

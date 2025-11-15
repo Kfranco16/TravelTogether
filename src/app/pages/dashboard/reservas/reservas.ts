@@ -2,10 +2,12 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-reservas',
-  imports: [],
+  standalone: true,
   templateUrl: './reservas.html',
-  styleUrl: './reservas.css',
+  styleUrls: ['./reservas.css'],
 })
 export class Reservas {
-
+  //Implementación de Mi Espacio
+  cargando = false;
+  reservas: Array<{ id: number; viaje: string; salida: string }> = [];
 }
