@@ -1,21 +1,56 @@
 <section class="tt-panel">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="tt-title mb-0">Mis viajes</h2>
-    <a routerLink="/crear" class="btn tt-btn-primary">+ Crear viaje</a>
+    <a routerLink="/crear-viaje" class="btn tt-btn-primary">+ Crear viaje</a>
   </div>
 
-  @if (!cargando && viajes.length) {
-  <ul class="list-group">
-    @for (v of viajes; track v.id) {
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-      <span>{{ v.titulo }}</span>
-      <a [routerLink]="['/detalle-viaje', v.id]" class="btn btn-sm btn-link">Ver</a>
-    </li>
-    }
-  </ul>
-  } @else if (!cargando) {
-  <p class="text-muted">Aún no has creado viajes.</p>
+  @if (error) {
+  <div class="alert alert-danger small mb-3">
+    {{ error }}
+  </div>
+  } @if (cargando) {
+  <p class="text-muted mb-0">Cargando tus viajes…</p>
+  } @else if (!cargando && viajes.length === 0) {
+  <p class="text-muted mb-0">Aún no has creado ningún viaje.</p>
   } @else {
-  <p class="text-muted">Cargando…</p>
+  <div class="list-group tt-trip-list">
+    @for (v of viajes; track v.id) {
+    <a
+      class="list-group-item list-group-item-action d-flex justify-content-between align-items-center tt-trip-item"
+      [routerLink]="['/viaje', v.id]"
+    >
+      <div>
+        <!-- título -->
+        <h3 class="h6 mb-1">
+          {{ v.title }}
+        </h3>
+
+        <!-- destino -->
+        @if (v.destination) {
+        <p class="mb-0 text-muted small">
+          {{ v.destination }}
+        </p>
+        }
+      </div>
+
+      <div class="text-end">
+        <!-- fecha inicio -->
+        @if (v.start_date) {
+        <div class="small text-muted">
+          Inicio:
+          {{ v.start_date | date : 'dd/MM/yyyy' }}
+        </div>
+        }
+
+        <!-- estado -->
+        @if (v.status) {
+        <span class="badge bg-light text-dark tt-badge-estado">
+          {{ v.status }}
+        </span>
+        }
+      </div>
+    </a>
+    }
+  </div>
   }
 </section>
