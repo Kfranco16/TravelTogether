@@ -1,7 +1,9 @@
 <main class="container g-3 my-5">
   <article class="">
     <div class="card-body">
-      <h4 class="mb-3 color-principal">Registrate y empieza tu aventura</h4>
+      <h4 class="mb-3 color-principal">
+        {{ tituloFormulario || 'Regístrate y empieza tu aventura' }}
+      </h4>
 
       <form [formGroup]="userForm" (ngSubmit)="onSubmit()" novalidate>
         <div class="mb-3">
@@ -141,7 +143,7 @@
 
         <div class="d-flex gap-2 mt-3">
           <button class="btn btn-outline-secondary btn-morado w-100 mb-2" type="submit">
-            Aceptar y registrarme
+            {{ textoBoton || 'Aceptar y registrarme' }}
           </button>
         </div>
       </form>

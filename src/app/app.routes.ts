@@ -25,17 +25,19 @@ export const routes: Routes = [
     component: Dashboard,
     canActivate: [authGuard], // PROTEGIDA: La ruta padre protege a todas las hijas.
     children: [
-      //Implementación de Mi Espacio
       { path: '', redirectTo: 'perfil', pathMatch: 'full' },
 
       {
         path: 'perfil',
-        loadComponent: () => import('./pages/dashboard/perfil/perfil').then((m) => m.Perfil),
+        loadComponent: () => import('./pages/perfil/perfil').then((m) => m.Perfil),
       },
+
+      // reutilizamos el componente de Registro
       {
         path: 'datos',
         loadComponent: () => import('./pages/dashboard/datos/datos').then((m) => m.Datos),
       },
+
       {
         path: 'reservas',
         loadComponent: () => import('./pages/dashboard/reservas/reservas').then((m) => m.Reservas),
