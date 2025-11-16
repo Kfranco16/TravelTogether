@@ -13,6 +13,23 @@
     </div>
 
     <div class="mb-3">
+      <label for="origen" class="form-label">Origen</label>
+      <input
+        type="text"
+        formControlName="origin"
+        class="form-control"
+        id="origen"
+        placeholder="Introduce ciudad de origen"
+        #originInput
+        autocomplete="off"
+        spellcheck="false"
+      />
+      <div class="form-text">
+        Escribe y selecciona la ciudad para autocompletarla correctamente.
+      </div>
+    </div>
+
+    <div class="mb-3">
       <label for="destino" class="form-label">Destino</label>
       <input
         type="text"

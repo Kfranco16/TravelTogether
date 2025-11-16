@@ -84,6 +84,10 @@ export class AuthService {
     this.clearAuth();
     window.location.reload();
   }
+  // Devuelve el usuario logueado actualmente (de sincronamente del BehaviorSubject)
+  getCurrentUser(): Iuser | null {
+    return this._user$.value;
+  }
 
   // --- Estado autenticación ---
   isAuth(): boolean {

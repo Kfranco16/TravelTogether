@@ -18,6 +18,7 @@ import { AuthService } from '../../core/services/auth';
 })
 export class DetalleViaje {
   @Input() trip!: any;
+  @Input() usuario: Iuser | null = null;
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -25,7 +26,6 @@ export class DetalleViaje {
   private tripService = inject(TripService);
 
   viaje: Trip | null = null;
-  usuario: Iuser | null = null;
 
   public itinerarioPorDia: string[] = [];
 
@@ -33,9 +33,11 @@ export class DetalleViaje {
     trip.solicitado = !trip.solicitado;
     // Futura llamada a la API para la solicitud de unirse al viaje.
   }
+  usuarioActual: Iuser | null = null;
 
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
+    this.usuarioActual = this.authService.getCurrentUser();
     if (!id) return;
 
     try {
@@ -48,7 +50,7 @@ export class DetalleViaje {
           .split('Día')
           .map((d) => d.trim())
           .filter((d) => d !== '')
-          .map((d) => 'Día ' + d);
+          .map((d) => '' + d);
       } else {
         this.itinerarioPorDia = [];
       }
@@ -68,6 +70,26 @@ export class DetalleViaje {
       this.viaje = null;
       this.usuario = null;
       this.itinerarioPorDia = [];
+    }
+  }
+
+  get esCreador(): boolean {
+    return this.usuarioActual?.id === this.viaje?.creator_id;
+  }
+
+  async eliminarViaje() {
+    if (!this.viaje?.id) {
+      alert('El viaje no tiene un ID válido.');
+      return;
+    }
+    if (confirm('¿Seguro que quieres eliminar este viaje?')) {
+      try {
+        await this.tripService.deleteTripById(this.viaje.id);
+        this.router.navigate(['/home']); // Redirige a la lista de viajes
+      } catch (error) {
+        console.error('Error al eliminar el viaje:', error);
+        alert('No se pudo eliminar el viaje.');
+      }
     }
   }
 

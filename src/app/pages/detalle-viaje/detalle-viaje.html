@@ -56,6 +56,13 @@
             {{ trip?.solicitado ? 'Solicitado' : 'Solicitar unirme' }}
           </button>
         </div>
+        @if (esCreador) {
+        <div class="mb-3 d-flex gap-2">
+          <button class="btn btn-danger" (click)="eliminarViaje()">
+            <i class="bi bi-trash"></i> Eliminar viaje
+          </button>
+        </div>
+        }
 
         <!-- Descripción -->
         <section class="mt-4">
@@ -96,9 +103,7 @@
         <!-- Requisitos -->
         <section>
           <div class="fw-semibold mb-1"><i class="bi bi-exclamation-circle"></i> Requisitos</div>
-          <div class="">
-            Carnet de conducir (rotaremos para conducir). Ropa térmica imprescindible.
-          </div>
+          <!-- <p class="mb-3">{{ trip.requirements }}</p> -->
         </section>
       </div>
       <!-- /Columna principal -->
