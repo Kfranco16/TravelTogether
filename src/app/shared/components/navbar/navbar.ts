@@ -15,33 +15,40 @@ export class Navbar implements OnDestroy {
 
   open = false;
 
-  // --- NUEVO: usuario actual para el avatar ---
-  user: Iuser | null = null;
-
-  constructor() {
-    // leemos el usuario guardado al arrancar
-    this.user = this.auth.getCurrentUser();
-
-    // nos suscribimos a los cambios (login, logout, actualización de perfil)
-    this.auth.user$.subscribe((u) => {
-      this.user = u;
-    });
-
-    window.addEventListener('storage', this.onStorage);
-  }
+  // 👤 Usuario actual (para la foto de perfil en "Mi espacio")
+  currentUser: Iuser | null = null;
 
   // Estado de autenticación: leemos directamente del servicio (token en localStorage)
   get isAuthenticated(): boolean {
     return this.auth.isAuth();
   }
 
-  // Mantener UX móvil
+  // Mantener la UI sincronizada si el token cambia desde otra pestaña
+  private onStorage = () => {
+    this.currentUser = this.auth.getCurrentUser();
+  };
+
+  constructor() {
+    // Escuchamos cambios del usuario en AuthService
+    this.auth.user$.subscribe((u) => {
+      this.currentUser = u;
+    });
+
+    // Cargar usuario inicial (si ya estaba logueado)
+    this.currentUser = this.auth.getCurrentUser();
+
+    window.addEventListener('storage', this.onStorage);
+  }
+
+  // UX móvil (hamburguesa)
   onToggleOpen() {
     this.open = !this.open;
   }
+
   onOpen() {
     this.open = true;
   }
+
   onClose() {
     this.open = false;
   }
@@ -50,12 +57,6 @@ export class Navbar implements OnDestroy {
     this.auth.logout();
     this.onClose();
   }
-
-  // Mantener la UI sincronizada si el token cambia desde otra pestaña
-  private onStorage = () => {
-    // si cambia el storage, volvemos a leer usuario
-    this.user = this.auth.getCurrentUser();
-  };
 
   ngOnDestroy() {
     window.removeEventListener('storage', this.onStorage);

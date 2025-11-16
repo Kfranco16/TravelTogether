@@ -183,3 +183,37 @@
   font-weight: 600;
   font-size: 0.85rem;
 }
+/* Avatar con aro degradado*/
+.tt-avatar-ring {
+  width: 34px;
+  height: 34px;
+  padding: 2px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #c253ff, #5a8dff);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tt-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #fff;
+}
+
+.tt-avatar-placeholder {
+  background: linear-gradient(135deg, #d0d0d0, #b0b0b0);
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.tt-avatar-placeholder span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}

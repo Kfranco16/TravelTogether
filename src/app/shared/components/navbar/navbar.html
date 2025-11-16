@@ -37,7 +37,7 @@
       <ul class="navbar-nav align-items-md-center gap-md-3 tt-navlist">
         <!-- Siempre visible -->
         <li class="nav-item">
-          <a class="nav-link tt-link" routerLink="/buscar" routerLinkActive="active">
+          <a class="nav-link tt-link" routerLink="/viajes" routerLinkActive="active">
             Buscar viajes
           </a>
         </li>
@@ -45,33 +45,52 @@
         <!-- Estado: NO autenticado -->
         @if (!isAuthenticated) {
         <li class="nav-item">
-          <a class="nav-link tt-link" routerLink="/login">Login</a>
+          <a class="nav-link tt-link" routerLink="/login" routerLinkActive="active">Login</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link tt-link" routerLink="/registro">Registro</a>
+          <a class="nav-link tt-link" routerLink="/registro" routerLinkActive="active">
+            Registro
+          </a>
         </li>
         }
 
-        <!-- Estado: AUTENTICADO -->
+        <!-- Estado: autenticado -->
         @if (isAuthenticated) {
         <li class="nav-item d-md-inline-flex">
-          <a class="btn tt-btn-primary" routerLink="/crear">+ Crear viaje</a>
+          <a class="btn tt-btn-primary" routerLink="/crear-viaje">+ Crear viaje</a>
         </li>
 
         <li class="nav-item dropdown">
+          <!-- Botón Mi espacio + avatar -->
           <a
-            class="nav-link tt-link dropdown-toggle"
+            class="nav-link tt-link dropdown-toggle d-flex align-items-center gap-2"
             id="espacioMenu"
             role="button"
             data-bs-toggle="dropdown"
             data-bs-display="static"
             aria-expanded="false"
+            href="#"
+            (click)="$event.preventDefault()"
           >
-            Mi espacio
+            <!-- Avatar del usuario con aro degradado -->
+            @if (currentUser?.image) {
+            <div class="tt-avatar-ring">
+              <img
+                [src]="currentUser!.image"
+                [alt]="currentUser!.username || 'Usuario'"
+                class="tt-avatar-img"
+              />
+            </div>
+            } @else {
+            <div class="tt-avatar-ring tt-avatar-placeholder">
+              <span>👤</span>
+            </div>
+            }
+
+            <span>Mi espacio</span>
           </a>
 
           <ul class="dropdown-menu dropdown-menu-end tt-dropdown" aria-labelledby="espacioMenu">
-            <!-- Implementación de Mi Espacio -->
             <li>
               <a class="dropdown-item tt-dd-link" routerLink="/dashboard/perfil">Mi perfil</a>
             </li>
@@ -79,13 +98,17 @@
               <a class="dropdown-item tt-dd-link" routerLink="/dashboard/datos">Mis datos</a>
             </li>
             <li>
-              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/reservas">Mis reservas</a>
+              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/reservas">
+                Mis reservas
+              </a>
             </li>
             <li>
-              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/mis-viajes">Mis viajes</a>
+              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/mis-viajes">
+                Mis viajes
+              </a>
             </li>
             <li>
-              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/favoritos">Favoritos</a>
+              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/favoritos"> Favoritos </a>
             </li>
             <li>
               <a class="dropdown-item tt-dd-link" routerLink="/dashboard/foros">Foros</a>
