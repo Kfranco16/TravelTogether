@@ -159,3 +159,27 @@
     margin: 0.25rem 0;
   }
 }
+
+.tt-user-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tt-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  object-fit: cover;
+  border: 2px solid #c084fc;
+}
+
+.tt-user-avatar--placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(90deg, #a855f7, #3b82f6);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
