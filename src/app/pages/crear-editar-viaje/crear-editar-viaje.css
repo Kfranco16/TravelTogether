@@ -1,0 +1,70 @@
+.btn-morado {
+  background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+  color: #fff;
+}
+.btn-morado :hover {
+  filter: brightness(1.05);
+}
+
+.color-principal {
+  color: #5223b9;
+}
+
+.include-card {
+  border: 2px solid var(--tt-border);
+  color: var(--tt-text);
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  cursor: pointer;
+  font-size: 1.08em;
+  box-shadow: 0 3px 16px rgba(103, 57, 255, 0.07);
+  border-radius: 15px;
+  font-family: inherit;
+  position: relative;
+}
+
+.include-card:hover,
+.include-card input:focus ~ .include-icon {
+  border-color: #a78bfa;
+  box-shadow: 0 2px 12px rgba(139, 92, 246, 0.09);
+  background: linear-gradient(89deg, #f1eafb 90%, #fff 100%);
+}
+
+.include-card .form-check-input {
+  accent-color: #a78bfa;
+  width: 1.18em;
+  height: 1.18em;
+  margin-right: 0.8em;
+  transition: accent-color 0.2s;
+}
+
+.include-card .form-check-input:checked + .include-icon {
+  color: #8b5cf6;
+}
+
+.include-card .include-icon {
+  font-size: 1.17em;
+  color: #8b5cf6;
+  min-width: 1.7em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.include-card .flex-grow-1 {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.row > .col-12.col-sm-6.col-lg-4.mb-3 {
+  padding-bottom: 0.5em;
+}
+
+.form-label {
+  color: #8b5cf6;
+  font-weight: 600;
+  font-size: 1.07em;
+  margin-bottom: 0.5em;
+  letter-spacing: 0.015em;
+}
