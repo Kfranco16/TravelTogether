@@ -4,7 +4,6 @@ import { firstValueFrom, Observable } from 'rxjs';
 import { Trip } from '../../interfaces/trip';
 import { environment } from '../../../environment/environment';
 
-// Interfaz para la respuesta paginada completa
 export interface TripApiResponse {
   page: number;
   per_page: number;
@@ -31,19 +30,21 @@ export class TripService {
     return firstValueFrom(this.http.get<Trip>(url, { headers }));
   }
 
-  // Crear viaje (POST)
+  // Crear viaje (CORREGIDO)
   async createTrip(tripData: any): Promise<any> {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    const url = `${environment.apiUrl}/trips/`; // Ajusta si necesitas prefijo completo
-    // await espera y retorna el resultado JSON
-    return await this.http.post<any>(url, tripData, { headers }).toPromise();
+    const url = `${environment.apiUrl}/trips/`;
+
+    // Usamos firstValueFrom para convertir el Observable en Promise
+    return await firstValueFrom(this.http.post<any>(url, tripData, { headers }));
   }
 
   deleteTripById(id: number) {
-    return this.http.delete(`${environment.apiUrl}/trips/${id}`).toPromise();
+    return this.http.delete(`${environment.apiUrl}/trips/${id}`);
   }
-  // Subir imagen (POST)
+
+  // Subir imagen
   async uploadImage(
     file: File,
     description: string,
@@ -51,8 +52,12 @@ export class TripService {
     userId: number,
     mainImg: boolean
   ): Promise<any> {
-    const url = `https://traveltogetherapi-bfd4dhgfb9dhhnbe.spaincentral-01.azurewebsites.net/api/images/upload `;
+    const url = `${environment.apiUrl}/images/upload`;
     const formData = new FormData();
+    if (!file) {
+      console.warn('No hay archivo seleccionado para subir');
+      return;
+    }
     formData.append('file', file);
     formData.append('description', description);
     formData.append('trip_id', tripId.toString());
@@ -62,12 +67,11 @@ export class TripService {
     if (!tripId || !userId) {
       throw new Error('tripId o userId está undefined en uploadImage');
     }
-    formData.append('trip_id', tripId.toString());
-    formData.append('user_id', userId.toString());
 
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    console.log('Archivo para subir:', file); // Debería mostrar File { ... }
 
-    return await this.http.post<any>(url, formData, { headers }).toPromise();
+    return await firstValueFrom(this.http.post<any>(url, formData, { headers }));
   }
 }

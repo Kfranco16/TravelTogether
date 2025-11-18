@@ -55,6 +55,12 @@ export class AuthService {
     const response = await lastValueFrom(
       this.http.post<LoginResponse>(`${environment.apiUrl}/users/register`, payload)
     );
+    console.log('Respuesta completa del registro:', response);
+    console.log('Token recibido:', response.token);
+    console.log('Usuario recibido:', response.user);
+    console.log('Respuesta COMPLETA:', response);
+    console.log('Tipo de respuesta:', typeof response);
+    console.log('Claves de la respuesta:', Object.keys(response));
     this.writeAuth(response.token, response.user); // Guarda token y usuario
     return response;
   }
@@ -65,6 +71,12 @@ export class AuthService {
     const response = await lastValueFrom(
       this.http.post<LoginResponse>(`${environment.apiUrl}/users/login`, payload)
     );
+    console.log('Respuesta completa del registro:', response);
+    console.log('Token recibido:', response.token);
+    console.log('Usuario recibido:', response.user);
+    console.log('Respuesta COMPLETA:', response);
+    console.log('Tipo de respuesta:', typeof response);
+    console.log('Claves de la respuesta:', Object.keys(response));
     this.writeAuth(response.token, response.user);
     return response;
   }

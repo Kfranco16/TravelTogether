@@ -8,11 +8,12 @@ import { Router, RouterLink } from '@angular/router';
 
 import { CardUsuario } from '../../components/card-usuario/card-usuario';
 import { AuthService } from '../../core/services/auth';
+import { FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-detalle-viaje',
   standalone: true,
-  imports: [DatePipe, CardUsuario, RouterLink],
+  imports: [DatePipe, CardUsuario],
   templateUrl: './detalle-viaje.html',
   styleUrl: './detalle-viaje.css',
 })
@@ -29,6 +30,20 @@ export class DetalleViaje {
 
   public itinerarioPorDia: string[] = [];
 
+  services = [
+    { control: 'flights', label: 'Transporte (Vuelos, Tren, Bus...)' },
+    { control: 'tickets', label: 'Tickets' },
+    { control: 'visits', label: 'Visitas' },
+    { control: 'full_board', label: 'Pensión completa' },
+    { control: 'travel_insurance', label: 'Seguro de viaje' },
+    { control: 'tour_guide', label: 'Guía turístico' },
+    { control: 'informative_material', label: 'Material informativo' },
+    { control: 'breakfast', label: 'Desayuno' },
+    { control: 'visas', label: 'Visados' },
+    { control: 'assistance24', label: 'Asistencia 24h' },
+  ];
+  detalleViaje: any = {};
+
   toggleSolicitud(trip: any) {
     trip.solicitado = !trip.solicitado;
     // Futura llamada a la API para la solicitud de unirse al viaje.
@@ -41,11 +56,10 @@ export class DetalleViaje {
     if (!id) return;
 
     try {
-      // 1. Carga el viaje
       this.viaje = await this.tripService.getTripById(Number(id));
 
-      // 2. Procesa el itinerario en array de días
       if (this.viaje?.itinerary) {
+        console.log('Itinerario original:', this.viaje);
         this.itinerarioPorDia = this.viaje.itinerary
           .split('Día')
           .map((d) => d.trim())
@@ -55,7 +69,6 @@ export class DetalleViaje {
         this.itinerarioPorDia = [];
       }
 
-      // 3. Cuando tengas el viaje, busca el usuario creador
       if (this.viaje?.creator_id) {
         try {
           this.usuario = await this.authService.getUserById(this.viaje.creator_id);
@@ -85,7 +98,7 @@ export class DetalleViaje {
     if (confirm('¿Seguro que quieres eliminar este viaje?')) {
       try {
         await this.tripService.deleteTripById(this.viaje.id);
-        this.router.navigate(['/home']); // Redirige a la lista de viajes
+        this.router.navigate(['/home']);
       } catch (error) {
         console.error('Error al eliminar el viaje:', error);
         alert('No se pudo eliminar el viaje.');

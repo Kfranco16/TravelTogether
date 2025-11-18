@@ -81,21 +81,29 @@
             }
           </ul>
         </section>
-        <!-- Incluye / No incluye -->
+
         <section class="mb-4">
-          <div class="fw-semibold mb-2"><i class="bi bi-check-circle"></i> ¿Qué incluye?</div>
+          <div class="fw-semibold mb-2">¿Qué incluye?</div>
           <div class="row g-2">
-            <div class="col-6">
-              <div class="text-success"><i class="bi bi-check-lg"></i> Vuelos ida y vuelta</div>
-              <div class="text-success"><i class="bi bi-check-lg"></i> Alojamiento 14 noches</div>
-              <div class="text-success"><i class="bi bi-check-lg"></i> Desayunos</div>
-              <div class="text-success"><i class="bi bi-check-lg"></i> Traslados aeropuerto</div>
-              <div class="text-success"><i class="bi bi-check-lg"></i> Seguro de viaje</div>
+            <!-- Incluye -->
+            <div class="col-12 col-md-6">
+              <div class="fw-semibold mb-1 text-success">Incluye</div>
+              @for (service of services; track service.control) { @if
+              (detalleViaje[service.control]) {
+              <div class="text-success mb-1">
+                {{ service.label }}
+              </div>
+              } }
             </div>
-            <div class="col-6">
-              <div class="text-danger"><i class="bi bi-x-lg"></i> Comidas y cenas</div>
-              <div class="text-danger"><i class="bi bi-x-lg"></i> Actividades opcionales</div>
-              <div class="text-danger"><i class="bi bi-x-lg"></i> Visados</div>
+            <!-- No incluye -->
+            <div class="col-12 col-md-6">
+              <div class="fw-semibold mb-1 text-danger">No incluye</div>
+              @for (service of services; track service.control) { @if
+              (!detalleViaje[service.control]) {
+              <div class="text-danger mb-1">
+                {{ service.label }}
+              </div>
+              } }
             </div>
           </div>
         </section>
@@ -103,9 +111,10 @@
         <!-- Requisitos -->
         <section>
           <div class="fw-semibold mb-1"><i class="bi bi-exclamation-circle"></i> Requisitos</div>
-          <!-- <p class="mb-3">{{ trip.requirements }}</p> -->
+          <p class="mb-3">{{ trip.requirements }}</p>
         </section>
       </div>
+
       <!-- /Columna principal -->
 
       <!-- Columna lateral -->
