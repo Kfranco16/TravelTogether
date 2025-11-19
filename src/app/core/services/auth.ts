@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, lastValueFrom, map, tap } from 'rxjs';
+import { BehaviorSubject, lastValueFrom, map, Observable, tap } from 'rxjs';
 import { environment } from '../../../environment/environment';
 import { Iuser } from '../../interfaces/iuser';
 import { HttpHeaders } from '@angular/common/http';
@@ -88,6 +88,12 @@ export class AuthService {
     const token = this.gettoken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     return lastValueFrom(this.http.get<Iuser>(`${environment.apiUrl}/users/${id}`, { headers }));
+  }
+  getUserRating(userId: number, token: string): Observable<number> {
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http
+      .get<{ score: number }>(`${environment.apiUrl}/ratings/score/${userId}`, { headers })
+      .pipe(map((resp) => resp.score));
   }
 
   logout() {

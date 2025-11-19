@@ -84,10 +84,10 @@ export class DetalleViaje {
       if (this.viaje?.itinerary) {
         console.log('Itinerario original:', this.viaje);
         this.itinerarioPorDia = this.viaje.itinerary
-          .split('Día')
+          .split(/D[ií]a/i)
           .map((d) => d.trim())
           .filter((d) => d !== '')
-          .map((d) => '' + d);
+          .map((d) => 'Día ' + d);
       } else {
         this.itinerarioPorDia = [];
       }

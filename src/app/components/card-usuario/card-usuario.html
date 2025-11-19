@@ -22,15 +22,17 @@
     style="width: 35px; height: 55px; object-fit: cover"
   />
 
-  <div>
-    <div class="fw-semibold fs-5">{{ usuario.username || 'Usuario anónimo' }}</div>
-    @if (usuarioProvisional[0].valoracion) {
+  <div class="d-flex flex-column">
+    <div class="fw-semibold fs-5">
+      {{ usuario.username }}
+    </div>
+    @if (usuarioValoracion != null) {
     <div class="d-flex align-items-center gap-1 text-shadow-black mt-1">
-      @for (estrella of getEstrellas(usuarioProvisional[0].valoracion); track estrella.icon +
-      estrella.color + $index) {
+      @for (estrella of getEstrellas(usuarioValoracion); track estrella.icon + estrella.color +
+      $index) {
       <i class="bi {{ estrella.icon }} {{ estrella.color }}"></i>
       }
-      <span>{{ usuarioProvisional[0].valoracion }}</span>
+      <span class="ms-2">{{ usuarioValoracion }}</span>
     </div>
     }
   </div>
