@@ -124,7 +124,10 @@ export class CrearEditarViaje implements AfterViewInit {
   }
 
   async onSubmit() {
-    if (!this.tripForm.valid) return;
+    if (this.tripForm.invalid) {
+      this.tripForm.markAllAsTouched();
+      return;
+    }
 
     try {
       const user = JSON.parse(localStorage.getItem('usuario') || 'null');

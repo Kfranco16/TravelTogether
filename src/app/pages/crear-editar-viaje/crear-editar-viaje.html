@@ -10,6 +10,9 @@
         class="form-control"
         placeholder="Ej. Aventura Cafetera y Caribe Colombiano"
       />
+      @if (tripForm.get('title')?.invalid && tripForm.get('title')?.touched) {
+      <div class="text-danger">El título es obligatorio.</div>
+      }
     </div>
 
     <div class="mb-3">
@@ -23,7 +26,9 @@
         #originInput
         autocomplete="off"
         spellcheck="false"
-      />
+      />@if (tripForm.get('origin')?.invalid && tripForm.get('origin')?.touched) {
+      <div class="text-danger">El origen es obligatorio.</div>
+      }
       <div class="form-text">
         Escribe y selecciona la ciudad para autocompletarla correctamente.
       </div>
@@ -40,7 +45,9 @@
         #destinationInput
         autocomplete="off"
         spellcheck="false"
-      />
+      />@if (tripForm.get('destination')?.invalid && tripForm.get('destination')?.touched) {
+      <div class="text-danger">El destino es obligatorio.</div>
+      }
       <div class="form-text">
         Escribe y selecciona la ciudad para autocompletarla correctamente.
       </div>
@@ -55,10 +62,16 @@
         <label class="form-label">Fecha de fin</label>
         <input type="date" formControlName="end_date" class="form-control" />
       </div>
+      @if (tripForm.get('end_date')?.invalid && tripForm.get('end_date')?.touched) {
+      <div class="text-danger">La fecha es obligatoria.</div>
+      }
     </div>
 
     <div class="mb-3">
       <label class="form-label">Descripción del viaje</label>
+      @if (tripForm.get('description')?.invalid && tripForm.get('description')?.touched) {
+      <div class="text-danger">La descripción es obligatoria.</div>
+      }
       <textarea formControlName="description" rows="2" class="form-control"></textarea>
     </div>
 
@@ -69,6 +82,9 @@
           >Recuerda: cada día debe empezar por la palabra <strong>Dia</strong></span
         >
       </label>
+      @if (tripForm.get('itinerary')?.invalid && tripForm.get('itinerary')?.touched) {
+      <div class="text-danger">El itinerario es obligatorio.</div>
+      }
       <textarea
         formControlName="itinerary"
         rows="4"
@@ -79,11 +95,17 @@
 
     <div class="mb-3">
       <label class="form-label">Requisitos mínimos</label>
+      @if (tripForm.get('requirements')?.invalid && tripForm.get('requirements')?.touched) {
+      <div class="text-danger">Los requisitos mínimos son obligatorios.</div>
+      }
       <input type="text" formControlName="requirements" class="form-control" />
     </div>
 
     <div class="mb-3">
       <label class="form-label">¿Qué incluye?</label>
+      @if (tripForm.get('includes')?.invalid && tripForm.get('includes')?.touched) {
+      <div class="text-danger">Debes seleccionar al menos una opción.</div>
+      }
       <div class="row">
         <div class="col-12 col-sm-6 col-lg-4 mb-3">
           <label
@@ -242,9 +264,16 @@
       <div class="mb-3 col">
         <label class="form-label">Nº mínimo de participantes</label>
         <input type="number" min="1" formControlName="min_participants" class="form-control" />
+        @if (tripForm.get('min_participants')?.invalid && tripForm.get('min_participants')?.touched)
+        {
+        <div class="text-danger">El número mínimo de participantes es obligatorio.</div>
+        }
       </div>
       <div class="mb-3 col">
         <label class="form-label">Precio estimado por persona</label>
+        @if (tripForm.get('estimated_cost')?.invalid && tripForm.get('estimated_cost')?.touched) {
+        <div class="text-danger">El precio estimado es obligatorio.</div>
+        }
         <input
           type="number"
           step="0.01"
@@ -257,6 +286,9 @@
 
     <div class="mb-3">
       <label class="form-label">Transporte</label>
+      @if (tripForm.get('transport')?.invalid && tripForm.get('transport')?.touched) {
+      <div class="text-danger">El transporte es obligatorio.</div>
+      }
       <input
         type="text"
         formControlName="transport"
@@ -267,6 +299,9 @@
 
     <div class="mb-3">
       <label class="form-label">Tipo de alojamiento</label>
+      @if (tripForm.get('accommodation')?.invalid && tripForm.get('accommodation')?.touched) {
+      <div class="text-danger">El tipo de alojamiento es obligatorio.</div>
+      }
       <input
         type="text"
         formControlName="accommodation"
@@ -286,7 +321,11 @@
     </div>
 
     <div class="d-flex gap-2 mt-3">
-      <button class="btn btn-outline-secondary btn-morado w-100 mb-2" type="submit">
+      <button
+        class="btn btn-outline-secondary btn-morado w-100 mb-2"
+        type="submit"
+        [disabled]="tripForm.invalid"
+      >
         Aceptar y publicar viaje
       </button>
     </div>
