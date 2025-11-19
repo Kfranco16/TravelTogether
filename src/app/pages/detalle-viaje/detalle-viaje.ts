@@ -1,10 +1,11 @@
 import { Component, inject, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TripService } from '../../core/services/viajes';
+import { TripService, ImageResponse } from '../../core/services/viajes';
 import { Trip } from '../../interfaces/trip';
 import { DatePipe } from '@angular/common';
 import { Iuser } from '../../interfaces/iuser';
 import { Router, RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 import { CardUsuario } from '../../components/card-usuario/card-usuario';
 import { AuthService } from '../../core/services/auth';
@@ -50,6 +51,28 @@ export class DetalleViaje {
   }
   usuarioActual: Iuser | null = null;
 
+  mainImageUrl: string = 'images/mainDefault.jpg';
+  mainImageAlt: string = 'Foto principal por defecto';
+  portadaImageUrl: string = 'images/coverDefault.jpg';
+  portadaImageAlt: string = 'Imagen de portada por defecto';
+
+  cargarImagenes(tripId: number) {
+    this.tripService.getImagesByTripId(tripId).subscribe({
+      next: (data: any) => {
+        const fotos: any[] = data?.results?.results || [];
+
+        const fotoMain = fotos.find((f) => f.main_img == '1' || f.main_img == 1);
+        const fotoPortada = fotos.find((f) => f.main_img == '0' || f.main_img == 0);
+
+        this.mainImageUrl = fotoMain?.url || 'images/mainDefault.jpg';
+        this.mainImageAlt = fotoMain?.description || 'Foto principal';
+
+        this.portadaImageUrl = fotoPortada?.url || 'images/coverDefault.jpg';
+        this.portadaImageAlt = fotoPortada?.description || 'Imagen de portada';
+      },
+      error: () => {},
+    });
+  }
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     this.usuarioActual = this.authService.getCurrentUser();
@@ -78,6 +101,7 @@ export class DetalleViaje {
           this.usuario = null;
         }
       }
+      this.cargarImagenes(Number(id));
     } catch (error) {
       console.log(error, 'ERROR AL OBTENER EL VIAJE');
       this.viaje = null;
@@ -97,7 +121,7 @@ export class DetalleViaje {
     }
     if (confirm('¿Seguro que quieres eliminar este viaje?')) {
       try {
-        await this.tripService.deleteTripById(this.viaje.id);
+        await firstValueFrom(this.tripService.deleteTripById(this.viaje.id));
         this.router.navigate(['/home']);
       } catch (error) {
         console.error('Error al eliminar el viaje:', error);
@@ -115,9 +139,4 @@ export class DetalleViaje {
   getGoogleMapsUrl(lat: number, lng: number, zoom: number): string {
     return `https://www.google.com/maps/@${lat},${lng},${zoom}z`;
   }
-
-  imagenes = [
-    'https://plus.unsplash.com/premium_photo-1661914240950-b0124f20a5c1?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8dG9raW98ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=900', // Montañas y río, Nueva Zelanda
-    'https://www.shutterstock.com/image-photo/sunrise-panorama-kyoto-japan-260nw-1262024851.jpg', // Lago helado, Islandia
-  ];
 }

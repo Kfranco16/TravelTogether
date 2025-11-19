@@ -1,10 +1,11 @@
-import { Component, Input, Pipe, PipeTransform } from '@angular/core';
+import { Component, inject, Input, Pipe, PipeTransform } from '@angular/core';
 import { CardUsuario } from '../card-usuario/card-usuario';
 import { Login } from '../../pages/login/login';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
 import { Iuser } from '../../interfaces/iuser';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { TripService } from '../../core/services/viajes';
 
 @Pipe({ name: 'capitalizeFirst', standalone: true })
 export class CapitalizeFirstPipe implements PipeTransform {
@@ -22,7 +23,7 @@ export class CapitalizeFirstPipe implements PipeTransform {
 })
 export class CardViaje {
   @Input() trip!: any;
-
+  private tripService = inject(TripService);
   usuario: Iuser | null = null;
 
   constructor(private authService: AuthService, private router: Router) {}
@@ -33,8 +34,27 @@ export class CardViaje {
     }
   }
 
+  portadaImageUrl: string = 'images/coverDefault.jpg';
+  portadaImageAlt: string = 'Imagen de portada por defecto';
+
+  cargarImagenes(tripId: number) {
+    this.tripService.getImagesByTripId(tripId).subscribe({
+      next: (data: any) => {
+        const fotos: any[] = data?.results?.results || [];
+
+        const fotoMain = fotos.find((f) => f.main_img == '1' || f.main_img == 1);
+        const fotoPortada = fotos.find((f) => f.main_img == '0' || f.main_img == 0);
+
+        this.portadaImageUrl = fotoPortada?.url || 'images/coverDefault.jpg';
+        this.portadaImageAlt = fotoPortada?.description || 'Imagen de portada';
+      },
+      error: () => {},
+    });
+  }
+
   ngOnInit() {
-    // mostrar cambios sin recargar pagina
+    this.cargarImagenes(Number(this.trip?.id));
+
     this.authService.user$.subscribe((globalUser) => {
       if (globalUser && this.trip?.creator_id === globalUser.id) {
         this.usuario = globalUser;
@@ -109,9 +129,4 @@ export class CardViaje {
   getGoogleMapsUrl(lat: number, lng: number, zoom: number): string {
     return `https://www.google.com/maps/@${lat},${lng},${zoom}z`;
   }
-
-  imagenes = [
-    'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?auto=format&fit=crop&w=800&q=80',
-    'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80',
-  ];
 }

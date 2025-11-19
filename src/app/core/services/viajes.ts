@@ -12,6 +12,16 @@ export interface TripApiResponse {
   results: Trip[];
 }
 
+export interface ImageResponse {
+  id: number;
+  trip_id: number;
+  user_id: number;
+  image_url: string;
+  description: string;
+  main_img: string;
+  created_at?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TripService {
   private http = inject(HttpClient);
@@ -30,13 +40,10 @@ export class TripService {
     return firstValueFrom(this.http.get<Trip>(url, { headers }));
   }
 
-  // Crear viaje (CORREGIDO)
   async createTrip(tripData: any): Promise<any> {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     const url = `${environment.apiUrl}/trips/`;
-
-    // Usamos firstValueFrom para convertir el Observable en Promise
     return await firstValueFrom(this.http.post<any>(url, tripData, { headers }));
   }
 
@@ -44,7 +51,10 @@ export class TripService {
     return this.http.delete(`${environment.apiUrl}/trips/${id}`);
   }
 
-  // Subir imagen
+  getImagesByTripId(tripId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/images/trips/${tripId}`);
+  }
+
   async uploadImage(
     file: File,
     description: string,
@@ -54,24 +64,28 @@ export class TripService {
   ): Promise<any> {
     const url = `${environment.apiUrl}/images/upload`;
     const formData = new FormData();
-    if (!file) {
-      console.warn('No hay archivo seleccionado para subir');
-      return;
-    }
-    formData.append('file', file);
-    formData.append('description', description);
+    formData.append('image', file);
     formData.append('trip_id', tripId.toString());
     formData.append('user_id', userId.toString());
+    formData.append('description', description);
     formData.append('main_img', mainImg ? '1' : '0');
 
-    if (!tripId || !userId) {
-      throw new Error('tripId o userId está undefined en uploadImage');
+    const token = localStorage.getItem('authToken');
+    const headers: any = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const token = localStorage.getItem('authToken');
-    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    console.log('Archivo para subir:', file); // Debería mostrar File { ... }
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers,
+    });
 
-    return await firstValueFrom(this.http.post<any>(url, formData, { headers }));
+    if (!response.ok) {
+      throw new Error('Error al subir imagen: ' + response.statusText);
+    }
+
+    return await response.json();
   }
 }

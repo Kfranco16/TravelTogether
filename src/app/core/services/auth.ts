@@ -18,7 +18,6 @@ export class AuthService {
   private _user$ = new BehaviorSubject<Iuser | null>(this.readUserFromStorage());
   readonly user$ = this._user$.asObservable();
 
-  // Lee el usuario guardado al iniciar
   private readUserFromStorage(): Iuser | null {
     const raw = localStorage.getItem(this.USER_KEY);
     try {
@@ -27,13 +26,13 @@ export class AuthService {
       return null;
     }
   }
-  // Almacena token y usuario tras login
+
   private writeAuth(token: string, user: Iuser) {
     localStorage.setItem(this.TOKEN_KEY, token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     this._user$.next(user);
   }
-  // Limpia el estado de auth
+
   private clearAuth() {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
@@ -41,7 +40,6 @@ export class AuthService {
   }
 
   // --- Registro ---
-  /** Registro adaptado: POST, guarda token, usuario y BehaviorSubject */
 
   async register(payload: {
     username: string;
@@ -61,7 +59,7 @@ export class AuthService {
     console.log('Respuesta COMPLETA:', response);
     console.log('Tipo de respuesta:', typeof response);
     console.log('Claves de la respuesta:', Object.keys(response));
-    this.writeAuth(response.token, response.user); // Guarda token y usuario
+    this.writeAuth(response.token, response.user);
     return response;
   }
 
@@ -96,12 +94,11 @@ export class AuthService {
     this.clearAuth();
     window.location.reload();
   }
-  // Devuelve el usuario logueado actualmente (de sincronamente del BehaviorSubject)
+
   getCurrentUser(): Iuser | null {
     return this._user$.value;
   }
 
-  // --- Estado autenticación ---
   isAuth(): boolean {
     const keyUser = localStorage.getItem(this.USER_KEY);
     return !!localStorage.getItem(this.TOKEN_KEY);

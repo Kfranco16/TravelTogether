@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } fr
 import { TripService } from '../../core/services/viajes';
 import { AuthService } from '../../core/services/auth';
 import { Trip } from '../../interfaces/trip';
+import { File } from 'lucide-angular';
 
 @Component({
   selector: 'app-crear-editar-viaje',
@@ -115,10 +116,8 @@ export class CrearEditarViaje implements AfterViewInit {
     if (!multiple && files.length > 0) {
       if (controlName === 'cover_photo') {
         this.selectedCoverPhoto = files[0];
-        console.log('Archivo portada asignado:', this.selectedCoverPhoto);
       } else if (controlName === 'main_photo') {
         this.selectedMainPhoto = files[0];
-        console.log('Archivo principal asignado:', this.selectedMainPhoto);
       }
       this.tripForm.get(controlName)?.setValue(files[0]);
     }
@@ -166,14 +165,8 @@ export class CrearEditarViaje implements AfterViewInit {
         (tripData as any)[campo] = this.tripForm.value[campo] ? 1 : 0;
       });
 
-      console.log('tripData:', tripData);
-
       const tripResponse = await this.tripService.createTrip(tripData);
       const tripId = tripResponse.trip.id;
-      console.log('RESPUESTA VIAJE:', tripResponse);
-      console.log('tripId:', tripId);
-      console.log('selectedCoverPhoto:', this.selectedCoverPhoto);
-      console.log('selectedMainPhoto:', this.selectedMainPhoto);
 
       try {
         if (this.selectedCoverPhoto) {
@@ -184,7 +177,6 @@ export class CrearEditarViaje implements AfterViewInit {
             tripResponse.trip.creator_id,
             false
           );
-          console.log('¡Portada subida correctamente!');
         }
       } catch (e) {
         console.error('Error subiendo portada:', e);
@@ -200,19 +192,11 @@ export class CrearEditarViaje implements AfterViewInit {
             tripResponse.trip.creator_id,
             true
           );
-          console.log('¡Principal subida correctamente!');
         }
       } catch (e) {
         console.error('Error subiendo principal:', e);
       }
 
-      console.log('selectedCoverPhoto:', this.selectedCoverPhoto);
-      console.log('selectedMainPhoto:', this.selectedMainPhoto);
-
-      console.log('Foto portada:', this.selectedCoverPhoto);
-      console.log('Foto principal:', this.selectedMainPhoto);
-
-      console.log('Viaje creado y fotos subidas');
       alert('Viaje creado con éxito');
     } catch (err) {
       console.error('Error al crear viaje o subir imágenes', err);
