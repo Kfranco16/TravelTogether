@@ -21,7 +21,7 @@ export class CardUsuario {
 
   @Input() trip: Trip | null = null;
 
-  usuarioValoracion: number | null = null; // Aquí guardamos la nota dinámica del usuario
+  usuarioValoracion: number | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['usuario'] && this.usuario && this.usuario.id) {
@@ -66,7 +66,6 @@ export class CardUsuario {
   }
 
   async ngOnInit() {
-    // Carga el viaje
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
     try {
@@ -76,7 +75,7 @@ export class CardUsuario {
       const token = localStorage.getItem('tt_token') || '';
       console.log('ID del usuario:', userId);
       console.log('Token a usar:', token);
-      // Solo ahora llama a la API de rating
+
       if (userId) {
         this.authService.getUserRating(userId, token).subscribe({
           next: (rating: number) => {
