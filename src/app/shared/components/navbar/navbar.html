@@ -61,44 +61,47 @@
         </li>
 
         <li class="nav-item dropdown">
-          <!-- Nueva parte notificaciones: botón Mi espacio + avatar + aro -->
+          <!-- Botón Mi espacio + avatar + campanita -->
           <a
-            class="nav-link tt-link dropdown-toggle d-flex align-items-center gap-2"
+            class="nav-link tt-link dropdown-toggle d-flex align-items-center gap-2 tt-user-menu"
             id="espacioMenu"
             role="button"
             data-bs-toggle="dropdown"
             data-bs-display="static"
             aria-expanded="false"
-            href="#"
-            (click)="$event.preventDefault()"
           >
-            <!-- Avatar del usuario con aro degradado / gris -->
-            @if (currentUser?.image) {
-            <div class="tt-avatar-ring" [class.tt-avatar-ring--alert]="hasNotifications">
-              <img
-                [src]="currentUser?.image || ''"
-                [alt]="currentUser?.username || 'Usuario'"
-                class="tt-avatar-img"
-              />
+            <!-- Avatar con aro -->
+            <div class="tt-avatar-wrapper">
+              <div
+                [ngClass]="[
+                  'tt-avatar-ring',
+                  hasNotifications ? 'tt-avatar-ring--active' : 'tt-avatar-ring--idle'
+                ]"
+              >
+                @if (currentUser?.image) {
+                <img
+                  [src]="currentUser?.image || ''"
+                  [alt]="currentUser?.username || 'Usuario'"
+                  class="tt-avatar-img"
+                />
+                } @else {
+                <div class="tt-avatar-img tt-avatar-placeholder">
+                  <span>
+                    {{ currentUser?.username?.charAt(0)?.toUpperCase() || '👤' }}
+                  </span>
+                </div>
+                }
+              </div>
+
               @if (hasNotifications) {
-              <span class="tt-avatar-badge">🔔</span>
+              <span class="tt-avatar-bell" aria-label="Tienes notificaciones"> 🔔 </span>
               }
             </div>
-            } @else {
-            <div
-              class="tt-avatar-ring tt-avatar-placeholder"
-              [class.tt-avatar-ring--alert]="hasNotifications"
-            >
-              <span>👤</span>
-              @if (hasNotifications) {
-              <span class="tt-avatar-badge">🔔</span>
-              }
-            </div>
-            }
 
             <span>Mi espacio</span>
           </a>
 
+          <!-- Menú desplegable Mi espacio -->
           <ul class="dropdown-menu dropdown-menu-end tt-dropdown" aria-labelledby="espacioMenu">
             <li>
               <a
@@ -107,10 +110,11 @@
               >
                 <span>Mi perfil</span>
                 @if (notif.perfil) {
-                <span class="tt-dd-badge"></span>
+                <span class="tt-dot"></span>
                 }
               </a>
             </li>
+
             <li>
               <a
                 class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
@@ -118,10 +122,11 @@
               >
                 <span>Mis datos</span>
                 @if (notif.datos) {
-                <span class="tt-dd-badge"></span>
+                <span class="tt-dot"></span>
                 }
               </a>
             </li>
+
             <li>
               <a
                 class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
@@ -129,10 +134,11 @@
               >
                 <span>Mis reservas</span>
                 @if (notif.reservas) {
-                <span class="tt-dd-badge"></span>
+                <span class="tt-dot"></span>
                 }
               </a>
             </li>
+
             <li>
               <a
                 class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
@@ -140,10 +146,11 @@
               >
                 <span>Mis viajes</span>
                 @if (notif.misViajes) {
-                <span class="tt-dd-badge"></span>
+                <span class="tt-dot"></span>
                 }
               </a>
             </li>
+
             <li>
               <a
                 class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
@@ -151,10 +158,11 @@
               >
                 <span>Favoritos</span>
                 @if (notif.favoritos) {
-                <span class="tt-dd-badge"></span>
+                <span class="tt-dot"></span>
                 }
               </a>
             </li>
+
             <li>
               <a
                 class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
@@ -162,11 +170,13 @@
               >
                 <span>Foros</span>
                 @if (notif.foros) {
-                <span class="tt-dd-badge"></span>
+                <span class="tt-dot"></span>
                 }
               </a>
             </li>
+
             <li><hr class="dropdown-divider" /></li>
+
             <li>
               <button class="dropdown-item tt-dd-danger" (click)="onLogout()">Cerrar sesión</button>
             </li>
