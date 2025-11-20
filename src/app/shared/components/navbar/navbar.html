@@ -45,7 +45,7 @@
         <!-- Estado: NO autenticado -->
         @if (!isAuthenticated) {
         <li class="nav-item">
-          <a class="nav-link tt-link" routerLink="/login" routerLinkActive="active">Login</a>
+          <a class="nav-link tt-link" routerLink="/login" routerLinkActive="active"> Login </a>
         </li>
         <li class="nav-item">
           <a class="nav-link tt-link" routerLink="/registro" routerLinkActive="active">
@@ -57,11 +57,11 @@
         <!-- Estado: autenticado -->
         @if (isAuthenticated) {
         <li class="nav-item d-md-inline-flex">
-          <a class="btn tt-btn-primary" routerLink="/crear-viaje">+ Crear viaje</a>
+          <a class="btn tt-btn-primary" routerLink="/crear-viaje"> + Crear viaje </a>
         </li>
 
         <li class="nav-item dropdown">
-          <!-- Botón Mi espacio + avatar -->
+          <!-- Nueva parte notificaciones: botón Mi espacio + avatar + aro -->
           <a
             class="nav-link tt-link dropdown-toggle d-flex align-items-center gap-2"
             id="espacioMenu"
@@ -72,18 +72,27 @@
             href="#"
             (click)="$event.preventDefault()"
           >
-            <!-- Avatar del usuario con aro degradado -->
+            <!-- Avatar del usuario con aro degradado / gris -->
             @if (currentUser?.image) {
-            <div class="tt-avatar-ring">
+            <div class="tt-avatar-ring" [class.tt-avatar-ring--alert]="hasNotifications">
               <img
-                [src]="currentUser!.image"
-                [alt]="currentUser!.username || 'Usuario'"
+                [src]="currentUser?.image || ''"
+                [alt]="currentUser?.username || 'Usuario'"
                 class="tt-avatar-img"
               />
+              @if (hasNotifications) {
+              <span class="tt-avatar-badge">🔔</span>
+              }
             </div>
             } @else {
-            <div class="tt-avatar-ring tt-avatar-placeholder">
+            <div
+              class="tt-avatar-ring tt-avatar-placeholder"
+              [class.tt-avatar-ring--alert]="hasNotifications"
+            >
               <span>👤</span>
+              @if (hasNotifications) {
+              <span class="tt-avatar-badge">🔔</span>
+              }
             </div>
             }
 
@@ -92,26 +101,70 @@
 
           <ul class="dropdown-menu dropdown-menu-end tt-dropdown" aria-labelledby="espacioMenu">
             <li>
-              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/perfil">Mi perfil</a>
-            </li>
-            <li>
-              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/datos">Mis datos</a>
-            </li>
-            <li>
-              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/reservas">
-                Mis reservas
+              <a
+                class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
+                routerLink="/dashboard/perfil"
+              >
+                <span>Mi perfil</span>
+                @if (notif.perfil) {
+                <span class="tt-dd-badge"></span>
+                }
               </a>
             </li>
             <li>
-              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/mis-viajes">
-                Mis viajes
+              <a
+                class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
+                routerLink="/dashboard/datos"
+              >
+                <span>Mis datos</span>
+                @if (notif.datos) {
+                <span class="tt-dd-badge"></span>
+                }
               </a>
             </li>
             <li>
-              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/favoritos"> Favoritos </a>
+              <a
+                class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
+                routerLink="/dashboard/reservas"
+              >
+                <span>Mis reservas</span>
+                @if (notif.reservas) {
+                <span class="tt-dd-badge"></span>
+                }
+              </a>
             </li>
             <li>
-              <a class="dropdown-item tt-dd-link" routerLink="/dashboard/foros">Foros</a>
+              <a
+                class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
+                routerLink="/dashboard/mis-viajes"
+              >
+                <span>Mis viajes</span>
+                @if (notif.misViajes) {
+                <span class="tt-dd-badge"></span>
+                }
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
+                routerLink="/dashboard/favoritos"
+              >
+                <span>Favoritos</span>
+                @if (notif.favoritos) {
+                <span class="tt-dd-badge"></span>
+                }
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
+                routerLink="/dashboard/foros"
+              >
+                <span>Foros</span>
+                @if (notif.foros) {
+                <span class="tt-dd-badge"></span>
+                }
+              </a>
             </li>
             <li><hr class="dropdown-divider" /></li>
             <li>

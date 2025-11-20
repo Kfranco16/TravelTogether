@@ -2,9 +2,11 @@
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
 }
+
 .navbar .nav-link {
   text-decoration: none;
 }
+
 .tt-navlist::before,
 .tt-navlist::after {
   content: none;
@@ -18,6 +20,7 @@
   display: inline-block;
   line-height: 1;
 }
+
 .navbar .tt-link:hover,
 .navbar .tt-link:focus {
   background-image: var(--tt-gradient);
@@ -42,6 +45,7 @@
   transition: transform 0.15s ease, box-shadow 0.25s ease, filter 0.2s ease;
   vertical-align: middle;
 }
+
 .navbar .tt-btn-primary:hover,
 .navbar .tt-btn-primary:focus {
   transform: translateY(-1px);
@@ -53,6 +57,7 @@
   border: 0;
   box-shadow: none;
 }
+
 .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='white' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
   width: 1.4rem;
@@ -63,9 +68,11 @@
   display: inline-block;
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.12));
 }
+
 .tt-mobile-wrap {
   position: relative;
 }
+
 .tt-toggler {
   background: var(--tt-gradient);
   border: 0;
@@ -92,6 +99,7 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
 @media (min-width: 768px) {
   .tt-toggler,
   .tt-close-x-fixed {
@@ -108,12 +116,14 @@
   min-width: 240px;
   transform-origin: top right;
 }
+
 .tt-dropdown .dropdown-item {
   border-radius: 8px;
   font-weight: 600;
   color: #111827;
   transition: background 0.2s, color 0.2s;
 }
+
 .tt-dropdown .dropdown-item.tt-dd-link:hover,
 .tt-dropdown .dropdown-item.tt-dd-link:focus {
   background: rgba(139, 92, 246, 0.1);
@@ -123,20 +133,24 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
 .tt-dropdown .dropdown-divider {
   border-top-color: #ececf5;
   opacity: 1;
 }
+
 .tt-dropdown .tt-dd-danger {
   color: #dc3545;
   font-weight: 700;
 }
+
 .tt-dropdown .tt-dd-danger:hover,
 .tt-dropdown .tt-dd-danger:focus {
   background: rgba(220, 53, 69, 0.1);
   color: #b02a37;
 }
 
+/* Dropdown en móvil */
 @media (max-width: 767.98px) {
   .navbar .dropdown-menu {
     position: static;
@@ -147,6 +161,7 @@
     padding: 0.25rem 0;
     margin-top: 0.25rem;
   }
+
   .navbar .tt-link:hover,
   .navbar .tt-link:focus {
     background-image: var(--tt-gradient);
@@ -155,45 +170,32 @@
     color: transparent;
     -webkit-text-fill-color: transparent;
   }
+
   .navbar .tt-btn-primary {
     margin: 0.25rem 0;
   }
 }
 
-.tt-user-menu {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
+/* ==== AVATAR + NOTIFICACIONES ==== */
 
-.tt-user-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  object-fit: cover;
-  border: 2px solid #c084fc;
-}
-
-.tt-user-avatar--placeholder {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(90deg, #a855f7, #3b82f6);
-  color: #fff;
-  font-weight: 600;
-  font-size: 0.85rem;
-}
-/* Avatar con aro degradado*/
+/* Aro gris por defecto */
 .tt-avatar-ring {
-  width: 34px;
-  height: 34px;
+  position: relative;
+  width: 40px;
+  height: 40px;
   padding: 2px;
   border-radius: 999px;
-  background: linear-gradient(135deg, #c253ff, #5a8dff);
-  display: inline-flex;
+  background: #e5e7eb;
+  display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+/* Aro en degradado cuando hay notificaciones */
+.tt-avatar-ring--alert {
+  background: linear-gradient(135deg, #a855f7, #3b82f6);
+  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.25);
 }
 
 .tt-avatar-img {
@@ -204,6 +206,7 @@
   background: #fff;
 }
 
+/* Placeholder cuando no hay imagen de usuario */
 .tt-avatar-placeholder {
   background: linear-gradient(135deg, #d0d0d0, #b0b0b0);
   color: #ffffff;
@@ -216,4 +219,29 @@
   justify-content: center;
   width: 100%;
   height: 100%;
+}
+
+/* Campanita superpuesta al avatar cuando hay notis */
+.tt-avatar-badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #a855f7, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 10px;
+  border: 2px solid #ffffff;
+}
+
+/* Puntito de notificación en cada opción del menú */
+.tt-dd-badge {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #a855f7, #3b82f6);
 }
