@@ -4,12 +4,11 @@ import { TripService, ImageResponse } from '../../core/services/viajes';
 import { Trip } from '../../interfaces/trip';
 import { DatePipe } from '@angular/common';
 import { Iuser } from '../../interfaces/iuser';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import { CardUsuario } from '../../components/card-usuario/card-usuario';
 import { AuthService } from '../../core/services/auth';
-import { FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-detalle-viaje',
@@ -28,9 +27,9 @@ export class DetalleViaje {
   private tripService = inject(TripService);
 
   viaje: Trip | null = null;
-
   public itinerarioPorDia: string[] = [];
 
+  // Array de servicios de viaje con clave y label
   services = [
     { control: 'flights', label: 'Transporte (Vuelos, Tren, Bus...)' },
     { control: 'tickets', label: 'Tickets' },
@@ -43,6 +42,7 @@ export class DetalleViaje {
     { control: 'visas', label: 'Visados' },
     { control: 'assistance24', label: 'Asistencia 24h' },
   ];
+
   detalleViaje: any = {};
 
   toggleSolicitud(trip: any) {
@@ -73,16 +73,20 @@ export class DetalleViaje {
       error: () => {},
     });
   }
+
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     this.usuarioActual = this.authService.getCurrentUser();
+
     if (!id) return;
 
     try {
       this.viaje = await this.tripService.getTripById(Number(id));
 
+      // Guardar el objeto completo para el template
+      this.detalleViaje = this.viaje;
+
       if (this.viaje?.itinerary) {
-        console.log('Itinerario original:', this.viaje);
         this.itinerarioPorDia = this.viaje.itinerary
           .split(/D[ií]a/i)
           .map((d) => d.trim())
@@ -95,15 +99,12 @@ export class DetalleViaje {
       if (this.viaje?.creator_id) {
         try {
           this.usuario = await this.authService.getUserById(this.viaje.creator_id);
-          console.log('Usuario obtenido:', this.usuario);
         } catch (err) {
-          console.error('Error obteniendo usuario:', err);
           this.usuario = null;
         }
       }
       this.cargarImagenes(Number(id));
     } catch (error) {
-      console.log(error, 'ERROR AL OBTENER EL VIAJE');
       this.viaje = null;
       this.usuario = null;
       this.itinerarioPorDia = [];
@@ -124,7 +125,6 @@ export class DetalleViaje {
         await firstValueFrom(this.tripService.deleteTripById(this.viaje.id));
         this.router.navigate(['/home']);
       } catch (error) {
-        console.error('Error al eliminar el viaje:', error);
         alert('No se pudo eliminar el viaje.');
       }
     }

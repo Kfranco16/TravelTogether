@@ -93,21 +93,17 @@
             <!-- Incluye -->
             <div class="col-12 col-md-6">
               <div class="fw-semibold mb-1 text-success">Incluye</div>
-              @for (service of services; track service.control) { @if
-              (detalleViaje[service.control]) {
-              <div class="text-success mb-1">
-                {{ service.label }}
-              </div>
+              @for (service of services; track service.control) { @if (detalleViaje[service.control]
+              === 1) {
+              <div class="text-success mb-1">✓ {{ service.label }}</div>
               } }
             </div>
             <!-- No incluye -->
             <div class="col-12 col-md-6">
               <div class="fw-semibold mb-1 text-danger">No incluye</div>
-              @for (service of services; track service.control) { @if
-              (!detalleViaje[service.control]) {
-              <div class="text-danger mb-1">
-                {{ service.label }}
-              </div>
+              @for (service of services; track service.control) { @if (detalleViaje[service.control]
+              === 0 || detalleViaje[service.control] === null) {
+              <div class="text-danger mb-1">✗ {{ service.label }}</div>
               } }
             </div>
           </div>
