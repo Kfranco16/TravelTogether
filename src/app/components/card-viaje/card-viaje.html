@@ -8,10 +8,10 @@
         <div class="layer-base position-absolute top-0 start-0 w-100 h-100">
           <div class="position-relative w-100 h-100">
             <img
-              [src]="imagenes[1] || 'assets/trip-default.jpg'"
-              class="card-img-zoom w-100 h-100"
-              alt="Foto principal"
-              style="height: 150px; object-fit: cover"
+              [src]="portadaImageUrl"
+              [alt]="portadaImageAlt"
+              style="height: 100%; width: 100%; object-fit: cover; display: block"
+              class="img-fluid"
             />
 
             <div class="position-absolute top-0 start-0 w-100 text-white px-3 pt-2 lh-1">

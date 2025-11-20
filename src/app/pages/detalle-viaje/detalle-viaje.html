@@ -2,21 +2,35 @@
 <div class="card border-0 rounded-3 overflow-hidden mb-4">
   <!-- Imagen del viaje/paisaje -->
   <img
-    [src]="imagenes[1] || 'assets/trip-default.jpg'"
+    [src]="portadaImageUrl"
+    [alt]="portadaImageAlt"
     class="card-img-top object-fit-cover"
     style="height: 320px"
-    alt="Paisaje destino"
   />
 
   <div class="container my-4">
+    <div class="d-flex mb-3 gap-2">
+      @if (esCreador) {
+      <div class="d-flex align-items-start justify-content-start">
+        <button class="btn btn-danger" (click)="eliminarViaje()">
+          <i class="bi bi-trash"></i> Eliminar viaje
+        </button>
+      </div>
+      } @if (esCreador) {
+      <div class="d-flex align-items-start justify-content-start">
+        <button class="btn btn-primary"><i class="bi bi-arrow-left-right"></i> Editar viaje</button>
+      </div>
+
+      }
+    </div>
     <div class="row g-4">
       <!-- Columna principal -->
       <div class="col-lg-8">
         <!-- Imagen principal -->
         <div class="position-relative rounded overflow-hidden">
           <img
-            [src]="imagenes[0] || 'assets/trip-default.jpg'"
-            alt="Foto del destino"
+            [src]="mainImageUrl"
+            [alt]="mainImageAlt"
             class="img-fluid w-100"
             style="max-height: 300px; object-fit: cover"
           />
@@ -56,13 +70,6 @@
             {{ trip?.solicitado ? 'Solicitado' : 'Solicitar unirme' }}
           </button>
         </div>
-        @if (esCreador) {
-        <div class="mb-3 d-flex gap-2">
-          <button class="btn btn-danger" (click)="eliminarViaje()">
-            <i class="bi bi-trash"></i> Eliminar viaje
-          </button>
-        </div>
-        }
 
         <!-- Descripción -->
         <section class="mt-4">
@@ -75,9 +82,7 @@
           <div class="fw-semibold mb-2"><i class="bi bi-list-ul"></i> Itinerario</div>
           <ul class="list-group">
             @for (dia of itinerarioPorDia; track dia) {
-            <li class="list-group-item p-2">
-              {{ dia }}
-            </li>
+            <li class="list-group-item p-2">{{ dia }}</li>
             }
           </ul>
         </section>
