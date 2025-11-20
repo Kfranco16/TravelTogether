@@ -29,7 +29,6 @@ export class DetalleViaje {
   viaje: Trip | null = null;
   public itinerarioPorDia: string[] = [];
 
-  // Array de servicios de viaje con clave y label
   services = [
     { control: 'flights', label: 'Transporte (Vuelos, Tren, Bus...)' },
     { control: 'tickets', label: 'Tickets' },
@@ -83,7 +82,6 @@ export class DetalleViaje {
     try {
       this.viaje = await this.tripService.getTripById(Number(id));
 
-      // Guardar el objeto completo para el template
       this.detalleViaje = this.viaje;
 
       if (this.viaje?.itinerary) {
@@ -136,6 +134,11 @@ export class DetalleViaje {
     }
   }
 
+  irAValoraciones() {
+    if (this.usuario && this.usuario.id) {
+      this.router.navigate([`valoraciones/${this.usuario.id}`]);
+    }
+  }
   getGoogleMapsUrl(lat: number, lng: number, zoom: number): string {
     return `https://www.google.com/maps/@${lat},${lng},${zoom}z`;
   }

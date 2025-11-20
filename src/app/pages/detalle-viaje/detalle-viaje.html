@@ -122,12 +122,19 @@
       <div class="col-lg-4">
         <div class="card shadow-sm mb-0 border-0 rounded-4 overflow-hidden">
           <div
-            class="card-body d-flex align-items-center"
+            class="card-body d-flex align-items-center mb-1"
             style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
           >
             <div class="user-link text-white" (click)="irADetalleUsuario()">
               <app-card-usuario [usuario]="usuario"></app-card-usuario>
             </div>
+          </div>
+          <div
+            class="card-body d-flex align-items-center text-white"
+            style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
+            (click)="irAValoraciones()"
+          >
+            <h6 class="m-1 fs-4text-center">Ver valoraciones de {{ usuario?.username }}</h6>
           </div>
         </div>
         <div class="">
