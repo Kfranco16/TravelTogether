@@ -115,15 +115,32 @@ export class ValoracionesPendientesComponent {
   modalScore = 0;
   modalComment = '';
 
-  getEstrellas(rating: number) {
-    const estrellas = [];
-    for (let i = 1; i <= 5; i++) {
-      estrellas.push({
-        icon: 'bi-star-fill',
-        color: i <= rating ? 'text-warning' : 'text-secondary',
-      });
+  getEstrellas(valoracion: number): { icon: string; color: string }[] {
+    if (valoracion <= 2) {
+      return [
+        { icon: 'bi-star-fill', color: 'text-danger' },
+        { icon: 'bi-star', color: 'text-secondary' },
+        { icon: 'bi-star', color: 'text-secondary' },
+      ];
+    } else if (valoracion <= 3) {
+      return [
+        { icon: 'bi-star-fill', color: 'text-warning' },
+        { icon: 'bi-star', color: 'text-secondary' },
+        { icon: 'bi-star', color: 'text-secondary' },
+      ];
+    } else if (valoracion <= 4) {
+      return [
+        { icon: 'bi-star-fill', color: 'text-warning' },
+        { icon: 'bi-star-fill', color: 'text-warning' },
+        { icon: 'bi-star', color: 'text-secondary' },
+      ];
+    } else {
+      return [
+        { icon: 'bi-star-fill', color: 'text-warning' },
+        { icon: 'bi-star-fill', color: 'text-warning' },
+        { icon: 'bi-star-fill', color: 'text-warning' },
+      ];
     }
-    return estrellas;
   }
 
   openModal(

@@ -1,0 +1,83 @@
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <!-- Card usuario principal -->
+      <div class="card border-0 rounded-4 shadow mb-4 overflow-hidden user-main-card">
+        <div
+          class="card-body d-flex align-items-center gap-4 p-4"
+          style="
+            background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 60%, #3b82f6 100%);
+            position: relative;
+          "
+        >
+          <div class="profile-img-wrapper position-relative me-3">
+            <img
+              [src]="
+                usuario.image ||
+                'https://img.freepik.com/psd-gratis/ilustracion-3d-avatar-o-perfil-humano_23-2150671142.jpg?semt=ais_hybrid&w=740&q=80'
+              "
+              alt="Avatar"
+              class="rounded-circle border border-3 profile-img shadow"
+              style="width: 100px; height: 100px; object-fit: cover"
+            />
+          </div>
+          <div class="flex-grow-1 d-flex flex-column justify-content-center">
+            <div class="fw-bold fs-2 text-white text-shadow-black mb-1">{{ usuario.username }}</div>
+            <div class="d-flex align-items-center gap-2 mt-2">
+              @for (estrella of getEstrellas(usuario.valoracionMedia); track estrella.icon +
+              estrella.color + $index) {
+              <i class="bi {{ estrella.icon }} {{ estrella.color }} fs-4"></i>
+              }
+              <span class="ms-2 fs-5 text-white">{{ usuario.valoracionMedia }}/5</span>
+            </div>
+          </div>
+          <div class="ms-4">
+            <button
+              type="button"
+              class="btn btn-light btn-sm px-4 fw-semibold shadow"
+              style="color: #6b46c1; border-radius: 1.5em"
+            >
+              Ver Perfil
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Listado de valoraciones recibidas -->
+      <div class="mt-4 mb-2">
+        <div class="fw-bold fs-4 mb-3 text-morado">Valoraciones recibidas</div>
+        @for (val of valoracionesRecibidas; track val.autor.id + val.puntuacion + val.comentario) {
+        <div class="card border-0 rounded-4 shadow-sm mb-4 valoracion-item p-3">
+          <div class="d-flex align-items-start">
+            <img
+              [src]="
+                val.autor.image ||
+                'https://img.freepik.com/psd-gratis/ilustracion-3d-avatar-o-perfil-humano_23-2150671142.jpg?semt=ais_hybrid&w=740&q=80'
+              "
+              alt="Avatar autor"
+              class="rounded-circle border border-3 me-3 shadow"
+              style="width: 58px; height: 58px; object-fit: cover"
+            />
+            <div class="flex-grow-1">
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="fw-semibold text-morado">{{ val.autor.username }}</span>
+                <span class="d-flex align-items-center ms-1">
+                  @for (estrella of getEstrellas(val.puntuacion); track estrella.icon +
+                  estrella.color + $index) {
+                  <i class="bi {{ estrella.icon }} {{ estrella.color }} fs-6"></i>
+                  }
+                  <span class="ms-1 text-secondary fw-bold">{{ val.puntuacion }}/5</span>
+                </span>
+              </div>
+              <div class="bg-light p-3 rounded-3 mt-2 lh-sm valoracion-text fs-6">
+                <i class="bi bi-chat-left-quote fs-5 text-morado me-1"></i>
+                <span>{{ val.comentario }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

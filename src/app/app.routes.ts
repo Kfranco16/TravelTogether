@@ -9,6 +9,7 @@ import { Perfil } from './pages/perfil/perfil';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { CrearEditarViaje } from './pages/crear-editar-viaje/crear-editar-viaje';
 import { ValoracionesPendientesComponent } from './pages/ratings/ratings';
+import { ViewRatings } from './pages/ratings/view-ratings/view-ratings';
 
 export const routes: Routes = [
   //RUTAS PÚBLICAS (Accesibles por todos)
@@ -34,6 +35,7 @@ export const routes: Routes = [
 
   { path: 'perfil/:id', component: Perfil, canActivate: [authGuard] },
   { path: 'valoraciones', component: ValoracionesPendientesComponent, canActivate: [authGuard] },
+  { path: 'valoraciones/:id', component: ViewRatings, canActivate: [authGuard] },
   {
     path: 'dashboard',
     component: Dashboard,

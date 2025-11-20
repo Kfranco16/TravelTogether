@@ -1,0 +1,29 @@
+.text-shadow-black {
+  text-shadow: 1px 1px 4px rgba(40, 40, 70, 0.16);
+}
+.text-morado {
+  color: #6b46c1 !important;
+}
+.user-main-card {
+  box-shadow: 0 8px 24px 0 rgba(91, 44, 183, 0.11), 0 2px 8px rgba(33, 33, 33, 0.11);
+}
+.profile-img-wrapper {
+  min-width: 100px;
+  min-height: 100px;
+}
+.profile-img {
+  border-color: #a78bfa;
+}
+.valoracion-item {
+  transition: box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(140, 90, 230, 0.09);
+}
+.valoracion-item:hover {
+  box-shadow: 0 8px 24px rgba(138, 43, 226, 0.18);
+  transform: translateY(-2px) scale(1.015);
+}
+.valoracion-text {
+  background: linear-gradient(90deg, #f3f0ff 0%, #fdf6fd 100%);
+  font-size: 1rem;
+  box-shadow: 0 1.5px 8px rgba(91, 44, 183, 0.07);
+}
