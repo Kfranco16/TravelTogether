@@ -18,6 +18,7 @@
   display: inline-block;
   line-height: 1;
 }
+
 .navbar .tt-link:hover,
 .navbar .tt-link:focus {
   background-image: var(--tt-gradient);
@@ -54,6 +55,7 @@
   border: 0;
   box-shadow: none;
 }
+
 .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='white' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
   width: 1.4rem;
@@ -64,9 +66,11 @@
   display: inline-block;
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.12));
 }
+
 .tt-mobile-wrap {
   position: relative;
 }
+
 .tt-toggler {
   background: var(--tt-gradient);
   border: 0;
@@ -154,19 +158,18 @@
     padding: 0.25rem 0;
     margin-top: 0.25rem;
   }
+
   .navbar .tt-btn-primary {
     margin: 0.25rem 0;
   }
 }
-
-/* AVATAR + NOTIFICACIONES*/
+/* avatar + notif */
 .tt-user-menu {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-/* Wrapper general */
 .tt-avatar-wrapper {
   position: relative;
   display: inline-flex;
@@ -174,7 +177,7 @@
   justify-content: center;
 }
 
-/* Aro del avatar */
+/* Aro avatar */
 .tt-avatar-ring {
   width: 44px;
   height: 44px;
@@ -186,20 +189,18 @@
   transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
 }
 
-/* Sin notificaciones */
 .tt-avatar-ring--idle {
   background: linear-gradient(135deg, #d4d4d8, #e5e7eb);
   box-shadow: none;
 }
 
-/* Con notificaciones */
 .tt-avatar-ring--active {
   background: linear-gradient(135deg, #a855f7, #3b82f6);
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.95), 0 0 16px rgba(129, 140, 248, 0.75);
   transform: translateY(-1px);
 }
 
-/* Imagen del avatar */
+/* Imagen / Placeholder */
 .tt-avatar-img {
   width: 100%;
   height: 100%;
@@ -211,7 +212,6 @@
   justify-content: center;
 }
 
-/* Placeholder (si no hay foto) */
 .tt-avatar-placeholder {
   color: #6b7280;
   font-weight: 700;
@@ -219,7 +219,7 @@
   -webkit-text-fill-color: currentColor !important;
 }
 
-/* Campanita */
+/* Campanita en avatar */
 .tt-avatar-bell {
   position: absolute;
   bottom: -2px;
@@ -238,7 +238,7 @@
   -webkit-text-fill-color: #ffffff !important;
 }
 
-/* Puntos del menú */
+/* Punto de notificación */
 .tt-dot {
   width: 10px;
   height: 10px;
@@ -246,4 +246,35 @@
   background: linear-gradient(135deg, #a855f7, #3b82f6);
   box-shadow: 0 0 10px rgba(129, 140, 248, 0.7);
   flex-shrink: 0;
+}
+
+/* campana boton hamburguesa */
+.tt-toggler-with-bell {
+  position: relative;
+}
+
+/* Campana móvil con contorno blanco */
+.tt-bell-mobile {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-image: var(--tt-gradient);
+  color: white;
+
+  box-shadow: 0 0 0 3px #ffffff, 0 0 12px rgba(139, 92, 246, 0.5), 0 0 18px rgba(59, 130, 246, 0.45);
+}
+
+/* OCULTAR EN ESCRITORIO */
+@media (min-width: 768px) {
+  .tt-bell-mobile {
+    display: none !important;
+  }
 }

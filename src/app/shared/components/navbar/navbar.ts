@@ -5,6 +5,9 @@ import { NgClass } from '@angular/common';
 import { AuthService } from '../../../core/services/auth';
 import { Iuser } from '../../../interfaces/iuser';
 
+// Tipo de secciones que pueden tener notificaciones
+type NotifSection = 'perfil' | 'reservas' | 'misViajes' | 'favoritos' | 'foros';
+
 @Component({
   selector: 'app-navbar',
   standalone: true,
@@ -17,53 +20,56 @@ export class Navbar implements OnDestroy {
 
   open = false;
 
-  //Simulación de notificaciones (luego se reemplazará por backend)
-  notif = {
-    perfil: false,
-    datos: true,
-    reservas: false,
+  // Estado de notificaciones por sección
+  notif: Record<NotifSection, boolean> = {
+    perfil: true,
+    reservas: true,
     misViajes: false,
     favoritos: true,
-    foros: true,
+    foros: false,
   };
 
-  // Bandera global para el avatar (aro + campanita)
+  // ¿Hay alguna notificación activa? (controla aro + campana)
   get hasNotifications(): boolean {
-    return Object.values(this.notif).some((v) => v === true);
+    return Object.values(this.notif).some((v) => v);
   }
 
-  // AUTENTICACIÓN / USUARIO
-
+  // Estado de autenticación
   get isAuthenticated(): boolean {
     return this.auth.isAuth();
   }
 
+  // Usuario actual
   get currentUser(): Iuser | null {
     return this.auth.getCurrentUser();
   }
 
-  //NAVBAR MOBILE
-
+  // Abrir/cerrar menú móvil
   onToggleOpen() {
     this.open = !this.open;
   }
-
   onOpen() {
     this.open = true;
   }
-
   onClose() {
     this.open = false;
   }
 
+  // Cerrar sesión
   onLogout() {
     this.auth.logout();
     this.onClose();
   }
 
-  // Mantener la UI sincronizada si cambia el token en otra pestaña
+  // Cuando el usuario entra en una sección con notificación,
+  // apagamos ese punto. Si no quedan notis, el aro volverá a gris y la campana desaparecerá.
+  onSectionOpen(section: NotifSection) {
+    this.notif[section] = false;
+  }
+
+  // Mantener la UI sincronizada si cambia el storage en otra pestaña
   private onStorage = () => {
-    // Al acceder a isAuthenticated / currentUser el template se reevaluará
+    // con solo leer isAuthenticated/currentUser Angular reevaluará el template
   };
 
   constructor() {

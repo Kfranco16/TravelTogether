@@ -2,7 +2,7 @@
   <div class="container align-items-center tt-mobile-wrap">
     @if (!open) {
     <button
-      class="navbar-toggler tt-toggler d-md-none"
+      class="navbar-toggler tt-toggler d-md-none tt-toggler-with-bell"
       type="button"
       data-bs-toggle="collapse"
       data-bs-target="#ttNav"
@@ -12,6 +12,10 @@
       (click)="onToggleOpen()"
     >
       <span class="navbar-toggler-icon"></span>
+
+      @if (hasNotifications) {
+      <span class="tt-bell-mobile">🔔</span>
+      }
     </button>
     } @if (open) {
     <button
@@ -94,7 +98,7 @@
               </div>
 
               @if (hasNotifications) {
-              <span class="tt-avatar-bell" aria-label="Tienes notificaciones"> 🔔 </span>
+              <span class="tt-avatar-bell" aria-label="Tienes notificaciones">🔔</span>
               }
             </div>
 
@@ -107,6 +111,7 @@
               <a
                 class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
                 routerLink="/dashboard/perfil"
+                (click)="onSectionOpen('perfil')"
               >
                 <span>Mi perfil</span>
                 @if (notif.perfil) {
@@ -114,23 +119,11 @@
                 }
               </a>
             </li>
-
-            <li>
-              <a
-                class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
-                routerLink="/dashboard/datos"
-              >
-                <span>Mis datos</span>
-                @if (notif.datos) {
-                <span class="tt-dot"></span>
-                }
-              </a>
-            </li>
-
             <li>
               <a
                 class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
                 routerLink="/dashboard/reservas"
+                (click)="onSectionOpen('reservas')"
               >
                 <span>Mis reservas</span>
                 @if (notif.reservas) {
@@ -143,6 +136,7 @@
               <a
                 class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
                 routerLink="/dashboard/mis-viajes"
+                (click)="onSectionOpen('misViajes')"
               >
                 <span>Mis viajes</span>
                 @if (notif.misViajes) {
@@ -155,6 +149,7 @@
               <a
                 class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
                 routerLink="/dashboard/favoritos"
+                (click)="onSectionOpen('favoritos')"
               >
                 <span>Favoritos</span>
                 @if (notif.favoritos) {
@@ -167,6 +162,7 @@
               <a
                 class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
                 routerLink="/dashboard/foros"
+                (click)="onSectionOpen('foros')"
               >
                 <span>Foros</span>
                 @if (notif.foros) {
