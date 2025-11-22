@@ -1,270 +1,145 @@
 .text-shadow {
   text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
 }
-/* ========== ESTILOS PARA CARRUSEL DE RECOMENDACIONES ========== */ /* Contenedor principal del carrusel */
-.carousel-container {
+/* Contenedor fluido */
+.carousel-container-wrapper {
+  position: relative;
   width: 100%;
-  padding: 1rem 3rem;
-} /* Wrapper que contiene el carrusel */
+  /* Agregamos padding abajo para que los dots no sufran cortes */
+  padding-bottom: 20px;
+}
+
 .carousel-wrapper {
   width: 100%;
-  overflow: hidden;
-  position: relative;
-} /* Interior del carrusel con scroll horizontal suave */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+
+  padding: 30px 0 50px 0;
+
+  margin-top: -20px;
+
+  /* Ocultar barra scroll */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.carousel-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
 .carousel-inner {
   display: flex;
+  flex-wrap: nowrap !important;
   gap: 1.5rem;
-  animation: slideIn 0.6s ease-in-out;
-} /* Animación de entrada del carrusel */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-} /* Card individual dentro del carrusel */
+  width: max-content;
+  padding: 0 1rem;
+}
+
+/* --- TARJETAS ESCRITORIO --- */
 .carousel-card {
-  flex: 0 0 calc(25% - 1.125rem);
-  min-width: 280px;
-  animation: cardFadeIn 0.5s ease-in-out;
-} /* Animación de aparición de cards */
+  flex: 0 0 280px;
+  scroll-snap-align: start;
+  transition: transform 0.3s ease;
+  animation: cardFadeIn 0.6s ease-out;
+  /* Aseguramos que la tarjeta en sí no esconda nada */
+  overflow: visible;
+}
+
 @keyframes cardFadeIn {
   from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0);
   }
-} /* Card de recomendación mejorada */
-.card-recommendation {
-  border-radius: 0.875rem;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  height: 100%;
-} /* Efecto hover en cards */
-.card-recommendation:hover {
-  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.2) !important;
-  transform: translateY(-8px);
-} /* Encabezado de la card */
-.card-recommendation .card-header {
-  border-radius: 0.875rem 0.875rem 0 0;
-  transition: all 0.3s ease;
-  min-height: 110px;
-} /* Icono en el encabezado */
-.card-recommendation .card-header i {
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-} /* Efecto al pasar mouse sobre la card */
-.card-recommendation:hover .card-header i {
-  transform: scale(1.15) rotate(8deg);
-} /* Alert con consejo */
-.alert-consejo {
-  border: 0;
-  border-radius: 0.5rem;
-  margin-bottom: 0;
 }
 
+.card-recommendation {
+  border-radius: 0.875rem;
+  background: white;
+  height: 100%;
+  /* Sombra base más suave para evitar cortes duros visuales */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+/* Al hacer hover, la tarjeta sube. Como tenemos padding extra arriba, no se cortará */
+.card-recommendation:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* --- DOTS (PUNTOS) --- */
 .carousel-indicator {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  border: 2px solid #7b61ff;
-  background-color: transparent;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  /* Borde del mismo color que el fondo inactivo para consistencia */
+  border: 2px solid #e0e0e0;
+  background: #e0e0e0; /* Gris suave inactivo */
   padding: 0;
-} /* Indicador activo */
+  transition: all 0.3s;
+}
 .carousel-indicator.active {
-  background-color: #7b61ff;
-  box-shadow: 0 0 0 4px rgba(123, 97, 255, 0.2);
-} /* Indicador hover */
-.carousel-indicator:hover {
-  background-color: #7b61ff;
+  /* CORRECCIÓN 2: Color sólido morado vibrante */
+  background: #7b61ff;
+  border-color: #7b61ff;
   transform: scale(1.2);
-} /* ========== RESPONSIVO - TABLET ========== */
-@media (max-width: 1024px) {
+  box-shadow: 0 4px 10px rgba(123, 97, 255, 0.3); /* Glow suave */
+}
+
+.testimonials-arrow {
+  transition: background 0.3s ease, color 0.3s ease, transform 0.15s ease;
+  background: transparent;
+  color: rgb(74, 1, 74);
+  border: none;
+  box-shadow: 0 4px 15px rgba(123, 97, 255, 0.4);
+  transition: all 0.3s ease;
+}
+.testimonials-arrow:hover {
+  background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+  color: #fff;
+  transform: translateY(-2px);
+}
+.testimonials-arrow:focus {
+  box-shadow: 0 0 0 0.25rem rgba(123, 97, 255, 0.25);
+  outline: none;
+}
+
+/* --- MEDIA QUERIES --- */
+
+@media (max-width: 992px) {
   .carousel-card {
-    flex: 0 0 calc(50% - 0.75rem);
-  }
-  .carousel-btn-prev {
-    left: 0.5rem;
-  }
-  .carousel-btn-next {
-    right: 0.5rem;
-  }
-  .carousel-container {
-    padding: 1rem 1rem;
-  }
-  .carousel-inner {
-    gap: 1rem;
-  }
-  .card-recommendation .card-header {
-    min-height: 90px;
-  }
-  .card-recommendation .card-header i {
-    font-size: 2rem !important;
-  }
-} /* ========== RESPONSIVO - MÓVIL ========== */
-@media (max-width: 768px) {
-  .carousel-inner {
-    display: flex !important; /* fuerza el modo horizontal */
-    width: max-content; /* permite que el carrusel se extienda horizontalmente */
-    gap: 1rem;
-  }
-  .carousel-card {
-    flex: 0 0 calc(100% - 1rem);
-    scroll-snap-align: start;
-  }
-  .carousel-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 0.9rem;
-  }
-  .carousel-btn-prev,
-  .carousel-btn-next {
-    position: relative;
-    left: auto;
-    right: auto;
-    top: auto;
-    transform: none;
-    margin: 0 0.5rem;
-  }
-  .carousel-container {
-    padding: 1rem 0.5rem;
-  }
-  .carousel-wrapper {
-    margin-bottom: 1rem;
-    overflow-x: auto !important; /* permite deslizar con el dedo */
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch; /* suavidad iOS */
-    scroll-snap-type: x mandatory; /* que encaje cada tarjeta */
-    scroll-behavior: smooth;
-    display: flex; /* hace que los hijos fluyan horizontalmente */
-  } /* Reposicionar botones para móvil */
-  .position-absolute.carousel-btn {
-    position: relative !important;
-    transform: none !important;
-  } /* Agregar contenedor para botones en móvil */
-  .carousel-container::after {
-    content: '';
-    display: block;
-    width: 100%;
-    margin-top: 1rem;
-  }
-  .card-recommendation .card-header {
-    min-height: 80px;
-  }
-  .card-recommendation .card-header i {
-    font-size: 1.75rem !important;
-  }
-  .card-title {
-    font-size: 1.1rem;
-  }
-  .card-text {
-    font-size: 0.9rem;
-  }
-  .display-6 {
-    font-size: 1.8rem;
-  }
-  .lead {
-    font-size: 0.95rem;
-  }
-} /* ========== RESPONSIVO - MÓVIL PEQUEÑO ========== */
-@media (max-width: 576px) {
-  /* Wrapper y inner: mismo comportamiento táctil, con ajustes de gap y anchura */
-  .carousel-wrapper {
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-    scroll-snap-type: x mandatory;
-    margin-bottom: 0.75rem;
-  }
-
-  .carousel-inner {
-    display: flex !important;
-    flex-wrap: nowrap;
-    gap: 0.75rem;
-    width: max-content;
-    align-items: flex-start;
-  }
-
-  /* En móvil pequeño queremos que la card ocupe 100% */
-  .carousel-card {
-    flex: 0 0 100%;
-    min-width: 100%;
-    scroll-snap-align: center; /* centrado más cómodo en pantallas muy pequeñas */
-    box-sizing: border-box;
-  }
-
-  /* Ajustes visuales específicos a pantallas muy pequeñas */
-  .carousel-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 0.8rem;
-  }
-
-  .card-recommendation {
-    border-radius: 0.75rem;
-  }
-  .card-recommendation .card-header {
-    min-height: 70px;
-  }
-  .card-recommendation .card-header i {
-    font-size: 1.5rem !important;
-  }
-  .card-body {
-    padding: 1rem;
-  }
-  .alert-consejo {
-    padding: 0.5rem 0.75rem !important;
-    font-size: 0.8rem;
-  }
-  .display-6 {
-    font-size: 1.5rem;
-  }
-  .fw-bold {
-    font-weight: 700;
-  }
-
-  /* Indicadores (dots) ligeramente más pequeños */
-  .carousel-indicator {
-    width: 10px;
-    height: 10px;
+    flex: 0 0 320px;
   }
 }
-/* ========== ESTILOS ANTIGUOS DE CARDS (MANTENIDOS PARA COMPATIBILIDAD) ========== */ /* Card base con sombra suave */
 
-/* @media (max-width: 768px) {
-  .card {
-    margin-bottom: 1rem;
+/* --- MÓVIL --- */
+@media (max-width: 768px) {
+  .carousel-wrapper {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    /* Aumentamos padding también en móvil */
+    padding: 30px 0 50px 0;
   }
-  .card-header {
-    min-height: 80px;
+
+  .carousel-inner {
+    gap: 1rem;
+    padding: 0 7.5vw;
   }
-  .card-header i {
-    font-size: 1.75rem !important;
+
+  .carousel-card {
+    flex: 0 0 85vw;
+    width: 85vw;
+    max-width: 400px;
+    scroll-snap-align: center;
+    margin-right: 0;
   }
-  .display-6 {
-    font-size: 2rem;
+
+  /* Ajuste visual: en móvil los dots necesitan más margen superior porque la tarjeta es grande */
+  .carousel-container-wrapper .d-flex.justify-content-center {
+    margin-top: 0 !important; /* Quitamos margen extra si el padding del wrapper ya es grande */
+    padding-bottom: 10px;
   }
-} */ /* Estilos responsivos para pantallas extra pequeñas */
-/* @media (max-width: 576px) {
-  .display-6 {
-    font-size: 1.5rem;
-  }
-  .lead {
-    font-size: 1rem;
-  }
-  .card-body {
-    padding: 1rem;
-  }
-  .alert {
-    padding: 0.5rem 0.75rem !important;
-    font-size: 0.875rem;
-  }
-} */
+}

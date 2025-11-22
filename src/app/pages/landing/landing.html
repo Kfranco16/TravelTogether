@@ -232,30 +232,13 @@
 
   <div class="position-relative">
     <!-- Flecha Izquierda -->
-    <style>
-      .testimonials-arrow-left {
-        transition: background 0.3s ease, color 0.3s ease, transform 0.15s ease;
-        background: transparent;
-        color: rgb(74, 1, 74);
-        border: none;
-      }
-      .testimonials-arrow-left:hover {
-        background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
-        color: #fff;
-        transform: translateY(-2px);
-      }
-      .testimonials-arrow-left:focus {
-        box-shadow: 0 0 0 0.25rem rgba(123, 97, 255, 0.25);
-        outline: none;
-      }
-    </style>
 
     <button
-      class="btn testimonials-arrow-left position-absolute start-0 top-50 translate-middle-y d-none d-lg-block"
+      class="btn testimonials-arrow position-absolute start-0 top-50 translate-middle-y d-none d-lg-block shadow bg-white rounded-circle"
       (click)="mostrarTestimoniosAnteriores()"
-      style="z-index: 2; left: -4rem"
+      style="z-index: 10; width: 45px; height: 45px"
     >
-      <i class="bi bi-chevron-left fs-3"></i>
+      <i class="bi bi-chevron-left fs-4"></i>
     </button>
 
     <div class="row g-4 py-5 row-cols-1 row-cols-lg-3 px-5">
@@ -288,30 +271,13 @@
     </div>
 
     <!-- Flecha Derecha -->
-    <style>
-      .testimonials-arrow-left {
-        transition: background 0.3s ease, color 0.3s ease, transform 0.15s ease;
-        background: transparent;
-        color: rgb(74, 1, 74);
-        border: none;
-      }
-      .testimonials-arrow-left:hover {
-        background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
-        color: #fff;
-        transform: translateY(-2px);
-      }
-      .testimonials-arrow-left:focus {
-        box-shadow: 0 0 0 0.25rem rgba(123, 97, 255, 0.25);
-        outline: none;
-      }
-    </style>
 
     <button
-      class="btn testimonials-arrow-left position-absolute end-0 top-50 translate-middle-y d-none d-lg-block"
+      class="btn testimonials-arrow position-absolute end-0 top-50 translate-middle-y d-none d-lg-block shadow bg-white rounded-circle"
       (click)="mostrarSiguientesTestimonios()"
-      style="z-index: 2"
+      style="z-index: 10; width: 45px; height: 45px"
     >
-      <i class="bi bi-chevron-right fs-3"></i>
+      <i class="bi bi-chevron-right fs-4"></i>
     </button>
   </div>
   <hr />
@@ -322,7 +288,7 @@
 
   <div class="container">
     <div class="container">
-      <!-- Encabezado con título e ícono -->
+      <!-- Encabezado -->
       <div class="row justify-content-center text-center mb-5">
         <div class="col-lg-7">
           <h2 class="display-6 fw-bold mb-3">Prepárate para tu Próximo Viaje</h2>
@@ -331,31 +297,38 @@
             memorable. Desliza para ver todas.
           </p>
         </div>
-        <!--  <div class="col-lg-5 text-center d-none d-lg-block">
-            <i class="bi bi-compass" style="font-size: 4rem; color: #7b61ff"></i>
-          </div> -->
       </div>
 
-      <!-- Carrusel horizontal responsivo -->
-      <div class="position-relative carousel-container">
-        <!-- Botón anterior -->
+      <!-- Carrusel Container -->
+      <div class="position-relative carousel-container-wrapper">
+        <!-- Botón Anterior (Solo Escritorio) -->
         <button
-          class="btn testimonials-arrow-left position-absolute start-0 top-50 translate-middle-y d-none d-lg-block"
-          (click)="anteriorRecomendacion()"
-          style="z-index: 2"
+          class="btn testimonials-arrow position-absolute start-0 top-50 translate-middle-y d-none d-lg-block shadow bg-white rounded-circle"
+          (click)="moverCarrusel('izquierda')"
+          style="z-index: 10; width: 45px; height: 45px"
+          aria-label="Anterior"
         >
-          <i class="bi bi-chevron-left fs-3"></i>
+          <i class="bi bi-chevron-left fs-4"></i>
         </button>
 
-        <!-- Contenedor del carrusel -->
-        <div class="carousel-wrapper">
+        <!-- Botón Siguiente (Solo Escritorio) -->
+        <button
+          class="btn testimonials-arrow position-absolute end-0 top-50 translate-middle-y d-none d-lg-block shadow bg-white rounded-circle"
+          (click)="moverCarrusel('derecha')"
+          style="z-index: 10; width: 45px; height: 45px"
+          aria-label="Siguiente"
+        >
+          <i class="bi bi-chevron-right fs-4"></i>
+        </button>
+
+        <!-- Wrapper del Scroll (Aquí ocurre la magia) -->
+        <div class="carousel-wrapper" #carouselContainer (scroll)="alHacerScroll($event)">
           <div class="carousel-inner">
-            <!-- Cards del carrusel con animación de fade -->
-            @for (recomendacion of recomendacionesVisibles; track recomendacion.id) {
+            <!-- Iteramos sobre TODAS las recomendaciones -->
+            @for (recomendacion of recomendacionesViajeros(); track recomendacion.id) {
             <div class="carousel-card">
-              <!-- Card de recomendación -->
               <div class="card h-100 border-0 shadow-sm card-recommendation">
-                <!-- Encabezado coloreado -->
+                <!-- Header -->
                 <div
                   class="card-header border-0 bg-{{
                     recomendacion.color
@@ -363,13 +336,15 @@
                 >
                   <i class="bi {{ recomendacion.icono }} fs-1 text-{{ recomendacion.color }}"></i>
                 </div>
-                <!-- Contenido -->
-                <div class="card-body d-flex flex-column">
+
+                <!-- Body -->
+                <div class="card-body d-flex flex-column p-4">
                   <h5 class="card-title fw-bold mb-3">{{ recomendacion.titulo }}</h5>
                   <p class="card-text text-muted small mb-4 flex-grow-1">
                     {{ recomendacion.descripcion }}
                   </p>
-                  <!-- Consejo en alert -->
+
+                  <!-- Consejo -->
                   <div
                     class="alert alert-{{ recomendacion.color }} py-2 px-3 mb-0 alert-consejo"
                     role="alert"
@@ -386,26 +361,18 @@
           </div>
         </div>
 
-        <!-- Botón siguiente -->
-        <button
-          class="btn testimonials-arrow-left position-absolute end-0 top-50 translate-middle-y d-none d-lg-block"
-          (click)="siguienteRecomendacion()"
-          style="z-index: 2"
-        >
-          <i class="bi bi-chevron-right fs-3"></i>
-        </button>
-      </div>
-
-      <!-- Indicadores de posición -->
-      <div class="d-flex justify-content-center gap-2 mt-5">
-        @for (i of [0, 1, 2, 3, 4, 5, 6, 7]; track i) {
-        <button
-          class="carousel-indicator"
-          [class.active]="indiceCarruselRecomendaciones() === i"
-          (click)="irARecomendacion(i)"
-          [attr.aria-label]="'Ir a recomendación ' + (i + 1)"
-        ></button>
-        }
+        <!-- Indicadores (Dots) -->
+        <div class="d-flex justify-content-center gap-2 mt-5">
+          <!-- Generamos los dots dinámicamente según la cantidad de items -->
+          @for (item of recomendacionesViajeros(); track item.id; let i = $index) {
+          <button
+            class="carousel-indicator"
+            [class.active]="indiceCarruselRecomendaciones() === i"
+            (click)="irARecomendacion(i)"
+            [attr.aria-label]="'Ir a recomendación ' + (i + 1)"
+          ></button>
+          }
+        </div>
       </div>
     </div>
   </div>

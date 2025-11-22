@@ -1,9 +1,9 @@
-import { Component, signal, OnInit, OnDestroy, Inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, signal, Inject, ViewChild, ElementRef } from '@angular/core';
 import { CardViaje } from '../../components/card-viaje/card-viaje';
 import { TripService } from '../../core/services/viajes';
 import { AuthService } from '../../core/services/auth';
 import { Iuser } from '../../interfaces/iuser';
+
 export interface Trip {
   id: number;
   origin?: string;
@@ -150,8 +150,21 @@ export class Landing {
     },
   ]);
 
+  mostrarSiguientesTestimonios() {
+    const actual = this.testimonioActual();
+    const siguiente = actual + 3 >= this.testimonios().length ? 0 : actual + 3;
+    this.testimonioActual.set(siguiente);
+  }
+
+  mostrarTestimoniosAnteriores() {
+    const actual = this.testimonioActual();
+    const anterior = actual - 3 < 0 ? this.testimonios().length - 3 : actual - 3;
+    this.testimonioActual.set(anterior);
+  }
+
   // ==================== RECOMENDACIONES PARA VIAJEROS ====================
   // Signal que controla la posición actual del carrusel de recomendaciones
+  @ViewChild('carouselContainer') carouselContainer!: ElementRef<HTMLElement>;
   indiceCarruselRecomendaciones = signal(0);
 
   // Signal que almacena 8 posts de recomendaciones para usuarios autenticados
@@ -238,65 +251,88 @@ export class Landing {
   ]);
 
   /**
-   * Navega al siguiente conjunto de recomendaciones en el carrusel
-   * Incrementa el índice y vuelve al inicio si llega al final
+   * Lógica de Carrusel Infinito (Circular) para botones
    */
-  siguienteRecomendacion(): void {
-    const recomendaciones = this.recomendacionesViajeros();
-    const indiceActual = this.indiceCarruselRecomendaciones();
-    // Incrementar índice, si llega al final, volver al inicio
-    const nuevoIndice = (indiceActual + 1) % recomendaciones.length;
-    this.indiceCarruselRecomendaciones.set(nuevoIndice);
+  moverCarrusel(direccion: 'izquierda' | 'derecha'): void {
+    if (!this.carouselContainer) return;
+
+    const container = this.carouselContainer.nativeElement;
+    const anchoVisible = container.clientWidth;
+    const scrollActual = container.scrollLeft;
+    const scrollTotal = container.scrollWidth; // Ancho total de todo el contenido
+
+    // Margen de error para comparación de floats
+    const tolerancia = 10;
+
+    let nuevaPosicion: number;
+
+    if (direccion === 'derecha') {
+      // Si estamos al final (scroll actual + ancho visible >= total), volvemos al inicio (0)
+      if (scrollActual + anchoVisible >= scrollTotal - tolerancia) {
+        nuevaPosicion = 0;
+      } else {
+        nuevaPosicion = scrollActual + anchoVisible;
+      }
+    } else {
+      // Izquierda
+      // Si estamos al principio (cerca de 0), vamos al final
+      if (scrollActual <= tolerancia) {
+        nuevaPosicion = scrollTotal; // Ir al final
+      } else {
+        nuevaPosicion = scrollActual - anchoVisible;
+      }
+    }
+
+    container.scrollTo({
+      left: nuevaPosicion,
+      behavior: 'smooth',
+    });
   }
 
   /**
-   * Navega al conjunto anterior de recomendaciones en el carrusel
-   * Decrementa el índice y va al final si es menor a 0
+   * Detectar índice centralizado al hacer scroll
    */
-  anteriorRecomendacion(): void {
-    const recomendaciones = this.recomendacionesViajeros();
-    const indiceActual = this.indiceCarruselRecomendaciones();
-    // Decrementar índice, si es negativo, ir al final
-    const nuevoIndice = indiceActual === 0 ? recomendaciones.length - 1 : indiceActual - 1;
-    this.indiceCarruselRecomendaciones.set(nuevoIndice);
+  alHacerScroll(event: Event): void {
+    const container = event.target as HTMLElement;
+    const scrollLeft = container.scrollLeft;
+    const containerWidth = container.clientWidth; // Ancho visible
+
+    const tarjeta = container.querySelector('.carousel-card');
+    if (tarjeta) {
+      const anchoTarjeta = tarjeta.clientWidth + 24; // Ancho + Gap
+
+      // Fórmula ajustada para centrado:
+      // Sumamos la mitad del contenedor al scroll para encontrar el punto central
+      const centroPantalla = scrollLeft + containerWidth / 2;
+
+      // Dividimos ese punto central entre el ancho de la tarjeta
+      // (Restamos medio ancho de tarjeta para ajustar el offset inicial si es necesario)
+      const nuevoIndice = Math.floor(centroPantalla / anchoTarjeta);
+
+      if (this.indiceCarruselRecomendaciones() !== nuevoIndice) {
+        const max = this.recomendacionesViajeros().length - 1;
+        // Aseguramos que el índice sea válido
+        this.indiceCarruselRecomendaciones.set(Math.min(Math.max(nuevoIndice, 0), max));
+      }
+    }
   }
 
-  /**
-   * Navega directamente a un índice específico del carrusel
-   * @param indice - Índice de la recomendación a mostrar
-   */
   irARecomendacion(indice: number): void {
-    const recomendaciones = this.recomendacionesViajeros();
-    if (indice >= 0 && indice < recomendaciones.length) {
-      this.indiceCarruselRecomendaciones.set(indice);
+    if (!this.carouselContainer) return;
+    const container = this.carouselContainer.nativeElement;
+    const tarjeta = container.querySelectorAll('.carousel-card')[indice] as HTMLElement;
+
+    if (tarjeta) {
+      // Cálculo para centrar el elemento seleccionado
+      // Posición deseada = PosiciónElemento - (MitadPantalla - MitadElemento)
+      const tarjetaLeft = tarjeta.offsetLeft;
+      const tarjetaWidth = tarjeta.clientWidth;
+      const containerWidth = container.clientWidth;
+
+      const posicionCentrada = tarjetaLeft - containerWidth / 2 + tarjetaWidth / 2;
+
+      container.scrollTo({ left: posicionCentrada, behavior: 'smooth' });
     }
-  }
-
-  /**
-   * Obtiene las 4 recomendaciones visibles actualmente en el carrusel
-   * @returns Array de 4 recomendaciones para mostrar
-   */
-  get recomendacionesVisibles() {
-    const recomendaciones = this.recomendacionesViajeros();
-    const indice = this.indiceCarruselRecomendaciones();
-    // Mostrar 4 cards a partir del índice actual (con wrap around)
-    const visibles = [];
-    for (let i = 0; i < 4; i++) {
-      visibles.push(recomendaciones[(indice + i) % recomendaciones.length]);
-    }
-    return visibles;
-  }
-
-  mostrarSiguientesTestimonios() {
-    const actual = this.testimonioActual();
-    const siguiente = actual + 3 >= this.testimonios().length ? 0 : actual + 3;
-    this.testimonioActual.set(siguiente);
-  }
-
-  mostrarTestimoniosAnteriores() {
-    const actual = this.testimonioActual();
-    const anterior = actual - 3 < 0 ? this.testimonios().length - 3 : actual - 3;
-    this.testimonioActual.set(anterior);
   }
 
   get isAuthenticated(): boolean {
