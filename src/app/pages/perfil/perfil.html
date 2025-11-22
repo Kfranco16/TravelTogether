@@ -10,7 +10,7 @@
         'sticky-top' es un toque moderno para que se mantenga visible al hacer scroll.
       -->
       <div
-        class="card shadow-sm border-0 rounded-4 text-center p-4 text-white sticky-top"
+        class="card shadow-sm border-0 rounded-4 text-center p-5 text-white sticky-top"
         style="top: 2rem; background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
       >
         <img
@@ -19,11 +19,24 @@
           class="profile-photo mx-auto mb-3 rounded-circle img-fluid"
           style="width: 200px; height: 200px"
         />
-        <h2 class="h1 mb-1">{{ usuario?.username }}</h2>
+        <div>
+          <h2 class="fw-semibold h1 mb-1">{{ usuario?.username }}</h2>
+          @if (usuarioProvisional[0].valoracion) {
+          <div class="">
+            @for (estrella of getEstrellas(usuarioProvisional[0].valoracion); track estrella.icon +
+            estrella.color + $index) {
+            <i class="bi {{ estrella.icon }} {{ estrella.color }}"></i>
+            }
+            <span class="ms-2 fw-semibold">{{ usuarioProvisional[0].valoracion }}</span>
+          </div>
+          }
+        </div>
+
+        <!--  <h2 class="h1 mb-1">{{ usuario?.username }}</h2>
         <p class="mb-3 fs-5">
           <i class="bi bi-star-fill text-warning"></i>
           "4.9/5 - Excelente anfitrión"
-        </p>
+        </p> -->
       </div>
     </div>
 

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject } from '@angular/core';
+import { Component, inject, Input, OnDestroy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgClass } from '@angular/common';
 
@@ -16,6 +16,8 @@ type NotifSection = 'perfil' | 'reservas' | 'misViajes' | 'favoritos' | 'foros';
   styleUrls: ['./navbar.css'],
 })
 export class Navbar implements OnDestroy {
+  @Input() usuario: Iuser | null = null;
+
   private auth = inject(AuthService);
 
   open = false;
@@ -78,5 +80,15 @@ export class Navbar implements OnDestroy {
 
   ngOnDestroy() {
     window.removeEventListener('storage', this.onStorage);
+  }
+
+  ngOnInit() {
+    this.auth.user$.subscribe((user) => {
+      this.usuario = user;
+    });
+  }
+
+  getUsuarioById(id: number): Iuser | undefined {
+    return this.usuario?.id === id ? this.usuario : undefined;
   }
 }

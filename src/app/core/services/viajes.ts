@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { Trip } from '../../interfaces/trip';
 import { HttpParams } from '@angular/common/http';
+import { environment } from '../../../environment/environment';
 
-// Interfaz para la respuesta paginada completa
 export interface TripApiResponse {
   page: number;
   per_page: number;
@@ -13,17 +13,81 @@ export interface TripApiResponse {
   results: Trip[];
 }
 
+export interface ImageResponse {
+  id: number;
+  trip_id: number;
+  user_id: number;
+  image_url: string;
+  description: string;
+  main_img: string;
+  created_at?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TripService {
-  private apiUrl = 'http://localhost:3000/api/trips';
-
-  constructor(private http: HttpClient) {}
+  private http = inject(HttpClient);
 
   getTrips(token: string): Observable<TripApiResponse> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
-    return this.http.get<TripApiResponse>(this.apiUrl, { headers });
+    return this.http.get<TripApiResponse>(`${environment.apiUrl}/trips`, { headers });
+  }
+
+  async getTripById(id: number): Promise<Trip> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    const url = `${environment.apiUrl}/trips/${id}`;
+    return firstValueFrom(this.http.get<Trip>(url, { headers }));
+  }
+
+  async createTrip(tripData: any): Promise<any> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    const url = `${environment.apiUrl}/trips/`;
+    return await firstValueFrom(this.http.post<any>(url, tripData, { headers }));
+  }
+
+  deleteTripById(id: number) {
+    return this.http.delete(`${environment.apiUrl}/trips/${id}`);
+  }
+
+  getImagesByTripId(tripId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/images/trips/${tripId}`);
+  }
+
+  async uploadImage(
+    file: File,
+    description: string,
+    tripId: number,
+    userId: number,
+    mainImg: boolean
+  ): Promise<any> {
+    const url = `${environment.apiUrl}/images/upload`;
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('trip_id', tripId.toString());
+    formData.append('user_id', userId.toString());
+    formData.append('description', description);
+    formData.append('main_img', mainImg ? '1' : '0');
+
+    const token = localStorage.getItem('authToken');
+    const headers: any = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(url, {
+      method: 'POST',
+      body: formData,
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al subir imagen: ' + response.statusText);
+    }
+
+    return await response.json();
   }
 
   //mis viajes (viajes creados por el usuario)

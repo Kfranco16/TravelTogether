@@ -1,34 +1,69 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input, Pipe, PipeTransform } from '@angular/core';
 import { CardUsuario } from '../card-usuario/card-usuario';
 import { Login } from '../../pages/login/login';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
 import { Iuser } from '../../interfaces/iuser';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { TripService } from '../../core/services/viajes';
+
+@Pipe({ name: 'capitalizeFirst', standalone: true })
+export class CapitalizeFirstPipe implements PipeTransform {
+  transform(value: string | null | undefined): string {
+    if (!value) return '';
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  }
+}
 
 @Component({
   selector: 'app-card-viaje',
-  imports: [CardUsuario, Login, RouterLink, DatePipe, DecimalPipe],
+  imports: [CardUsuario, Login, DatePipe, DecimalPipe, CapitalizeFirstPipe],
   templateUrl: './card-viaje.html',
   styleUrl: './card-viaje.css',
 })
 export class CardViaje {
   @Input() trip!: any;
-
+  private tripService = inject(TripService);
   usuario: Iuser | null = null;
 
   constructor(private authService: AuthService, private router: Router) {}
 
-  async ngOnInit() {
-    if (this.trip?.creator_id) {
-      try {
-        this.usuario = await this.authService.getUserById(this.trip.creator_id);
-        console.log('Usuario obtenido:', this.usuario);
-      } catch (err) {
-        console.error('Error obteniendo usuario:', err);
-        this.usuario = null;
-      }
+  irADetalleViaje() {
+    if (this.trip && this.trip.id) {
+      this.router.navigate([`viaje/${this.trip.id}`]);
     }
+  }
+
+  portadaImageUrl: string = 'images/coverDefault.jpg';
+  portadaImageAlt: string = 'Imagen de portada por defecto';
+
+  cargarImagenes(tripId: number) {
+    this.tripService.getImagesByTripId(tripId).subscribe({
+      next: (data: any) => {
+        const fotos: any[] = data?.results?.results || [];
+
+        const fotoMain = fotos.find((f) => f.main_img == '1' || f.main_img == 1);
+        const fotoPortada = fotos.find((f) => f.main_img == '0' || f.main_img == 0);
+
+        this.portadaImageUrl = fotoPortada?.url || 'images/coverDefault.jpg';
+        this.portadaImageAlt = fotoPortada?.description || 'Imagen de portada';
+      },
+      error: () => {},
+    });
+  }
+
+  ngOnInit() {
+    this.cargarImagenes(Number(this.trip?.id));
+
+    this.authService.user$.subscribe((globalUser) => {
+      if (globalUser && this.trip?.creator_id === globalUser.id) {
+        this.usuario = globalUser;
+      } else if (this.trip?.creator_id) {
+        this.authService.getUserById(this.trip.creator_id).then((user) => {
+          this.usuario = user;
+        });
+      }
+    });
   }
 
   irADetalleUsuario() {
@@ -89,5 +124,9 @@ export class CardViaje {
   toggleSolicitud(trip: any) {
     trip.solicitado = !trip.solicitado;
     // Futura llamada a la API para la solicitud de unirse al viaje.
+  }
+
+  getGoogleMapsUrl(lat: number, lng: number, zoom: number): string {
+    return `https://www.google.com/maps/@${lat},${lng},${zoom}z`;
   }
 }
