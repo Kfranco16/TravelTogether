@@ -1,23 +1,26 @@
 import { Component, inject, Input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TripService } from '../../core/services/viajes';
+import { TripService, ImageResponse } from '../../core/services/viajes';
 import { Trip } from '../../interfaces/trip';
 import { DatePipe } from '@angular/common';
 import { Iuser } from '../../interfaces/iuser';
 import { Router, RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 import { CardUsuario } from '../../components/card-usuario/card-usuario';
 import { AuthService } from '../../core/services/auth';
+import { FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-detalle-viaje',
   standalone: true,
-  imports: [DatePipe, CardUsuario, RouterLink],
+  imports: [DatePipe, CardUsuario],
   templateUrl: './detalle-viaje.html',
   styleUrl: './detalle-viaje.css',
 })
 export class DetalleViaje {
   @Input() trip!: any;
+  @Input() usuario: Iuser | null = null;
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -25,27 +28,63 @@ export class DetalleViaje {
   private tripService = inject(TripService);
 
   viaje: Trip | null = null;
-  usuario: Iuser | null = null;
 
   public itinerarioPorDia: string[] = [];
+
+  services = [
+    { control: 'flights', label: 'Transporte (Vuelos, Tren, Bus...)' },
+    { control: 'tickets', label: 'Tickets' },
+    { control: 'visits', label: 'Visitas' },
+    { control: 'full_board', label: 'Pensión completa' },
+    { control: 'travel_insurance', label: 'Seguro de viaje' },
+    { control: 'tour_guide', label: 'Guía turístico' },
+    { control: 'informative_material', label: 'Material informativo' },
+    { control: 'breakfast', label: 'Desayuno' },
+    { control: 'visas', label: 'Visados' },
+    { control: 'assistance24', label: 'Asistencia 24h' },
+  ];
+  detalleViaje: any = {};
 
   toggleSolicitud(trip: any) {
     trip.solicitado = !trip.solicitado;
     // Futura llamada a la API para la solicitud de unirse al viaje.
   }
+  usuarioActual: Iuser | null = null;
 
+  mainImageUrl: string = 'images/mainDefault.jpg';
+  mainImageAlt: string = 'Foto principal por defecto';
+  portadaImageUrl: string = 'images/coverDefault.jpg';
+  portadaImageAlt: string = 'Imagen de portada por defecto';
+
+  cargarImagenes(tripId: number) {
+    this.tripService.getImagesByTripId(tripId).subscribe({
+      next: (data: any) => {
+        const fotos: any[] = data?.results?.results || [];
+
+        const fotoMain = fotos.find((f) => f.main_img == '1' || f.main_img == 1);
+        const fotoPortada = fotos.find((f) => f.main_img == '0' || f.main_img == 0);
+
+        this.mainImageUrl = fotoMain?.url || 'images/mainDefault.jpg';
+        this.mainImageAlt = fotoMain?.description || 'Foto principal';
+
+        this.portadaImageUrl = fotoPortada?.url || 'images/coverDefault.jpg';
+        this.portadaImageAlt = fotoPortada?.description || 'Imagen de portada';
+      },
+      error: () => {},
+    });
+  }
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
+    this.usuarioActual = this.authService.getCurrentUser();
     if (!id) return;
 
     try {
-      // 1. Carga el viaje
       this.viaje = await this.tripService.getTripById(Number(id));
 
-      // 2. Procesa el itinerario en array de días
       if (this.viaje?.itinerary) {
+        console.log('Itinerario original:', this.viaje);
         this.itinerarioPorDia = this.viaje.itinerary
-          .split('Día')
+          .split(/D[ií]a/i)
           .map((d) => d.trim())
           .filter((d) => d !== '')
           .map((d) => 'Día ' + d);
@@ -53,7 +92,6 @@ export class DetalleViaje {
         this.itinerarioPorDia = [];
       }
 
-      // 3. Cuando tengas el viaje, busca el usuario creador
       if (this.viaje?.creator_id) {
         try {
           this.usuario = await this.authService.getUserById(this.viaje.creator_id);
@@ -63,11 +101,32 @@ export class DetalleViaje {
           this.usuario = null;
         }
       }
+      this.cargarImagenes(Number(id));
     } catch (error) {
       console.log(error, 'ERROR AL OBTENER EL VIAJE');
       this.viaje = null;
       this.usuario = null;
       this.itinerarioPorDia = [];
+    }
+  }
+
+  get esCreador(): boolean {
+    return this.usuarioActual?.id === this.viaje?.creator_id;
+  }
+
+  async eliminarViaje() {
+    if (!this.viaje?.id) {
+      alert('El viaje no tiene un ID válido.');
+      return;
+    }
+    if (confirm('¿Seguro que quieres eliminar este viaje?')) {
+      try {
+        await firstValueFrom(this.tripService.deleteTripById(this.viaje.id));
+        this.router.navigate(['/home']);
+      } catch (error) {
+        console.error('Error al eliminar el viaje:', error);
+        alert('No se pudo eliminar el viaje.');
+      }
     }
   }
 
@@ -80,9 +139,4 @@ export class DetalleViaje {
   getGoogleMapsUrl(lat: number, lng: number, zoom: number): string {
     return `https://www.google.com/maps/@${lat},${lng},${zoom}z`;
   }
-
-  imagenes = [
-    'https://plus.unsplash.com/premium_photo-1661914240950-b0124f20a5c1?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8dG9raW98ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=900', // Montañas y río, Nueva Zelanda
-    'https://www.shutterstock.com/image-photo/sunrise-panorama-kyoto-japan-260nw-1262024851.jpg', // Lago helado, Islandia
-  ];
 }

@@ -18,4 +18,15 @@ export interface Trip {
   created_at: string;
   updated_at: string;
   solicitado: boolean;
+  requirements: string;
+  flights: number;
+  tickets: number;
+  visits: number;
+  full_board: number;
+  travel_insurance: number;
+  tour_guide: number;
+  informative_material: number;
+  breakfast: number;
+  visas: number;
+  assistance24: number;
 }

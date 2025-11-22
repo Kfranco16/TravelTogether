@@ -1,29 +1,333 @@
-<section class="mb-4">
-  <div class="fw-semibold mb-2"><i class="bi bi-check-circle"></i> ¿Qué incluye?</div>
-  <div class="row g-2">
-    <div class="col-6">
-      <div class="mb-2 fw-semibold">Incluye</div>
-      @for (item of incluye.controls; let i = $index; track i) {
+<div class="container my-5">
+  <form [formGroup]="tripForm" (ngSubmit)="onSubmit()" class="trip-form bg-white mt-4">
+    <h2 class="mb-4 color-principal">Nuevo viaje</h2>
+
+    <div class="mb-3">
+      <label class="form-label">Título para el viaje</label>
       <input
         type="text"
-        [formControl]="$any(item)"
-        class="form-control mb-2"
-        maxlength="50"
-        placeholder="Ej. Vuelos ida y vuelta"
+        formControlName="title"
+        class="form-control"
+        placeholder="Ej. Aventura Cafetera y Caribe Colombiano"
       />
+      @if (tripForm.get('title')?.invalid && tripForm.get('title')?.touched) {
+      <div class="text-danger">El título es obligatorio.</div>
       }
     </div>
-    <div class="col-6">
-      <div class="mb-2 fw-semibold">No incluye</div>
-      @for (item of noIncluye.controls; let i = $index; track i) {
+
+    <div class="mb-3">
+      <label for="origen" class="form-label">Origen</label>
       <input
         type="text"
-        [formControl]="$any(item)"
-        class="form-control mb-2"
-        maxlength="50"
-        placeholder="Ej. Comidas y cenas"
-      />
+        formControlName="origin"
+        class="form-control"
+        id="origen"
+        placeholder="Introduce ciudad de origen"
+        #originInput
+        autocomplete="off"
+        spellcheck="false"
+      />@if (tripForm.get('origin')?.invalid && tripForm.get('origin')?.touched) {
+      <div class="text-danger">El origen es obligatorio.</div>
+      }
+      <div class="form-text">
+        Escribe y selecciona la ciudad para autocompletarla correctamente.
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="destino" class="form-label">Destino</label>
+      <input
+        type="text"
+        formControlName="destination"
+        class="form-control"
+        id="destino"
+        placeholder="Introduce ciudad de destino"
+        #destinationInput
+        autocomplete="off"
+        spellcheck="false"
+      />@if (tripForm.get('destination')?.invalid && tripForm.get('destination')?.touched) {
+      <div class="text-danger">El destino es obligatorio.</div>
+      }
+      <div class="form-text">
+        Escribe y selecciona la ciudad para autocompletarla correctamente.
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="mb-3 col">
+        <label class="form-label">Fecha de inicio</label>
+        <input type="date" formControlName="start_date" class="form-control" />
+      </div>
+      <div class="mb-3 col">
+        <label class="form-label">Fecha de fin</label>
+        <input type="date" formControlName="end_date" class="form-control" />
+      </div>
+      @if (tripForm.get('end_date')?.invalid && tripForm.get('end_date')?.touched) {
+      <div class="text-danger">La fecha es obligatoria.</div>
       }
     </div>
-  </div>
-</section>
+
+    <div class="mb-3">
+      <label class="form-label">Descripción del viaje</label>
+      @if (tripForm.get('description')?.invalid && tripForm.get('description')?.touched) {
+      <div class="text-danger">La descripción es obligatoria.</div>
+      }
+      <textarea formControlName="description" rows="2" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">
+        Itinerario del viaje
+        <span class="text-muted d-block small"
+          >Recuerda: cada día debe empezar por la palabra <strong>Dia</strong></span
+        >
+      </label>
+      @if (tripForm.get('itinerary')?.invalid && tripForm.get('itinerary')?.touched) {
+      <div class="text-danger">El itinerario es obligatorio.</div>
+      }
+      <textarea
+        formControlName="itinerary"
+        rows="4"
+        class="form-control"
+        placeholder="Dia 1: Llegada..."
+      ></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Requisitos mínimos</label>
+      @if (tripForm.get('requirements')?.invalid && tripForm.get('requirements')?.touched) {
+      <div class="text-danger">Los requisitos mínimos son obligatorios.</div>
+      }
+      <input type="text" formControlName="requirements" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">¿Qué incluye?</label>
+      @if (tripForm.get('includes')?.invalid && tripForm.get('includes')?.touched) {
+      <div class="text-danger">Debes seleccionar al menos una opción.</div>
+      }
+      <div class="row">
+        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+          <label
+            class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+            for="flights"
+          >
+            <input
+              class="form-check-input me-2"
+              type="checkbox"
+              formControlName="flights"
+              id="flights"
+            />
+            <span class="include-icon me-2"><i class="bi bi-airplane"></i></span>
+            <span class="flex-grow-1">Transporte (Vuelos, Tren, Bus...)</span>
+          </label>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+          <label
+            class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+            for="tickets"
+          >
+            <input
+              class="form-check-input me-2"
+              type="checkbox"
+              formControlName="tickets"
+              id="tickets"
+            />
+            <span class="include-icon me-2"><i class="bi bi-ticket-detailed"></i></span>
+            <span class="flex-grow-1">Tickets</span>
+          </label>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+          <label
+            class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+            for="visits"
+          >
+            <input
+              class="form-check-input me-2"
+              type="checkbox"
+              formControlName="visits"
+              id="visits"
+            />
+            <span class="include-icon me-2"><i class="bi bi-binoculars"></i></span>
+            <span class="flex-grow-1">Visitas</span>
+          </label>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+          <label
+            class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+            for="full_board"
+          >
+            <input
+              class="form-check-input me-2"
+              type="checkbox"
+              formControlName="full_board"
+              id="full_board"
+            />
+            <span class="include-icon me-2"><i class="bi bi-cup-straw"></i></span>
+            <span class="flex-grow-1">Pensión completa</span>
+          </label>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+          <label
+            class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+            for="travel_insurance"
+          >
+            <input
+              class="form-check-input me-2"
+              type="checkbox"
+              formControlName="travel_insurance"
+              id="travel_insurance"
+            />
+            <span class="include-icon me-2"><i class="bi bi-shield-check"></i></span>
+            <span class="flex-grow-1">Seguro de viaje</span>
+          </label>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+          <label
+            class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+            for="tour_guide"
+          >
+            <input
+              class="form-check-input me-2"
+              type="checkbox"
+              formControlName="tour_guide"
+              id="tour_guide"
+            />
+            <span class="include-icon me-2"><i class="bi bi-person-badge"></i></span>
+            <span class="flex-grow-1">Guía turístico</span>
+          </label>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+          <label
+            class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+            for="informative_material"
+          >
+            <input
+              class="form-check-input me-2"
+              type="checkbox"
+              formControlName="informative_material"
+              id="informative_material"
+            />
+            <span class="include-icon me-2"><i class="bi bi-info-circle"></i></span>
+            <span class="flex-grow-1">Material informativo</span>
+          </label>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+          <label
+            class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+            for="breakfast"
+          >
+            <input
+              class="form-check-input me-2"
+              type="checkbox"
+              formControlName="breakfast"
+              id="breakfast"
+            />
+            <span class="include-icon me-2"><i class="bi bi-egg-fried"></i></span>
+            <span class="flex-grow-1">Desayuno</span>
+          </label>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+          <label
+            class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+            for="visas"
+          >
+            <input
+              class="form-check-input me-2"
+              type="checkbox"
+              formControlName="visas"
+              id="visas"
+            />
+            <span class="include-icon me-2"><i class="bi bi-passport"></i></span>
+            <span class="flex-grow-1">Visados</span>
+          </label>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-4 mb-3">
+          <label
+            class="include-card w-100 p-3 d-flex align-items-center rounded shadow-sm"
+            for="assistance24"
+          >
+            <input
+              class="form-check-input me-2"
+              type="checkbox"
+              formControlName="assistance24"
+              id="assistance24"
+            />
+            <span class="include-icon me-2"><i class="bi bi-telephone-forward"></i></span>
+            <span class="flex-grow-1">Asistencia 24h</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="mb-3 col">
+        <label class="form-label">Nº mínimo de participantes</label>
+        <input type="number" min="1" formControlName="min_participants" class="form-control" />
+        @if (tripForm.get('min_participants')?.invalid && tripForm.get('min_participants')?.touched)
+        {
+        <div class="text-danger">El número mínimo de participantes es obligatorio.</div>
+        }
+      </div>
+      <div class="mb-3 col">
+        <label class="form-label">Precio estimado por persona</label>
+        @if (tripForm.get('estimated_cost')?.invalid && tripForm.get('estimated_cost')?.touched) {
+        <div class="text-danger">El precio estimado es obligatorio.</div>
+        }
+        <input
+          type="number"
+          step="0.01"
+          formControlName="estimated_cost"
+          class="form-control"
+          placeholder="Ej. 1750.00"
+        />
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Transporte</label>
+      @if (tripForm.get('transport')?.invalid && tripForm.get('transport')?.touched) {
+      <div class="text-danger">El transporte es obligatorio.</div>
+      }
+      <input
+        type="text"
+        formControlName="transport"
+        class="form-control"
+        placeholder="Ej. Avión y Autobús"
+      />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Tipo de alojamiento</label>
+      @if (tripForm.get('accommodation')?.invalid && tripForm.get('accommodation')?.touched) {
+      <div class="text-danger">El tipo de alojamiento es obligatorio.</div>
+      }
+      <input
+        type="text"
+        formControlName="accommodation"
+        class="form-control"
+        placeholder="Ej. Hoteles de 4 estrellas"
+      />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Foto de portada</label>
+      <input type="file" class="form-control" (change)="onPhotoChange($event, 'cover_photo')" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Foto principal</label>
+      <input type="file" class="form-control" (change)="onPhotoChange($event, 'main_photo')" />
+    </div>
+
+    <div class="d-flex gap-2 mt-3">
+      <button
+        class="btn btn-outline-secondary btn-morado w-100 mb-2"
+        type="submit"
+        [disabled]="tripForm.invalid"
+      >
+        Aceptar y publicar viaje
+      </button>
+    </div>
+  </form>
+</div>

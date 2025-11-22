@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, lastValueFrom, map, tap } from 'rxjs';
+import { BehaviorSubject, lastValueFrom, map, Observable, tap } from 'rxjs';
 import { environment } from '../../../environment/environment';
 import { Iuser } from '../../interfaces/iuser';
 import { HttpHeaders } from '@angular/common/http';
@@ -18,7 +18,6 @@ export class AuthService {
   private _user$ = new BehaviorSubject<Iuser | null>(this.readUserFromStorage());
   readonly user$ = this._user$.asObservable();
 
-  // Lee el usuario guardado al iniciar
   private readUserFromStorage(): Iuser | null {
     const raw = localStorage.getItem(this.USER_KEY);
     try {
@@ -27,13 +26,13 @@ export class AuthService {
       return null;
     }
   }
-  // Almacena token y usuario tras login
+
   private writeAuth(token: string, user: Iuser) {
     localStorage.setItem(this.TOKEN_KEY, token);
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     this._user$.next(user);
   }
-  // Limpia el estado de auth
+
   private clearAuth() {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
@@ -41,7 +40,6 @@ export class AuthService {
   }
 
   // --- Registro ---
-  /** Registro adaptado: POST, guarda token, usuario y BehaviorSubject */
 
   async register(payload: {
     username: string;
@@ -55,7 +53,13 @@ export class AuthService {
     const response = await lastValueFrom(
       this.http.post<LoginResponse>(`${environment.apiUrl}/users/register`, payload)
     );
-    this.writeAuth(response.token, response.user); // Guarda token y usuario
+    console.log('Respuesta completa del registro:', response);
+    console.log('Token recibido:', response.token);
+    console.log('Usuario recibido:', response.user);
+    console.log('Respuesta COMPLETA:', response);
+    console.log('Tipo de respuesta:', typeof response);
+    console.log('Claves de la respuesta:', Object.keys(response));
+    this.writeAuth(response.token, response.user);
     return response;
   }
 
@@ -65,6 +69,12 @@ export class AuthService {
     const response = await lastValueFrom(
       this.http.post<LoginResponse>(`${environment.apiUrl}/users/login`, payload)
     );
+    console.log('Respuesta completa del registro:', response);
+    console.log('Token recibido:', response.token);
+    console.log('Usuario recibido:', response.user);
+    console.log('Respuesta COMPLETA:', response);
+    console.log('Tipo de respuesta:', typeof response);
+    console.log('Claves de la respuesta:', Object.keys(response));
     this.writeAuth(response.token, response.user);
     return response;
   }
@@ -79,13 +89,22 @@ export class AuthService {
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     return lastValueFrom(this.http.get<Iuser>(`${environment.apiUrl}/users/${id}`, { headers }));
   }
+  getUserRating(userId: number, token: string): Observable<number> {
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return this.http
+      .get<{ score: number }>(`${environment.apiUrl}/ratings/score/${userId}`, { headers })
+      .pipe(map((resp) => resp.score));
+  }
 
   logout() {
     this.clearAuth();
     window.location.reload();
   }
 
-  // --- Estado autenticación ---
+  getCurrentUser(): Iuser | null {
+    return this._user$.value;
+  }
+
   isAuth(): boolean {
     const keyUser = localStorage.getItem(this.USER_KEY);
     return !!localStorage.getItem(this.TOKEN_KEY);
