@@ -49,7 +49,7 @@ export class CrearEditarViaje implements AfterViewInit {
       start_date: ['', Validators.required],
       end_date: ['', Validators.required],
       description: ['', Validators.required],
-      itinerary: ['', [Validators.required, Validators.pattern(/^Dia/i)]],
+      itinerary: ['', [Validators.required, Validators.pattern(/D[ií]a/i)]],
 
       flights: [false],
       tickets: [false],

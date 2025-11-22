@@ -85,11 +85,8 @@ export class DetalleViaje {
       this.detalleViaje = this.viaje;
 
       if (this.viaje?.itinerary) {
-        this.itinerarioPorDia = this.viaje.itinerary
-          .split(/D[ií]a/i)
-          .map((d) => d.trim())
-          .filter((d) => d !== '')
-          .map((d) => 'Día ' + d);
+        this.itinerarioPorDia =
+          this.viaje.itinerary.match(/D[ií]a\s*\d+\s*.*?(?=D[ií]a\s*\d+\s*|$)/gis) || [];
       } else {
         this.itinerarioPorDia = [];
       }
