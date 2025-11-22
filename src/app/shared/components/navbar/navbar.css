@@ -2,15 +2,33 @@
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
 }
-.navbar .nav-link {
-  text-decoration: none;
+
+/* Contenedor principal: logo + menú alineados */
+.tt-mobile-wrap {
+  display: flex;
+  align-items: center;
 }
+
+/* Lista de navegación alineada a la derecha y centrada verticalmente */
+.tt-navlist {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto; /* Empuja la navlist a la derecha en desktop */
+}
+
+/* Quita pseudo-elementos que no necesitamos */
 .tt-navlist::before,
 .tt-navlist::after {
   content: none;
   display: none;
 }
 
+.navbar .nav-link {
+  text-decoration: none;
+}
+
+/* Links normales */
 .navbar .tt-link {
   color: #374151;
   font-weight: 700;
@@ -19,6 +37,7 @@
   line-height: 1;
 }
 
+/* Hover degradado en textos */
 .navbar .tt-link:hover,
 .navbar .tt-link:focus {
   background-image: var(--tt-gradient);
@@ -28,6 +47,7 @@
   -webkit-text-fill-color: transparent;
 }
 
+/* Botón + Crear viaje */
 .navbar .tt-btn-primary {
   background-image: var(--tt-gradient);
   color: #fff;
@@ -51,6 +71,7 @@
   box-shadow: 0 12px 28px rgba(139, 92, 246, 0.3), 0 6px 16px rgba(59, 130, 246, 0.18);
 }
 
+/* Botón hamburguesa */
 .navbar-toggler {
   border: 0;
   box-shadow: none;
@@ -67,7 +88,8 @@
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.12));
 }
 
-.tt-mobile-wrap {
+/* Wrapper para posicionar hamburguesa y campana */
+.tt-toggler-with-bell {
   position: relative;
 }
 
@@ -82,6 +104,7 @@
   box-shadow: 0 6px 16px rgba(139, 92, 246, 0.25);
 }
 
+/* X fija en móvil cuando el menú está abierto */
 .tt-close-x-fixed {
   position: fixed;
   top: 1rem;
@@ -92,19 +115,13 @@
   font-size: 30px;
   font-weight: 800;
   line-height: 1;
-  background: var(--tt-gradient);
+  background-image: var(--tt-gradient);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-@media (min-width: 768px) {
-  .tt-toggler,
-  .tt-close-x-fixed {
-    display: none;
-  }
-}
-
+/* Dropdown general */
 .tt-dropdown {
   background: #fff;
   border: 1px solid #e8e8ef;
@@ -125,10 +142,10 @@
 .tt-dropdown .dropdown-item.tt-dd-link:hover,
 .tt-dropdown .dropdown-item.tt-dd-link:focus {
   background: rgba(139, 92, 246, 0.1);
-  background-clip: padding-box;
-  color: transparent;
   background-image: var(--tt-gradient);
+  background-clip: text;
   -webkit-background-clip: text;
+  color: transparent;
   -webkit-text-fill-color: transparent;
 }
 
@@ -148,6 +165,7 @@
   color: #b02a37;
 }
 
+/* Layout móvil del dropdown */
 @media (max-width: 767.98px) {
   .navbar .dropdown-menu {
     position: static;
@@ -162,14 +180,22 @@
   .navbar .tt-btn-primary {
     margin: 0.25rem 0;
   }
+
+  /* En móvil no necesitamos alinear la navlist a la derecha */
+  .tt-navlist {
+    margin-left: 0;
+  }
 }
-/* avatar + notif */
+
+/* AVATAR + NOTIFICACIONES */
+
 .tt-user-menu {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
 }
 
+/* Wrapper general */
 .tt-avatar-wrapper {
   position: relative;
   display: inline-flex;
@@ -177,7 +203,7 @@
   justify-content: center;
 }
 
-/* Aro avatar */
+/* Aro del avatar */
 .tt-avatar-ring {
   width: 44px;
   height: 44px;
@@ -189,18 +215,20 @@
   transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
 }
 
+/* Sin notificaciones: aro gris */
 .tt-avatar-ring--idle {
   background: linear-gradient(135deg, #d4d4d8, #e5e7eb);
   box-shadow: none;
 }
 
+/* Con notificaciones: degradado + glow */
 .tt-avatar-ring--active {
   background: linear-gradient(135deg, #a855f7, #3b82f6);
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.95), 0 0 16px rgba(129, 140, 248, 0.75);
   transform: translateY(-1px);
 }
 
-/* Imagen / Placeholder */
+/* Imagen del avatar */
 .tt-avatar-img {
   width: 100%;
   height: 100%;
@@ -212,14 +240,15 @@
   justify-content: center;
 }
 
+/* Placeholder (si no hay foto) */
 .tt-avatar-placeholder {
   color: #6b7280;
   font-weight: 700;
   font-size: 0.9rem;
-  -webkit-text-fill-color: currentColor !important;
+  -webkit-text-fill-color: currentColor;
 }
 
-/* Campanita en avatar */
+/* Campanita sobre el avatar */
 .tt-avatar-bell {
   position: absolute;
   bottom: -2px;
@@ -227,33 +256,26 @@
   width: 22px;
   height: 22px;
   border-radius: 999px;
-  background: linear-gradient(135deg, #a855f7, #3b82f6);
+  background: #ffffff;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.78rem;
-  color: #ffffff;
-  box-shadow: 0 0 0 2px #ffffff, 0 4px 10px rgba(129, 140, 248, 0.7);
-  z-index: 5;
-  -webkit-text-fill-color: #ffffff !important;
+  box-shadow: 0 0 0 2px #ffffff, 0 4px 12px rgba(129, 140, 248, 0.8);
 }
 
-/* Punto de notificación */
-.tt-dot {
-  width: 10px;
-  height: 10px;
+.tt-avatar-bell-inner {
+  width: 100%;
+  height: 100%;
   border-radius: 999px;
-  background: linear-gradient(135deg, #a855f7, #3b82f6);
-  box-shadow: 0 0 10px rgba(129, 140, 248, 0.7);
-  flex-shrink: 0;
+  background-image: var(--tt-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.8rem;
 }
 
-/* campana boton hamburguesa */
-.tt-toggler-with-bell {
-  position: relative;
-}
-
-/* Campana móvil con contorno blanco */
+/* Campanita sobre el botón hamburguesa (solo móvil) */
 .tt-bell-mobile {
   position: absolute;
   top: -6px;
@@ -265,16 +287,34 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
-  background-image: var(--tt-gradient);
-  color: white;
-
-  box-shadow: 0 0 0 3px #ffffff, 0 0 12px rgba(139, 92, 246, 0.5), 0 0 18px rgba(59, 130, 246, 0.45);
+  background: #ffffff;
+  box-shadow: 0 0 0 2px #ffffff, 0 4px 12px rgba(129, 140, 248, 0.8);
 }
 
-/* OCULTAR EN ESCRITORIO */
+.tt-bell-mobile-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background-image: var(--tt-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+/* Solo visible en móvil */
 @media (min-width: 768px) {
   .tt-bell-mobile {
-    display: none !important;
+    display: none;
   }
+}
+
+/* Puntos del menú (notificaciones por sección) */
+.tt-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #a855f7, #3b82f6);
+  box-shadow: 0 0 10px rgba(129, 140, 248, 0.7);
+  flex-shrink: 0;
 }
