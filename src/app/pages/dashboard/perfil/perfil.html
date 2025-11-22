@@ -1,0 +1,42 @@
+<section class="tt-panel">
+  <h2 class="tt-title mb-3">Mi perfil</h2>
+
+  @if (user) {
+  <div class="tt-card tt-profile d-flex gap-3 align-items-center">
+    <img
+      [src]="user.image || defaultAvatar"
+      alt="Foto de perfil"
+      class="rounded-circle tt-avatar"
+      width="80"
+      height="80"
+    />
+
+    <div class="flex-grow-1">
+      <h5 class="mb-1">{{ user.username }}</h5>
+      <p class="text-muted small mb-1">{{ user.email }}</p>
+
+      @if (user.bio) {
+      <p class="small mb-2">{{ user.bio }}</p>
+      }
+
+      <!-- Botón para pasar a modo edición -->
+      <button
+        type="button"
+        class="btn btn-outline-secondary btn-morado btn-sm mt-1"
+        (click)="activarEdicion()"
+      >
+        Modificar foto de perfil
+      </button>
+    </div>
+  </div>
+
+  <!-- Bloque de edición: reutiliza el formulario de EditarPerfil -->
+  @if (editMode) {
+  <div class="mt-4">
+    <h5 class="mb-2">Editar perfil</h5>
+    <app-editar-perfil></app-editar-perfil>
+  </div>
+  } } @else {
+  <p class="text-muted">Cargando perfil…</p>
+  }
+</section>

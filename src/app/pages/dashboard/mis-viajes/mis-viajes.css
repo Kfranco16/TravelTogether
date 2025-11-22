@@ -1,0 +1,45 @@
+.tt-panel {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(148, 163, 184, 0.12);
+}
+
+.tt-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  background-image: var(--tt-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.tt-trip-list {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.tt-trip-item {
+  border: 0;
+  border-bottom: 1px solid #e5e7eb;
+  padding-top: 0.85rem;
+  padding-bottom: 0.85rem;
+}
+
+.tt-trip-item:last-child {
+  border-bottom: 0;
+}
+
+.tt-trip-item h3 {
+  font-weight: 700;
+}
+
+.tt-trip-item:hover {
+  background-color: #f9fafb;
+}
+
+.tt-badge-estado {
+  border-radius: 999px;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+}

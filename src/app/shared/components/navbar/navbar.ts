@@ -1,12 +1,17 @@
 import { Component, inject, Input, OnDestroy } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { NgClass } from '@angular/common';
+
 import { AuthService } from '../../../core/services/auth';
 import { Iuser } from '../../../interfaces/iuser';
+
+// Tipo de secciones que pueden tener notificaciones
+type NotifSection = 'perfil' | 'reservas' | 'misViajes' | 'favoritos' | 'foros';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, NgClass],
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.css'],
 })
@@ -17,12 +22,31 @@ export class Navbar implements OnDestroy {
 
   open = false;
 
-  // Estado de autenticación: leemos directamente del servicio (token en localStorage)
+  // Estado de notificaciones por sección
+  notif: Record<NotifSection, boolean> = {
+    perfil: true,
+    reservas: true,
+    misViajes: false,
+    favoritos: true,
+    foros: false,
+  };
+
+  // ¿Hay alguna notificación activa? (controla aro + campana)
+  get hasNotifications(): boolean {
+    return Object.values(this.notif).some((v) => v);
+  }
+
+  // Estado de autenticación
   get isAuthenticated(): boolean {
     return this.auth.isAuth();
   }
 
-  // Mantener UX móvil
+  // Usuario actual
+  get currentUser(): Iuser | null {
+    return this.auth.getCurrentUser();
+  }
+
+  // Abrir/cerrar menú móvil
   onToggleOpen() {
     this.open = !this.open;
   }
@@ -33,18 +57,27 @@ export class Navbar implements OnDestroy {
     this.open = false;
   }
 
+  // Cerrar sesión
   onLogout() {
     this.auth.logout();
     this.onClose();
   }
 
-  // Mantener la UI sincronizada si el token cambia desde otra pestaña
+  // Cuando el usuario entra en una sección con notificación,
+  // apagamos ese punto. Si no quedan notis, el aro volverá a gris y la campana desaparecerá.
+  onSectionOpen(section: NotifSection) {
+    this.notif[section] = false;
+  }
+
+  // Mantener la UI sincronizada si cambia el storage en otra pestaña
   private onStorage = () => {
-    /* al acceder a isAuthenticated, Angular reevaluará */
+    // con solo leer isAuthenticated/currentUser Angular reevaluará el template
   };
+
   constructor() {
     window.addEventListener('storage', this.onStorage);
   }
+
   ngOnDestroy() {
     window.removeEventListener('storage', this.onStorage);
   }

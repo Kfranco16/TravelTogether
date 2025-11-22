@@ -18,6 +18,7 @@
   display: inline-block;
   line-height: 1;
 }
+
 .navbar .tt-link:hover,
 .navbar .tt-link:focus {
   background-image: var(--tt-gradient);
@@ -42,6 +43,7 @@
   transition: transform 0.15s ease, box-shadow 0.25s ease, filter 0.2s ease;
   vertical-align: middle;
 }
+
 .navbar .tt-btn-primary:hover,
 .navbar .tt-btn-primary:focus {
   transform: translateY(-1px);
@@ -53,6 +55,7 @@
   border: 0;
   box-shadow: none;
 }
+
 .navbar-toggler-icon {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='white' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
   width: 1.4rem;
@@ -63,9 +66,11 @@
   display: inline-block;
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.12));
 }
+
 .tt-mobile-wrap {
   position: relative;
 }
+
 .tt-toggler {
   background: var(--tt-gradient);
   border: 0;
@@ -92,6 +97,7 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
 @media (min-width: 768px) {
   .tt-toggler,
   .tt-close-x-fixed {
@@ -108,12 +114,14 @@
   min-width: 240px;
   transform-origin: top right;
 }
+
 .tt-dropdown .dropdown-item {
   border-radius: 8px;
   font-weight: 600;
   color: #111827;
   transition: background 0.2s, color 0.2s;
 }
+
 .tt-dropdown .dropdown-item.tt-dd-link:hover,
 .tt-dropdown .dropdown-item.tt-dd-link:focus {
   background: rgba(139, 92, 246, 0.1);
@@ -123,14 +131,17 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
 .tt-dropdown .dropdown-divider {
   border-top-color: #ececf5;
   opacity: 1;
 }
+
 .tt-dropdown .tt-dd-danger {
   color: #dc3545;
   font-weight: 700;
 }
+
 .tt-dropdown .tt-dd-danger:hover,
 .tt-dropdown .tt-dd-danger:focus {
   background: rgba(220, 53, 69, 0.1);
@@ -147,15 +158,123 @@
     padding: 0.25rem 0;
     margin-top: 0.25rem;
   }
-  .navbar .tt-link:hover,
-  .navbar .tt-link:focus {
-    background-image: var(--tt-gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    -webkit-text-fill-color: transparent;
-  }
+
   .navbar .tt-btn-primary {
     margin: 0.25rem 0;
+  }
+}
+/* avatar + notif */
+.tt-user-menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tt-avatar-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Aro avatar */
+.tt-avatar-ring {
+  width: 44px;
+  height: 44px;
+  padding: 3px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+}
+
+.tt-avatar-ring--idle {
+  background: linear-gradient(135deg, #d4d4d8, #e5e7eb);
+  box-shadow: none;
+}
+
+.tt-avatar-ring--active {
+  background: linear-gradient(135deg, #a855f7, #3b82f6);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.95), 0 0 16px rgba(129, 140, 248, 0.75);
+  transform: translateY(-1px);
+}
+
+/* Imagen / Placeholder */
+.tt-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  object-fit: cover;
+  background: #f9fafb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tt-avatar-placeholder {
+  color: #6b7280;
+  font-weight: 700;
+  font-size: 0.9rem;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* Campanita en avatar */
+.tt-avatar-bell {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #a855f7, #3b82f6);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  color: #ffffff;
+  box-shadow: 0 0 0 2px #ffffff, 0 4px 10px rgba(129, 140, 248, 0.7);
+  z-index: 5;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Punto de notificación */
+.tt-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #a855f7, #3b82f6);
+  box-shadow: 0 0 10px rgba(129, 140, 248, 0.7);
+  flex-shrink: 0;
+}
+
+/* campana boton hamburguesa */
+.tt-toggler-with-bell {
+  position: relative;
+}
+
+/* Campana móvil con contorno blanco */
+.tt-bell-mobile {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-image: var(--tt-gradient);
+  color: white;
+
+  box-shadow: 0 0 0 3px #ffffff, 0 0 12px rgba(139, 92, 246, 0.5), 0 0 18px rgba(59, 130, 246, 0.45);
+}
+
+/* OCULTAR EN ESCRITORIO */
+@media (min-width: 768px) {
+  .tt-bell-mobile {
+    display: none !important;
   }
 }

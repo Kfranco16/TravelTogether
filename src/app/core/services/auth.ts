@@ -96,6 +96,17 @@ export class AuthService {
       .pipe(map((resp) => resp.score));
   }
 
+  // actualizar datos del usuario y refrescar el guardado
+  async updateUser(id: number, data: Partial<Iuser>): Promise<Iuser> {
+    const updated = await lastValueFrom(
+      this.http.put<Iuser>(`${environment.apiUrl}/users/${id}`, data)
+    );
+    const token = this.gettoken();
+    // guardamos de nuevo para que la app vea el nombre/foto actualizados en navbar/dashboard
+    if (token) this.writeAuth(token, updated);
+    return updated;
+  }
+
   logout() {
     this.clearAuth();
     window.location.reload();
@@ -112,5 +123,10 @@ export class AuthService {
 
   gettoken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  //lectura “limpia” del usuario actual (útil en Dashboard, Perfil, etc.)
+  getCurrentUser(): Iuser | null {
+    return this._user$.value ?? this.readUserFromStorage();
   }
 }

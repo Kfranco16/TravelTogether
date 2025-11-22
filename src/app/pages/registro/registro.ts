@@ -1,4 +1,4 @@
-import { Component, Injectable } from '@angular/core';
+import { Component, Injectable, Input } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../../core/services/auth';
@@ -7,6 +7,7 @@ import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-registro',
+  standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './registro.html',
   styleUrl: './registro.css',
@@ -17,6 +18,10 @@ import { toast } from 'ngx-sonner';
 export class Registro {
   submitted = false;
   userForm: FormGroup;
+
+  // Textos por defecto para la página de registro
+  @Input() tituloFormulario: string = 'Regístrate y empieza tu aventura';
+  @Input() textoBoton: string = 'Aceptar y registrarme';
 
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.userForm = this.fb.group(
@@ -45,8 +50,10 @@ export class Registro {
       this.userForm.markAllAsTouched();
       return;
     }
+
     const { username, email, password, image, telefono, descripcion, intereses } =
       this.userForm.value;
+
     try {
       // Llamada a la API para registro y guardado de token/usuario
       await this.authService.register({
