@@ -112,10 +112,6 @@ export class AuthService {
     window.location.reload();
   }
 
-  getCurrentUser(): Iuser | null {
-    return this._user$.value;
-  }
-
   isAuth(): boolean {
     const keyUser = localStorage.getItem(this.USER_KEY);
     return !!localStorage.getItem(this.TOKEN_KEY);
@@ -129,4 +125,8 @@ export class AuthService {
   getCurrentUser(): Iuser | null {
     return this._user$.value ?? this.readUserFromStorage();
   }
+  /*   getCurrentUser(): Iuser | null {
+    return this._user$.value;
+  }
+ */
 }

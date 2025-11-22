@@ -96,7 +96,7 @@ export class TripService {
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
     const params = new HttpParams().set('owner_id', String(userId));
     // reutilizamos /trips con filtro por owner_id (back debe soportarlo)
-    return this.http.get<Trip[]>(this.apiUrl, { headers, params });
+    return this.http.get<Trip[]>(environment.apiUrl + '/trips', { headers, params });
   }
 
   //mis reservas
