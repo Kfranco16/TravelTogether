@@ -1,12 +1,9 @@
-import { Component, inject, Input, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgClass } from '@angular/common';
 
 import { AuthService } from '../../../core/services/auth';
 import { Iuser } from '../../../interfaces/iuser';
-
-// Tipo de secciones que pueden tener notificaciones
-type NotifSection = 'perfil' | 'reservas' | 'misViajes' | 'favoritos' | 'foros';
 
 @Component({
   selector: 'app-navbar',
@@ -16,63 +13,58 @@ type NotifSection = 'perfil' | 'reservas' | 'misViajes' | 'favoritos' | 'foros';
   styleUrls: ['./navbar.css'],
 })
 export class Navbar implements OnDestroy {
-  @Input() usuario: Iuser | null = null;
-
   private auth = inject(AuthService);
 
   open = false;
 
-  // Estado de notificaciones por sección
-  notif: Record<NotifSection, boolean> = {
-    perfil: true,
-    reservas: true,
-    misViajes: false,
-    favoritos: true,
-    foros: false,
-  };
-
-  // ¿Hay alguna notificación activa? (controla aro + campana)
-  get hasNotifications(): boolean {
-    return Object.values(this.notif).some((v) => v);
-  }
-
-  // Estado de autenticación
-  get isAuthenticated(): boolean {
-    return this.auth.isAuth();
-  }
-
-  // Usuario actual
+  // Datos del usuario
   get currentUser(): Iuser | null {
     return this.auth.getCurrentUser();
   }
 
-  // Abrir/cerrar menú móvil
+  get isAuthenticated(): boolean {
+    return this.auth.isAuth();
+  }
+
+  // 🔔 Simulación de notificaciones (reemplazar por backend más adelante)
+  hasNotifications = true;
+
+  notif = {
+    perfil: false,
+    datos: false,
+    reservas: true,
+    misViajes: true,
+    favoritos: false,
+    notificaciones: false,
+    foros: true,
+  };
+
+  // ---- MÉTODOS ----
   onToggleOpen() {
     this.open = !this.open;
   }
+
   onOpen() {
     this.open = true;
   }
+
   onClose() {
     this.open = false;
   }
 
-  // Cerrar sesión
   onLogout() {
     this.auth.logout();
     this.onClose();
   }
 
-  // Cuando el usuario entra en una sección con notificación,
-  // apagamos ese punto. Si no quedan notis, el aro volverá a gris y la campana desaparecerá.
-  onSectionOpen(section: NotifSection) {
+  // Marcar una sección como "vista"
+  onSectionOpen(section: keyof typeof this.notif) {
     this.notif[section] = false;
+    this.hasNotifications = Object.values(this.notif).some((v) => v === true);
   }
 
-  // Mantener la UI sincronizada si cambia el storage en otra pestaña
-  private onStorage = () => {
-    // con solo leer isAuthenticated/currentUser Angular reevaluará el template
-  };
+  // Mantener UI sincronizada entre pestañas
+  private onStorage = () => {};
 
   constructor() {
     window.addEventListener('storage', this.onStorage);
@@ -80,15 +72,5 @@ export class Navbar implements OnDestroy {
 
   ngOnDestroy() {
     window.removeEventListener('storage', this.onStorage);
-  }
-
-  ngOnInit() {
-    this.auth.user$.subscribe((user) => {
-      this.usuario = user;
-    });
-  }
-
-  getUsuarioById(id: number): Iuser | undefined {
-    return this.usuario?.id === id ? this.usuario : undefined;
   }
 }
