@@ -7,57 +7,42 @@ import { authGuard } from './core/guards/auth-guard';
 import { DetalleViaje } from './pages/detalle-viaje/detalle-viaje';
 import { Perfil } from './pages/perfil/perfil';
 import { Dashboard } from './pages/dashboard/dashboard';
+import { CrearEditarViaje } from './pages/crear-editar-viaje/crear-editar-viaje';
 
 export const routes: Routes = [
   //RUTAS PÚBLICAS (Accesibles por todos)
-  { path: '', component: Landing },
-  { path: 'login', component: Login },
-  { path: 'registro', component: Registro },
-  { path: 'viajes', component: BuscadorViajes },
-
+  {
+    path: '',
+    component: Landing,
+  },
+  {
+    path: 'login',
+    component: Login,
+  },
+  {
+    path: 'registro',
+    component: Registro,
+  },
+  {
+    path: 'viajes',
+    component: BuscadorViajes,
+  },
   // RUTAS PRIVADAS (Requieren inicio de sesión)
   { path: 'viaje/:id', component: DetalleViaje, canActivate: [authGuard] },
+  { path: 'crear-viaje', component: CrearEditarViaje, canActivate: [authGuard] },
 
   { path: 'perfil/:id', component: Perfil, canActivate: [authGuard] },
-
   {
     path: 'dashboard',
     component: Dashboard,
     canActivate: [authGuard], // PROTEGIDA: La ruta padre protege a todas las hijas.
     children: [
-      { path: '', redirectTo: 'perfil', pathMatch: 'full' },
-
-      {
-        path: 'perfil',
-        loadComponent: () => import('./pages/perfil/perfil').then((m) => m.Perfil),
-      },
-
-      // reutilizamos el componente de Registro
-      {
-        path: 'datos',
-        loadComponent: () => import('./pages/dashboard/datos/datos').then((m) => m.Datos),
-      },
-
-      {
-        path: 'reservas',
-        loadComponent: () => import('./pages/dashboard/reservas/reservas').then((m) => m.Reservas),
-      },
-      {
-        path: 'mis-viajes',
-        loadComponent: () =>
-          import('./pages/dashboard/mis-viajes/mis-viajes').then((m) => m.MisViajes),
-      },
-      {
-        path: 'favoritos',
-        loadComponent: () =>
-          import('./pages/dashboard/favoritos/favoritos').then((m) => m.Favoritos),
-      },
-      {
-        path: 'foros',
-        loadComponent: () => import('./pages/dashboard/foros/foros').then((m) => m.Foros),
-      },
+      // Aquí irán todas las páginas de gestión del usuario.
+      // Por ejemplo:
+      // { path: 'crear-viaje', component: CrearViajeComponent },
+      // { path: 'editar-perfil', component: EditarPerfilComponent },
+      // { path: 'gestionar/:viajeId', component: GestionarViajeComponent },
     ],
   },
-
   { path: '**', redirectTo: '' },
 ];
