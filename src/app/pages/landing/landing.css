@@ -1,3 +1,145 @@
 .text-shadow {
   text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
 }
+/* Contenedor fluido */
+.carousel-container-wrapper {
+  position: relative;
+  width: 100%;
+  /* Agregamos padding abajo para que los dots no sufran cortes */
+  padding-bottom: 20px;
+}
+
+.carousel-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+
+  padding: 30px 0 50px 0;
+
+  margin-top: -20px;
+
+  /* Ocultar barra scroll */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.carousel-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-inner {
+  display: flex;
+  flex-wrap: nowrap !important;
+  gap: 1.5rem;
+  width: max-content;
+  padding: 0 1rem;
+}
+
+/* --- TARJETAS ESCRITORIO --- */
+.carousel-card {
+  flex: 0 0 280px;
+  scroll-snap-align: start;
+  transition: transform 0.3s ease;
+  animation: cardFadeIn 0.6s ease-out;
+  /* Aseguramos que la tarjeta en sí no esconda nada */
+  overflow: visible;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-recommendation {
+  border-radius: 0.875rem;
+  background: white;
+  height: 100%;
+  /* Sombra base más suave para evitar cortes duros visuales */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+/* Al hacer hover, la tarjeta sube. Como tenemos padding extra arriba, no se cortará */
+.card-recommendation:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* --- DOTS (PUNTOS) --- */
+.carousel-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  /* Borde del mismo color que el fondo inactivo para consistencia */
+  border: 2px solid #e0e0e0;
+  background: #e0e0e0; /* Gris suave inactivo */
+  padding: 0;
+  transition: all 0.3s;
+}
+.carousel-indicator.active {
+  /* CORRECCIÓN 2: Color sólido morado vibrante */
+  background: #7b61ff;
+  border-color: #7b61ff;
+  transform: scale(1.2);
+  box-shadow: 0 4px 10px rgba(123, 97, 255, 0.3); /* Glow suave */
+}
+
+.testimonials-arrow {
+  transition: background 0.3s ease, color 0.3s ease, transform 0.15s ease;
+  background: transparent;
+  color: rgb(74, 1, 74);
+  border: none;
+  box-shadow: 0 4px 15px rgba(123, 97, 255, 0.4);
+  transition: all 0.3s ease;
+}
+.testimonials-arrow:hover {
+  background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+  color: #fff;
+  transform: translateY(-2px);
+}
+.testimonials-arrow:focus {
+  box-shadow: 0 0 0 0.25rem rgba(123, 97, 255, 0.25);
+  outline: none;
+}
+
+/* --- MEDIA QUERIES --- */
+
+@media (max-width: 992px) {
+  .carousel-card {
+    flex: 0 0 320px;
+  }
+}
+
+/* --- MÓVIL --- */
+@media (max-width: 768px) {
+  .carousel-wrapper {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    /* Aumentamos padding también en móvil */
+    padding: 30px 0 50px 0;
+  }
+
+  .carousel-inner {
+    gap: 1rem;
+    padding: 0 7.5vw;
+  }
+
+  .carousel-card {
+    flex: 0 0 85vw;
+    width: 85vw;
+    max-width: 400px;
+    scroll-snap-align: center;
+    margin-right: 0;
+  }
+
+  /* Ajuste visual: en móvil los dots necesitan más margen superior porque la tarjeta es grande */
+  .carousel-container-wrapper .d-flex.justify-content-center {
+    margin-top: 0 !important; /* Quitamos margen extra si el padding del wrapper ya es grande */
+    padding-bottom: 10px;
+  }
+}
