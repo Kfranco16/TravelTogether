@@ -42,63 +42,40 @@
                         background: linear-gradient(90deg, #fbbf24 0%, #f59e42 85%, #ef4444 100%);
                       "
                     >
-                      <div class="d-flex align-items-center text-shadow-black gap-2">
-                        <img
-                          [src]="
-                            trip.organizer.avatarUrl ||
-                            'https://img.freepik.com/psd-gratis/ilustracion-3d-avatar-o-perfil-humano_23-2150671142.jpg?semt=ais_hybrid&w=740&q=80'
-                          "
-                          [alt]="
-                            trip.organizer.username
-                              ? 'Avatar de ' + trip.organizer.username
-                              : 'Avatar genérico'
-                          "
-                          class="rounded-1"
-                          style="width: 35px; height: 55px; object-fit: cover"
-                        />
-                        <div class="d-flex flex-column">
-                          <div class="fw-semibold fs-5">
-                            {{ trip.organizer.username }}
-                          </div>
-                          @if (trip.organizer.rating != null) {
-                          <div class="d-flex align-items-center gap-1 text-shadow-black mt-1">
-                            @for (estrella of getEstrellas(trip.organizer.rating); track
-                            estrella.icon + estrella.color + $index) {
-                            <i class="bi {{ estrella.icon }} {{ estrella.color }}"></i>
-                            }
-                            <span class="ms-2">{{ trip.organizer.rating }}</span>
-                          </div>
-                          }
-                        </div>
+                      <!-- Card compacta: solo usuario -->
+                      <div class="d-flex align-items-center gap-2 flex-grow-1">
+                        <app-card-usuario [usuario]="trip.organizer"></app-card-usuario>
                       </div>
-                      @if (!trip.organizer.isRated) {
-                      <button
-                        class="btn btn-success btn-sm fw-semibold shadow"
-                        (click)="
-                          openModal(
-                            trip.tripId,
-                            trip.organizer.userId,
-                            trip.organizer.username,
-                            trip.organizer.avatarUrl,
-                            true
-                          )
-                        "
-                      >
-                        <i class="bi bi-star"></i> Valorar
-                      </button>
-                      } @if (trip.organizer.isRated) {
-                      <button
-                        class="btn btn-outline-secondary btn-morado btn-sm fw-semibold shadow"
-                        disabled
-                      >
-                        <i class="bi bi-check-circle"></i> Ya valorado
-                      </button>
-                      }
+                      <div>
+                        @if (!trip.organizer.isRated) {
+                        <button
+                          class="btn btn-success btn-sm fw-semibold shadow"
+                          (click)="
+                            openModal(
+                              trip.tripId,
+                              trip.organizer.userId,
+                              trip.organizer.username,
+                              trip.organizer.avatarUrl,
+                              true
+                            )
+                          "
+                        >
+                          <i class="bi bi-star"></i> Valorar
+                        </button>
+                        } @if (trip.organizer.isRated) {
+                        <button
+                          class="btn btn-outline-secondary btn-morado btn-sm fw-semibold shadow"
+                          disabled
+                        >
+                          <i class="bi bi-check-circle"></i> Ya valorado
+                        </button>
+                        }
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-              <!-- Compañeros de viaje -->
+              <!-- PARTICIPANTES -->
               <div class="fw-semibold mb-3 mt-3">Compañeros de viaje:</div>
               <div class="row">
                 @for (companion of trip.companions; track companion.userId) {
@@ -110,135 +87,114 @@
                         background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 85%, #3b82f6 100%);
                       "
                     >
-                      <div class="d-flex align-items-center text-shadow-black gap-2">
-                        <img
-                          [src]="
-                            companion.avatarUrl ||
-                            'https://img.freepik.com/psd-gratis/ilustracion-3d-avatar-o-perfil-humano_23-2150671142.jpg?semt=ais_hybrid&w=740&q=80'
-                          "
-                          [alt]="
-                            companion.username
-                              ? 'Avatar de ' + companion.username
-                              : 'Avatar genérico'
-                          "
-                          class="rounded-1"
-                          style="width: 35px; height: 55px; object-fit: cover"
-                        />
-                        <div class="d-flex flex-column">
-                          <div class="fw-semibold fs-5">
-                            {{ companion.username }}
-                          </div>
-                          @if (companion.rating != null) {
-                          <div class="d-flex align-items-center gap-1 text-shadow-black mt-1">
-                            @for (estrella of getEstrellas(companion.rating); track estrella.icon +
-                            estrella.color + $index) {
-                            <i class="bi {{ estrella.icon }} {{ estrella.color }}"></i>
-                            }
-                            <span class="ms-2">{{ companion.rating }}</span>
-                          </div>
-                          }
-                        </div>
+                      <div class="d-flex align-items-center gap-2 flex-grow-1">
+                        <app-card-usuario [usuario]="companion"></app-card-usuario>
                       </div>
-                      @if (!companion.isRated) {
-                      <button
-                        class="btn btn-success btn-sm fw-semibold shadow"
-                        (click)="
-                          openModal(
-                            trip.tripId,
-                            companion.userId,
-                            companion.username,
-                            companion.avatarUrl
-                          )
-                        "
-                      >
-                        <i class="bi bi-star"></i> Valorar
-                      </button>
-                      } @if (companion.isRated) {
-                      <button
-                        class="btn btn-outline-secondary btn-morado btn-sm fw-semibold shadow"
-                        disabled
-                      >
-                        <i class="bi bi-check-circle"></i> Ya valorado
-                      </button>
-                      }
+                      <div>
+                        @if (!companion.isRated) {
+                        <button
+                          class="btn btn-success btn-sm fw-semibold shadow"
+                          (click)="
+                            openModal(
+                              trip.tripId,
+                              companion.userId,
+                              companion.username,
+                              companion.avatarUrl
+                            )
+                          "
+                        >
+                          <i class="bi bi-star"></i> Valorar
+                        </button>
+                        } @if (companion.isRated) {
+                        <button
+                          class="btn btn-outline-secondary btn-morado btn-sm fw-semibold shadow"
+                          disabled
+                        >
+                          <i class="bi bi-check-circle"></i> Ya valorado
+                        </button>
+                        }
+                      </div>
                     </div>
                   </div>
                 </div>
                 }
               </div>
+
+              <!-- MODAL DE VALORACION -->
+              <div
+                class="modal fade"
+                id="valoracionModal"
+                tabindex="-1"
+                aria-labelledby="valoracionLabel"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content rounded-4">
+                    <div class="modal-header" style="background: #6b46c1">
+                      <h5 class="modal-title text-white" id="valoracionLabel">
+                        Valorar a {{ modalRating?.username }}
+                      </h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                      <div class="d-flex align-items-center gap-2 mb-3">
+                        <img
+                          [src]="
+                            modalRating?.avatarUrl ||
+                            'https://img.freepik.com/psd-gratis/ilustracion-3d-avatar-o-perfil-humano_23-2150671142.jpg?semt=ais_hybrid&w=740&q=80'
+                          "
+                          width="38"
+                          height="55"
+                          class="rounded-1"
+                          alt=""
+                          style="object-fit: cover"
+                        />
+                        <div class="fw-semibold fs-5">{{ modalRating?.username }}</div>
+                      </div>
+                      <div class="mb-2 fw-semibold">Puntuación (del 1 al 5):</div>
+                      <div class="mb-2" style="font-size: 1.5rem">
+                        @for (star of [1,2,3,4,5]; track star) {
+                        <span
+                          class="star"
+                          [class.text-warning]="star <= modalScore"
+                          [class.text-muted]="star > modalScore"
+                          style="cursor: pointer"
+                          (click)="setModalScore(star)"
+                        >
+                          ★
+                        </span>
+                        }
+                      </div>
+                      <div class="mb-2 fw-semibold">Valoración:</div>
+                      <textarea
+                        class="form-control mb-2"
+                        rows="2"
+                        [value]="modalComment"
+                        (input)="setModalComment($event)"
+                      ></textarea>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                      </button>
+                      <button
+                        type="button"
+                        class="btn btn-morado"
+                        (click)="submitModalRating()"
+                        [disabled]="modalScore === 0"
+                      >
+                        Registrar valoración
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      }
-    </div>
-  </div>
-</div>
 
-<!-- MODAL CENTRAL DE VALORACION -->
-<div
-  class="modal fade"
-  id="valoracionModal"
-  tabindex="-1"
-  aria-labelledby="valoracionLabel"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded-4">
-      <div class="modal-header" style="background: #6b46c1">
-        <h5 class="modal-title text-white" id="valoracionLabel">
-          Valorar a {{ modalRating?.username }}
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <div class="d-flex align-items-center gap-2 mb-3">
-          <img
-            [src]="
-              modalRating?.avatarUrl ||
-              'https://img.freepik.com/psd-gratis/ilustracion-3d-avatar-o-perfil-humano_23-2150671142.jpg?semt=ais_hybrid&w=740&q=80'
-            "
-            width="38"
-            height="55"
-            class="rounded-1"
-            alt=""
-            style="object-fit: cover"
-          />
-          <div class="fw-semibold fs-5">{{ modalRating?.username }}</div>
-        </div>
-        <div class="mb-2 fw-semibold">Puntuación (del 1 al 5):</div>
-        <div class="mb-2" style="font-size: 1.5rem">
-          @for (star of [1,2,3,4,5]; track star) {
-          <span
-            class="star"
-            [class.text-warning]="star <= modalScore"
-            [class.text-muted]="star > modalScore"
-            style="cursor: pointer"
-            (click)="setModalScore(star)"
-          >
-            ★
-          </span>
-          }
-        </div>
-        <div class="mb-2 fw-semibold">Valoración:</div>
-        <textarea
-          class="form-control mb-2"
-          rows="2"
-          [value]="modalComment"
-          (input)="setModalComment($event)"
-        ></textarea>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-        <button
-          type="button"
-          class="btn btn-morado"
-          (click)="submitModalRating()"
-          [disabled]="modalScore === 0"
-        >
-          Registrar valoración
-        </button>
-      </div>
+      }
     </div>
   </div>
 </div>

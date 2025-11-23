@@ -1,146 +1,90 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { forkJoin, of, from } from 'rxjs';
+import { switchMap, catchError, map } from 'rxjs/operators';
 import { TripService } from '../../core/services/viajes';
-import { RatingsService } from '../../core/services/ratings'; // Debes crear/adaptar este servicio
+import { ParticipationService } from '../../core/services/participations';
 import { AuthService } from '../../core/services/auth';
-import { Trip } from '../../interfaces/trip';
-import { Iuser } from '../../interfaces/iuser';
-
+import { RatingsService } from '../../core/services/ratings';
 import { DatePipe } from '@angular/common';
-
-// Interfaces auxiliares
-interface Companion {
-  userId: number;
-  username: string;
-  avatarUrl?: string;
-  isRated: boolean;
-}
-
-interface TripRating {
-  tripId: number;
-  tripName: string;
-  destination: string;
-  startDate: string;
-  endDate: string;
-  cost: number;
-  imageUrl?: string;
-  companions: Companion[];
-}
+import { CardUsuario } from '../../components/card-usuario/card-usuario';
 
 @Component({
   selector: 'app-valoraciones-pendientes',
-  standalone: true,
-  imports: [ReactiveFormsModule, DatePipe],
-  providers: [TripService, RatingsService, AuthService],
   templateUrl: './ratings.html',
   styleUrls: ['./ratings.css'],
+  imports: [DatePipe, CardUsuario],
 })
-export class ValoracionesPendientesComponent {
-  pendingRatings = [
-    {
-      tripId: 1,
-      tripName: 'Escapada cultural a Roma',
-      destination: 'Roma',
-      startDate: '2025-03-20',
-      endDate: '2025-03-25',
-      cost: 850,
-      imageUrl:
-        'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80',
-      organizer: {
-        userId: 88,
-        username: 'Laura (Organizadora)',
-        avatarUrl: 'https://randomuser.me/api/portraits/women/47.jpg',
-        isRated: false,
-        rating: 5,
-      },
-      companions: [
-        {
-          userId: 42,
-          username: 'Ana',
-          avatarUrl: 'https://randomuser.me/api/portraits/women/42.jpg',
-          isRated: false,
-          rating: 4,
-        },
-        {
-          userId: 65,
-          username: 'Carlos',
-          avatarUrl: 'https://randomuser.me/api/portraits/men/65.jpg',
-          isRated: true,
-          rating: 5,
-        },
-      ],
-    },
-    {
-      tripId: 2,
-      tripName: 'Senderismo en Pirineos',
-      destination: 'Huesca',
-      startDate: '2025-04-08',
-      endDate: '2025-04-13',
-      cost: 650,
-      imageUrl:
-        'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80',
-      organizer: {
-        userId: 51,
-        username: 'Marcos (Organizador)',
-        avatarUrl: 'https://randomuser.me/api/portraits/men/51.jpg',
-        isRated: false,
-        rating: 4,
-      },
-      companions: [
-        {
-          userId: 39,
-          username: 'Jorge',
-          avatarUrl: 'https://randomuser.me/api/portraits/men/39.jpg',
-          isRated: false,
-          rating: 3,
-        },
-        {
-          userId: 18,
-          username: 'Lucía',
-          avatarUrl: 'https://randomuser.me/api/portraits/women/15.jpg',
-          isRated: true,
-          rating: 5,
-        },
-      ],
-    },
-  ];
+export class ValoracionesPendientesComponent implements OnInit {
+  pendingRatings: any[] = [];
+  userId!: number;
 
-  modalRating: {
-    tripId: number;
-    userId: number;
-    username: string;
-    avatarUrl: string;
-    isOrganizer?: boolean;
-  } | null = null;
+  modalRating: any = null;
   modalScore = 0;
   modalComment = '';
 
+  constructor(
+    private route: ActivatedRoute,
+    private tripService: TripService,
+    private participationService: ParticipationService,
+    private authService: AuthService,
+    private ratingsService: RatingsService
+  ) {}
+
+  getPendingRatings(userId: number, allTrips: any[]): any[] {
+    const today = new Date();
+
+    return allTrips
+      .filter((trip) => trip.creator_id === userId && new Date(trip.end_date) < today)
+      .map((trip) => ({
+        tripId: trip.id,
+        tripName: trip.title,
+        destination: trip.destination,
+        startDate: trip.start_date,
+        endDate: trip.end_date,
+        cost: trip.estimated_cost,
+        imageUrl: trip.image_url,
+        creator_id: {
+          userId: trip.creator_id, // Si luego necesitas nombre/avatar, debes buscarlo
+          username: trip.organizer_name, // Solo si la DB te lo da, o búscalo aparte
+          avatarUrl: trip.organizer_img,
+          isRated: false, // Solo puedes mejorar esto si tienes endpoint de valoraciones hechas
+          rating: null,
+        },
+      }));
+  }
+
+  ngOnInit(): void {
+    this.userId = Number(this.route.snapshot.paramMap.get('userId'));
+
+    this.tripService.getAllTrips().subscribe((allTrips: any[]) => {
+      this.pendingRatings = this.getPendingRatings(this.userId, allTrips);
+      // Si quieres cargar compañeros después, aquí es el sitio
+    });
+
+    // Primero cargo todos los viajes donde el usuario es organizador
+
+    from(this.tripService.getTripById(this.userId)).subscribe((allTrips) => {
+      this.pendingRatings = this.getPendingRatings(this.userId, allTrips as any);
+      // Si quieres, aquí puedes cargar compañeros y datos extra
+
+      // Aquí podrías tener los tripIds desde otro endpoint, ejemplo:
+      // this.tripService.getTripsForUser(this.userId).subscribe((tripIds: number[]) => {...});
+
+      const tripIds = [1, 2]; // Simula los tripIds, reemplaza por consulta real
+    });
+  }
+
+  // Modal helpers
   getEstrellas(valoracion: number): { icon: string; color: string }[] {
-    if (valoracion <= 2) {
-      return [
-        { icon: 'bi-star-fill', color: 'text-danger' },
-        { icon: 'bi-star', color: 'text-secondary' },
-        { icon: 'bi-star', color: 'text-secondary' },
-      ];
-    } else if (valoracion <= 3) {
-      return [
-        { icon: 'bi-star-fill', color: 'text-warning' },
-        { icon: 'bi-star', color: 'text-secondary' },
-        { icon: 'bi-star', color: 'text-secondary' },
-      ];
-    } else if (valoracion <= 4) {
-      return [
-        { icon: 'bi-star-fill', color: 'text-warning' },
-        { icon: 'bi-star-fill', color: 'text-warning' },
-        { icon: 'bi-star', color: 'text-secondary' },
-      ];
-    } else {
-      return [
-        { icon: 'bi-star-fill', color: 'text-warning' },
-        { icon: 'bi-star-fill', color: 'text-warning' },
-        { icon: 'bi-star-fill', color: 'text-warning' },
-      ];
+    const estrellas = [];
+    for (let i = 1; i <= 5; i++) {
+      estrellas.push({
+        icon: i <= valoracion ? 'bi-star-fill' : 'bi-star',
+        color: i <= valoracion ? 'text-warning' : 'text-secondary',
+      });
     }
+    return estrellas;
   }
 
   openModal(
@@ -163,33 +107,50 @@ export class ValoracionesPendientesComponent {
   setModalScore(score: number) {
     this.modalScore = score;
   }
+
   setModalComment(event: Event) {
     const input = event.target as HTMLTextAreaElement;
     this.modalComment = input.value;
   }
+
   submitModalRating() {
     if (!this.modalRating) return;
-    const { tripId, userId, isOrganizer } = this.modalRating;
-    for (const trip of this.pendingRatings) {
-      if (trip.tripId === tripId) {
-        // Organizador
-        if (isOrganizer && trip.organizer.userId === userId) {
-          trip.organizer.isRated = true;
-          trip.organizer.rating = this.modalScore;
-        }
-        // Compañeros
-        for (const companion of trip.companions) {
-          if (!isOrganizer && companion.userId === userId) {
-            companion.isRated = true;
-            companion.rating = this.modalScore;
+    const { tripId, userId } = this.modalRating;
+    this.ratingsService
+      .createRating({
+        trip_id: tripId,
+        author_id: this.userId,
+        rated_user_id: userId,
+        score: this.modalScore,
+        comment: this.modalComment,
+      })
+      .subscribe(() => {
+        // Actualiza el estado local si quieres marcar como "ya valorado"
+        const trip = this.pendingRatings.find((t) => t.tripId === tripId);
+        if (trip) {
+          if (this.modalRating.isOrganizer && trip.organizer.userId === userId) {
+            trip.organizer.isRated = true;
+            trip.organizer.rating = this.modalScore;
+          } else {
+            interface TripCompanion {
+              userId: number;
+              isRated: boolean;
+              rating?: number;
+            }
+            const companion: TripCompanion | undefined = trip.companions?.find(
+              (c: TripCompanion) => c.userId === userId
+            );
+            if (companion) {
+              companion.isRated = true;
+              companion.rating = this.modalScore;
+            }
           }
         }
-      }
-    }
-    // Cierra modal
-    const modal = document.getElementById('valoracionModal');
-    // @ts-ignore
-    if (modal && window.bootstrap) window.bootstrap.Modal.getOrCreateInstance(modal).hide();
-    this.modalRating = null;
+        // Cierra modal
+        const modal = document.getElementById('valoracionModal');
+        // @ts-ignore
+        if (modal && window.bootstrap) window.bootstrap.Modal.getOrCreateInstance(modal).hide();
+        this.modalRating = null;
+      });
   }
 }

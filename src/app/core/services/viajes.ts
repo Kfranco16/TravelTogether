@@ -47,6 +47,9 @@ export class TripService {
     const url = `${environment.apiUrl}/trips/`;
     return await firstValueFrom(this.http.post<any>(url, tripData, { headers }));
   }
+  getAllTrips(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/trips/`);
+  }
 
   deleteTripById(id: number) {
     return this.http.delete(`${environment.apiUrl}/trips/${id}`);
@@ -54,6 +57,10 @@ export class TripService {
 
   getImagesByTripId(tripId: number): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/images/trips/${tripId}`);
+  }
+
+  getParticipantsByTripId(tripId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/participations/trip/${tripId}`);
   }
 
   async uploadImage(

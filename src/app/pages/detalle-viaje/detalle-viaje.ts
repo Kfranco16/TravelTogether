@@ -49,6 +49,7 @@ export class DetalleViaje {
     // Futura llamada a la API para la solicitud de unirse al viaje.
   }
   usuarioActual: Iuser | null = null;
+  participantesConfirmados: any[] = [];
 
   mainImageUrl: string = 'images/mainDefault.jpg';
   mainImageAlt: string = 'Foto principal por defecto';
@@ -98,6 +99,22 @@ export class DetalleViaje {
           this.usuario = null;
         }
       }
+
+      this.tripService.getParticipantsByTripId(this.viaje.id).subscribe({
+        next: (response: any) => {
+          const participantes = Array.isArray(response.data) ? response.data : [];
+          // Filtra solo los confirmados (status === 'accepted')
+          this.participantesConfirmados = participantes.filter(
+            (p: any) => p.status === 'accepted' && p.user_id !== this.viaje?.creator_id
+          );
+          // Si necesitas los user_id, puedes obtenerlos aquí, pero no hace falta el return
+          // const userIds = this.participantesConfirmados.map(p => p.user_id);
+        },
+        error: (err) => {
+          console.error('Error al obtener participantes', err);
+        },
+      });
+
       this.cargarImagenes(Number(id));
     } catch (error) {
       this.viaje = null;
