@@ -48,8 +48,9 @@
               class="btn p-0 position-absolute top-0 end-0 m-2"
               style="z-index: 10"
               (click)="toggleFavorito(trip)"
+              [attr.disabled]="!isLoggedIn() ? true : null"
             >
-              <i class="fs-2 bi {{ getFavoriteIconClass(trip?.isFavorite) }}"></i>
+              <i class="fs-2 {{ getFavoriteIconClass(trip?.isFavorite) }}"></i>
             </button>
           </div>
         </div>

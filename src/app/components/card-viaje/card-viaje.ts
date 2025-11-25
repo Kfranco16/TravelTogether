@@ -63,6 +63,18 @@ export class CardViaje {
           this.usuario = user;
         });
       }
+
+      if (globalUser && this.trip?.id) {
+        const token = this.authService.gettoken();
+        this.tripService.isFavorite(this.trip.id, token!).subscribe({
+          next: (favorite) => {
+            this.trip.isFavorite = true;
+          },
+          error: (err) => {
+            this.trip.isFavorite = false;
+          },
+        });
+      }
     });
   }
 
@@ -107,23 +119,45 @@ export class CardViaje {
     }
   }
 
-  toggleFavorito(trip: any) {
-    trip.isFavorite = !trip.isFavorite;
-  }
-
   isLoggedIn(): boolean {
     return this.authService.isAuth();
   }
 
   getFavoriteIconClass(isFavorite: any): string {
-    if (this.isLoggedIn() === false) {
+    if (!this.isLoggedIn()) {
       return 'bi-heart text-white disabled';
     }
     return isFavorite ? 'bi-heart-fill text-danger' : 'bi-heart text-white';
   }
+
+  toggleFavorito(trip: any) {
+    if (!this.isLoggedIn()) return;
+    const token = this.authService.gettoken();
+
+    if (!trip.isFavorite) {
+      this.tripService.addFavorite(trip.id, token!).subscribe({
+        next: () => {
+          trip.isFavorite = true;
+        },
+        error: () => {
+          trip.isFavorite = false;
+        },
+      });
+    } else {
+      this.tripService.removeFavorite(trip.id, token!).subscribe({
+        next: () => {
+          trip.isFavorite = false;
+        },
+        error: () => {
+          trip.isFavorite = true;
+        },
+      });
+    }
+  }
+
   toggleSolicitud(trip: any) {
     trip.solicitado = !trip.solicitado;
-    // Futura llamada a la API para la solicitud de unirse al viaje.
+    // Futura llamada a la API para solicitar unirse al viaje
   }
 
   getGoogleMapsUrl(lat: number, lng: number, zoom: number): string {

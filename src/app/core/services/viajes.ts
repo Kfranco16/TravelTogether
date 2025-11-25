@@ -63,6 +63,37 @@ export class TripService {
     return this.http.get<any[]>(`${environment.apiUrl}/participations/trip/${tripId}`);
   }
 
+  addFavorite(tripId: number, token: string): Observable<any> {
+    return this.http.post(
+      `${environment.apiUrl}/favorites`,
+      { trip_id: tripId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  }
+
+  removeFavorite(tripId: number, token: string): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/favorites/${tripId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
+  isFavorite(tripId: number, token: string): Observable<any> {
+    return this.http.get(`${environment.apiUrl}/favorites/${tripId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
   async uploadImage(
     file: File,
     description: string,
@@ -119,6 +150,6 @@ export class TripService {
     const token = localStorage.getItem('tt_token') || '';
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
     const params = new HttpParams().set('user_id', String(userId));
-    return this.http.get<any[]>('http://localhost:3000/api/favorites', { headers, params });
+    return this.http.get<any[]>(environment.apiUrl + '/favorites', { headers, params });
   }
 }
