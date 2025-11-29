@@ -50,7 +50,7 @@
               (click)="toggleFavorito(trip)"
               [attr.disabled]="!isLoggedIn() ? true : null"
             >
-              <i class="fs-2 {{ getFavoriteIconClass(trip?.isFavorite) }}"></i>
+              <i class="fs-2 fav-icon-hover {{ getFavoriteIconClass(trip?.isFavorite) }}"></i>
             </button>
           </div>
         </div>

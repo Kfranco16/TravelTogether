@@ -1,157 +1,215 @@
-<main class="container g-3 my-5">
-  <article class="">
-    <div class="card-body">
-      <h4 class="mb-3 color-principal">
-        {{ tituloFormulario || 'Regístrate y empieza tu aventura' }}
-      </h4>
+<main class="container my-5">
+  <article>
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-body p-4 p-md-5">
+        <!-- Cabecera -->
+        <section class="py-3 py-md-4 mb-4 bg-light rounded-3 px-3 px-md-4">
+          <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+            <!-- Icono usuario -->
+            <div
+              class="rounded-circle bg-white shadow-sm d-flex align-items-center justify-content-center flex-shrink-0"
+              style="width: 56px; height: 56px"
+            >
+              <i class="bi bi-person-fill text-primary fs-3"></i>
+            </div>
 
-      <form [formGroup]="userForm" (ngSubmit)="onSubmit()" novalidate>
-        <div class="mb-3">
-          <label class="form-label">Usuario</label>
-          <input
-            class="form-control"
-            formControlName="username"
-            placeholder="Usuario"
-            [class.is-invalid]="isInvalid('username')"
-          />
-          @if (isInvalid('username') && userForm.get('username')?.errors) {
-          <div class="invalid-feedback">
-            @if (userForm.get('username')?.errors?.['required']) {
-            <div>El usuario es obligatorio.</div>
-            } @if (userForm.get('username')?.errors?.['minlength']) {
-            <div>Mínimo 3 caracteres.</div>
+            <!-- Texto cabecera -->
+            <div>
+              <p
+                class="text-uppercase text-secondary fw-semibold mb-1 small d-flex align-items-center gap-2"
+              >
+                <i class="bi bi-stars"></i>
+                Registro de usuario
+              </p>
+
+              <h1 class="h3 mb-2 color-principal">
+                {{ tituloFormulario || 'Regístrate y empieza tu aventura' }}
+              </h1>
+
+              <p class="mb-1 text-muted small">
+                Crea tu cuenta para unirte a viajes, guardar favoritos y conectar con otros
+                viajeros.
+              </p>
+              <p class="mb-0 text-muted small d-flex align-items-center gap-1">
+                <i class="bi bi-info-circle"></i>
+                No te preocupes, luego en tu perfil podrás subir tu foto y editar los detalles que
+                te falten.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bloque: datos de acceso -->
+        <div class="bg-light border-start border-3 border-primary ps-3 mb-4">
+          <h2 class="h5 mb-1 d-flex align-items-center gap-2">
+            <i class="bi bi-shield-lock text-primary"></i>
+            Datos de acceso
+          </h2>
+          <p class="text-muted small mb-0">Elige tu usuario, email y una contraseña segura.</p>
+        </div>
+
+        <form [formGroup]="userForm" (ngSubmit)="onSubmit()" novalidate>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Usuario</label>
+            <input
+              class="form-control"
+              formControlName="username"
+              [class.is-invalid]="isInvalid('username')"
+            />
+            @if (isInvalid('username') && userForm.get('username')?.errors) {
+            <div class="invalid-feedback">
+              @if (userForm.get('username')?.errors?.['required']) {
+              <div>El usuario es obligatorio.</div>
+              } @if (userForm.get('username')?.errors?.['minlength']) {
+              <div>Mínimo 3 caracteres.</div>
+              }
+            </div>
             }
           </div>
-          }
-        </div>
 
-        <div class="mb-3">
-          <label class="form-label">Email</label>
-          <input
-            type="email"
-            class="form-control"
-            formControlName="email"
-            placeholder="email@dominio.com"
-            [class.is-invalid]="isInvalid('email')"
-          />
-          @if (isInvalid('email') && userForm.get('email')?.errors) {
-          <div class="invalid-feedback">
-            @if (userForm.get('email')?.errors?.['required']) {
-            <div>El email es obligatorio.</div>
-            } @if (userForm.get('email')?.errors?.['email']) {
-            <div>Formato de email inválido.</div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              formControlName="email"
+              [class.is-invalid]="isInvalid('email')"
+            />
+            @if (isInvalid('email') && userForm.get('email')?.errors) {
+            <div class="invalid-feedback">
+              @if (userForm.get('email')?.errors?.['required']) {
+              <div>El email es obligatorio.</div>
+              } @if (userForm.get('email')?.errors?.['email']) {
+              <div>Formato de email inválido.</div>
+              }
+            </div>
             }
           </div>
-          }
-        </div>
 
-        <div class="mb-3">
-          <label class="form-label">Contraseña</label>
-          <input
-            type="password"
-            class="form-control"
-            formControlName="password"
-            placeholder="Contraseña"
-            [class.is-invalid]="isInvalid('password')"
-          />
-          @if (isInvalid('password') && userForm.get('password')?.errors) {
-          <div class="invalid-feedback">
-            @if (userForm.get('password')?.errors?.['required']) {
-            <div>La contraseña es obligatoria.</div>
-            } @if (userForm.get('password')?.errors?.['minlength']) {
-            <div>Mínimo 6 caracteres.</div>
+          <div class="row">
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label fw-semibold">Contraseña</label>
+              <input
+                type="password"
+                class="form-control"
+                formControlName="password"
+                [class.is-invalid]="isInvalid('password')"
+              />
+              @if (isInvalid('password') && userForm.get('password')?.errors) {
+              <div class="invalid-feedback">
+                @if (userForm.get('password')?.errors?.['required']) {
+                <div>La contraseña es obligatoria.</div>
+                } @if (userForm.get('password')?.errors?.['minlength']) {
+                <div>Mínimo 6 caracteres.</div>
+                }
+              </div>
+              }
+            </div>
+
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label fw-semibold">Repite la contraseña</label>
+              <input
+                type="password"
+                class="form-control"
+                formControlName="repeatPassword"
+                (paste)="(false)"
+                [class.is-invalid]="
+                  isInvalid('repeatPassword') ||
+                  ((submitted || userForm.get('repeatPassword')?.touched) && userForm.errors?.['passwordsMismatch'])
+                "
+              />
+              @if ( (isInvalid('repeatPassword') && userForm.get('repeatPassword')?.errors) ||
+              ((submitted || userForm.get('repeatPassword')?.touched) &&
+              userForm.errors?.['passwordsMismatch']) ) {
+              <div class="invalid-feedback">
+                @if (userForm.get('repeatPassword')?.errors?.['required']) {
+                <div>Debes repetir la contraseña.</div>
+                } @if (userForm.errors?.['passwordsMismatch']) {
+                <div>Las contraseñas no coinciden.</div>
+                }
+              </div>
+              }
+            </div>
+          </div>
+
+          <!-- Bloque: información de contacto y perfil -->
+
+          <div class="bg-light border-start border-3 border-primary ps-3 mb-4 mt-3">
+            <h2 class="h5 mb-1 d-flex align-items-center gap-2">
+              <i class="bi bi-person-lines-fill text-primary"></i>
+              Información de perfil
+            </h2>
+            <p class="text-muted small mb-0">
+              Añade cómo pueden contactarte y cuéntale al resto algo más sobre ti.
+            </p>
+          </div>
+          <!-- Aviso suave bajo el formulario -->
+          <div class="alert alert-info py-2 small d-flex align-items-start gap-2 mt-2 mb-3">
+            <i class="bi bi-person-circle mt-1"></i>
+            <span>
+              Una vez registrado, podrás completar tu perfil, subir tu foto y actualizar cualquier
+              dato cuando quieras.
+            </span>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Teléfono</label>
+            <input
+              class="form-control"
+              formControlName="telefono"
+              [class.is-invalid]="isInvalid('telefono')"
+            />
+            @if (isInvalid('telefono') && userForm.get('telefono')?.errors) {
+            <div class="invalid-feedback">
+              @if (userForm.get('telefono')?.errors?.['pattern']) {
+              <div>Teléfono inválido.</div>
+              }
+            </div>
             }
           </div>
-          }
-        </div>
 
-        <div class="mb-3">
-          <label class="form-label">Repite la contraseña</label>
-          <input
-            type="password"
-            class="form-control"
-            formControlName="repeatPassword"
-            placeholder="Repite la contraseña"
-            (paste)="(false)"
-            [class.is-invalid]="isInvalid('repeatPassword') || ((submitted || userForm.get('repeatPassword')?.touched) && userForm.errors?.['passwordsMismatch'])"
-          />
-          @if ( (isInvalid('repeatPassword') && userForm.get('repeatPassword')?.errors) ||
-          ((submitted || userForm.get('repeatPassword')?.touched) &&
-          userForm.errors?.['passwordsMismatch']) ) {
-          <div class="invalid-feedback">
-            @if (userForm.get('repeatPassword')?.errors?.['required']) {
-            <div>Debes repetir la contraseña.</div>
-            } @if (userForm.errors?.['passwordsMismatch']) {
-            <div>Las contraseñas no coinciden.</div>
-            }
+          <div class="row">
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label fw-semibold">Sobre ti</label>
+              <textarea
+                class="form-control"
+                formControlName="descripcion"
+                rows="4"
+                maxlength="500"
+                placeholder="Cuéntale al resto de viajeros sobre ti"
+              ></textarea>
+              <small class="text-muted">
+                {{ userForm.get('descripcion')?.value?.length || 0 }}/500 caracteres
+              </small>
+            </div>
+
+            <div class="mb-3 col-12 col-md-6">
+              <label class="form-label fw-semibold">Intereses</label>
+              <textarea
+                class="form-control"
+                formControlName="intereses"
+                rows="4"
+                maxlength="500"
+                placeholder="Cuenta al resto de viajeros sobre tus intereses"
+              ></textarea>
+              <small class="text-muted">
+                {{ userForm.get('intereses')?.value?.length || 0 }}/500 caracteres
+              </small>
+            </div>
           </div>
-          }
-        </div>
 
-        <!-- <div class="mb-3">
-          <label class="upload-label">Imagen (Archivo, máx. 200kb)</label>
-          <input
-            type="file"
-            accept="image/*"
-            class="form-control"
-            [class.is-invalid]="isInvalid('image')"
-          />
-          @if (imageError) {
-          <div class="invalid-feedback">{{ imageError }}</div>
-          }
-        </div> -->
-
-        <div class="mb-3">
-          <label class="form-label">Teléfono</label>
-          <input
-            class="form-control"
-            formControlName="telefono"
-            placeholder="Teléfono"
-            [class.is-invalid]="isInvalid('telefono')"
-          />
-          @if (isInvalid('telefono') && userForm.get('telefono')?.errors) {
-          <div class="invalid-feedback">
-            @if (userForm.get('telefono')?.errors?.['pattern']) {
-            <div>Teléfono inválido.</div>
-            }
+          <!-- Botón -->
+          <div class="d-flex gap-2 mt-3">
+            <button
+              class="btn btn-morado w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2"
+              type="submit"
+            >
+              <i class="bi bi-send-fill"></i>
+              {{ textoBoton || 'Aceptar y registrarme' }}
+            </button>
           </div>
-          }
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Sobre ti</label>
-          <textarea
-            class="form-control"
-            formControlName="descripcion"
-            rows="4"
-            maxlength="500"
-            placeholder="Breve descripción"
-          ></textarea>
-          <small class="text-muted">
-            {{ userForm.get('descripcion')?.value?.length || 0 }}/500 caracteres
-          </small>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Intereses</label>
-          <textarea
-            class="form-control"
-            formControlName="intereses"
-            rows="4"
-            maxlength="500"
-            placeholder="Cuenta al resto de viajeros sobre tus intereses"
-          ></textarea>
-          <small class="text-muted">
-            {{ userForm.get('intereses')?.value?.length || 0 }}/500 caracteres
-          </small>
-        </div>
-
-        <div class="d-flex gap-2 mt-3">
-          <button class="btn btn-outline-secondary btn-morado w-100 mb-2" type="submit">
-            {{ textoBoton || 'Aceptar y registrarme' }}
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   </article>
 </main>
