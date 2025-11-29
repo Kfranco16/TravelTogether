@@ -4,10 +4,8 @@
     (ngSubmit)="onSubmit()"
     class="trip-form bg-white mt-4 shadow-sm rounded-4 p-4 p-md-5"
   >
-    <!-- Cabecera -->
     <section class="py-4 py-md-4 mb-4 bg-light rounded-3 px-3 px-md-4">
       <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
-        <!-- Icono de viaje -->
         <div
           class="rounded-circle bg-white shadow-sm d-flex align-items-center justify-content-center flex-shrink-0"
           style="width: 56px; height: 56px"
@@ -15,7 +13,6 @@
           <i class="bi bi-geo-alt-fill text-primary fs-3"></i>
         </div>
 
-        <!-- Texto principal -->
         <div>
           <p
             class="text-uppercase text-secondary fw-semibold mb-1 small d-flex align-items-center gap-2"
@@ -38,7 +35,6 @@
       </div>
     </section>
 
-    <!-- Bloque: información básica -->
     <div class="bg-light border-start border-3 border-primary ps-3 mb-4">
       <h2 class="h5 mb-1 d-flex align-items-center gap-2">
         <i class="bi bi-pencil-square text-primary"></i>
@@ -50,13 +46,8 @@
     </div>
 
     <div class="mb-3">
-      <label class="form-label fw-semibold">Título para el viaje</label>
-      <input
-        type="text"
-        formControlName="title"
-        class="form-control"
-        placeholder="Ej. Aventura Cafetera y Caribe Colombiano"
-      />
+      <label class="form-label fw-semibold">Título para el viaje:</label>
+      <input type="text" formControlName="title" class="form-control" />
       @if (tripForm.get('title')?.invalid && tripForm.get('title')?.touched) {
       <div class="text-danger small mt-1">
         <i class="bi bi-exclamation-circle me-1"></i>
@@ -67,13 +58,12 @@
 
     <div class="row">
       <div class="mb-3 col-12 col-md-6">
-        <label for="origen" class="form-label fw-semibold">Origen</label>
+        <label for="origen" class="form-label fw-semibold">Origen:</label>
         <input
           type="text"
           formControlName="origin"
           class="form-control"
           id="origen"
-          placeholder="Introduce ciudad de origen"
           #originInput
           autocomplete="off"
           spellcheck="false"
@@ -84,19 +74,16 @@
           El origen es obligatorio.
         </div>
         }
-        <div class="form-text small">
-          Escribe y selecciona la ciudad para autocompletarla correctamente.
-        </div>
       </div>
 
       <div class="mb-3 col-12 col-md-6">
-        <label for="destino" class="form-label fw-semibold">Destino</label>
+        <label for="destino" class="form-label fw-semibold">Destino:</label>
         <input
           type="text"
           formControlName="destination"
           class="form-control"
           id="destino"
-          placeholder="Introduce ciudad de destino"
+          placeholder="Escribe y selecciona la ciudad para autocompletarla correctamente."
           #destinationInput
           autocomplete="off"
           spellcheck="false"
@@ -107,9 +94,6 @@
           El destino es obligatorio.
         </div>
         }
-        <div class="form-text small">
-          Escribe y selecciona la ciudad para autocompletarla correctamente.
-        </div>
       </div>
     </div>
 
@@ -118,10 +102,17 @@
         <label class="form-label fw-semibold">Fecha de inicio</label>
         <input type="date" formControlName="start_date" class="form-control" />
       </div>
+
       <div class="mb-3 col-12 col-md-6">
         <label class="form-label fw-semibold">Fecha de fin</label>
-        <input type="date" formControlName="end_date" class="form-control" />
+        <input
+          type="date"
+          formControlName="end_date"
+          class="form-control"
+          [attr.min]="tripForm.get('start_date')?.value || null"
+        />
       </div>
+
       @if (tripForm.get('end_date')?.invalid && tripForm.get('end_date')?.touched) {
       <div class="text-danger small mt-1">
         <i class="bi bi-exclamation-circle me-1"></i>
@@ -130,7 +121,6 @@
       }
     </div>
 
-    <!-- Bloque: descripción e itinerario -->
     <div class="bg-light border-start border-3 border-primary ps-3 mb-4 mt-4">
       <h2 class="h5 mb-1 d-flex align-items-center gap-2">
         <i class="bi bi-journal-text text-primary"></i>
@@ -180,7 +170,6 @@
       ></textarea>
     </div>
 
-    <!-- Bloque: requisitos e incluye -->
     <div class="bg-light border-start border-3 border-primary ps-3 mb-4 mt-4">
       <h2 class="h5 mb-1 d-flex align-items-center gap-2">
         <i class="bi bi-list-check text-primary"></i>
@@ -190,7 +179,6 @@
     </div>
 
     <div class="row g-4 mb-3">
-      <!-- Columna izquierda: requisitos -->
       <div class="col-12 col-lg-5">
         <div class="h-100 p-3 p-lg-4 rounded-3 bg-light bg-opacity-50">
           <div class="d-flex justify-content-between align-items-center mb-2">
@@ -215,12 +203,10 @@
             class="form-control"
             [maxlength]="100"
             rows="3"
-            placeholder="Describe los requisitos del viaje (edad, condición física, documentación, etc.)"
           ></textarea>
         </div>
       </div>
 
-      <!-- Columna derecha: qué incluye -->
       <div class="col-12 col-lg-7">
         <div class="h-100 p-3 p-lg-4 rounded-3 bg-light bg-opacity-25">
           <label class="form-label fw-semibold d-flex align-items-center gap-2 mb-2">
@@ -410,7 +396,6 @@
       </div>
     </div>
 
-    <!-- Bloque: participantes y precio -->
     <div class="border-start border-3 border-primary ps-3 mb-4 mt-4">
       <h2 class="h5 mb-1 d-flex align-items-center gap-2">
         <i class="bi bi-people text-primary"></i>
@@ -443,18 +428,11 @@
         }
         <div class="input-group">
           <span class="input-group-text">€</span>
-          <input
-            type="number"
-            step="0.01"
-            formControlName="estimated_cost"
-            class="form-control"
-            placeholder="Ej. 1750.00"
-          />
+          <input type="number" step="0.01" formControlName="estimated_cost" class="form-control" />
         </div>
       </div>
     </div>
 
-    <!-- Bloque: logística -->
     <div class="bg-light border-start border-3 border-primary ps-3 mb-4 mt-4">
       <h2 class="h5 mb-1 d-flex align-items-center gap-2">
         <i class="bi bi-compass text-primary"></i>
@@ -471,12 +449,7 @@
         El transporte es obligatorio.
       </div>
       }
-      <input
-        type="text"
-        formControlName="transport"
-        class="form-control"
-        placeholder="Ej. Avión y Autobús"
-      />
+      <input type="text" formControlName="transport" class="form-control" />
     </div>
 
     <div class="mb-3">
@@ -487,15 +460,9 @@
         El tipo de alojamiento es obligatorio.
       </div>
       }
-      <input
-        type="text"
-        formControlName="accommodation"
-        class="form-control"
-        placeholder="Ej. Hoteles de 4 estrellas"
-      />
+      <input type="text" formControlName="accommodation" class="form-control" />
     </div>
 
-    <!-- Bloque: fotos -->
     <div class="bg-light border-start border-3 border-primary ps-3 mb-4 mt-4">
       <h2 class="h5 mb-1 d-flex align-items-center gap-2">
         <i class="bi bi-image text-primary"></i>
@@ -516,7 +483,6 @@
       <input type="file" class="form-control" (change)="onPhotoChange($event, 'main_photo')" />
     </div>
 
-    <!-- Botón -->
     <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
       <button
         class="btn btn-morado w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2"

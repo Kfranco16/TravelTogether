@@ -55,14 +55,12 @@ export class Login implements OnInit {
     alert('Necesitas iniciar sesión para ver más detalles de este viaje.');
   }
 
-  // viajes para el carrusel inferior
   trips: Trip[] = [];
   viajesVisibles: Trip[] = [];
   itemsPorPagina = 12;
   indiceActuakl = 0;
   viajesFiltrados: Trip[] = [];
 
-  // mapa de portadas por id de viaje
   portadas: Record<number, { url: string; alt: string }> = {};
 
   loginForm: FormGroup = this.formBuilder.nonNullable.group({
@@ -79,7 +77,6 @@ export class Login implements OnInit {
         this.viajesFiltrados = this.trips;
         this.actualizarPaginacionFiltrada();
 
-        // Cargar portadas de los primeros 10 viajes visibles
         this.viajesVisibles.slice(0, 10).forEach((trip) => {
           this.cargarPortadaTrip(trip.id);
         });

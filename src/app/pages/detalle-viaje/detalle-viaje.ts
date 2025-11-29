@@ -103,12 +103,10 @@ export class DetalleViaje {
       this.tripService.getParticipantsByTripId(this.viaje.id).subscribe({
         next: (response: any) => {
           const participantes = Array.isArray(response.data) ? response.data : [];
-          // Filtra solo los confirmados (status === 'accepted')
+
           this.participantesConfirmados = participantes.filter(
             (p: any) => p.status === 'accepted' && p.user_id !== this.viaje?.creator_id
           );
-          // Si necesitas los user_id, puedes obtenerlos aquí, pero no hace falta el return
-          // const userIds = this.participantesConfirmados.map(p => p.user_id);
         },
         error: (err) => {
           console.error('Error al obtener participantes', err);

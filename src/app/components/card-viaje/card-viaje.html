@@ -10,8 +10,8 @@
             <img
               [src]="portadaImageUrl"
               [alt]="portadaImageAlt"
-              style="height: 100%; width: 100%; object-fit: cover; display: block"
-              class="img-fluid"
+              style="height: 100%; width: 100%; object-fit: cover; display: block card-img-zoom"
+              class="img-fluid card-img-zoom"
             />
 
             <div class="position-absolute top-0 start-0 w-100 text-white px-3 pt-2 lh-1">
@@ -39,7 +39,7 @@
                 <div class="d-flex align-items-center mt-3">
                   <span class="badge bg-danger text-white">
                     <i class="bi bi-clock"></i>
-                    ¡Date prisa! Quedan {{ getDaysLeft(trip?.start_date) }} días para el viaje
+                    ¡Date prisa! Quedan {{ getDaysLeft(trip?.start_date) }} días.
                   </span>
                 </div>
                 }

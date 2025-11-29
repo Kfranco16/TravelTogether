@@ -7,7 +7,6 @@
 >
   <div class="card border-0 shadow-sm rounded-4">
     <div class="card-body p-4">
-      <!-- Cabecera -->
       <div class="d-flex flex-column align-items-center text-center mb-3">
         <div
           class="rounded-circle bg-light d-flex align-items-center justify-content-center mb-3"
@@ -81,13 +80,12 @@
   </div>
 
   <div class="d-flex justify-content-center align-items-center gap-2">
-    <!-- Flecha izquierda -->
     <span class="dot d-flex align-items-center justify-content-center">
       <i class="fs-2 bi bi-chevron-left"></i>
     </span>
 
     <div class="d-flex gap-3 overflow-auto pb-2" style="max-width: 900px; scrollbar-width: thin">
-      @for (trip of viajesVisibles.slice(0, 8); track trip.id) {
+      @for (trip of viajesVisibles.slice(0, 10); track trip.id) {
       <button
         type="button"
         class="text-decoration-none border-0 bg-transparent p-0"
@@ -116,7 +114,6 @@
       }
     </div>
 
-    <!-- Flecha derecha -->
     <span class="dot d-flex align-items-center justify-content-center">
       <i class="fs-2 bi bi-chevron-right"></i>
     </span>

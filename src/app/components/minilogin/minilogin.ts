@@ -13,7 +13,7 @@ interface LoginResponse {
   selector: 'app-minilogin',
   imports: [RouterLink, ReactiveFormsModule],
   templateUrl: './minilogin.html',
-  styles: ``,
+  styleUrls: ['./minilogin.css'],
 })
 export class Minilogin {
   authService = inject(AuthService);
@@ -46,7 +46,6 @@ export class Minilogin {
       const response: LoginResponse = await this.authService.login({ email, password });
 
       if (response && response.user) {
-        // Actualiza el usuario en el BehaviorSubject
         this.authService.setCurrentUser(response.user);
 
         localStorage.setItem('token', response.token);
