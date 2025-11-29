@@ -22,15 +22,18 @@
               <div class="user-link mt-2" (click)="irADetalleUsuario()">
                 <app-card-usuario [usuario]="usuario"></app-card-usuario>
               </div>
+
               <div class="fw-bold fs-6 mt-2">
                 <a
                   [href]="getGoogleMapsUrl(trip.latitude, trip.longitude, 12)"
                   target="_blank"
                   rel="noopener"
                   class="text-decoration-none text-white text-shadow-black"
-                  ><i class="bi bi-geo-alt"></i> {{ trip?.destination }}
+                >
+                  <i class="bi bi-geo-alt"></i> {{ trip?.destination }}
                 </a>
               </div>
+
               <div class="card-img-shake">
                 @if (getShowDaysBadge(trip?.start_date)) {
                 <div class="d-flex align-items-center mt-3">
@@ -55,74 +58,84 @@
           </div>
         </div>
 
+        <!-- CAPA INFERIOR: info + login/acciones -->
         <div
           class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
         >
           @if (isLoggedIn()) {
-          <div class="detalles-viaje">
+          <!-- VERSIÓN LOGUEADO -->
+          <div
+            class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
+            style="background: rgba(255, 255, 255)"
+          >
             <div
-              class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
-              style="background: rgba(255, 255, 255, 0.888)"
+              class="badge {{ getBadgeClass(trip?.status) }} mb-2"
+              style="font-size: 1rem; padding: 0.5em 1em"
             >
-              <div
-                class="badge {{ getBadgeClass(trip?.status) }} mb-2"
-                style="font-size: 1rem; padding: 0.5em 1em"
+              {{ getBadgeText(trip?.status) }}
+            </div>
+
+            <div class="mb-2 text-muted text-center w-100">
+              <i class="bi bi-calendar3"></i>
+              {{ trip.start_date | date : 'dd/MM/yyyy' }} -
+              {{ trip.end_date | date : 'dd/MM/yyyy' }}
+            </div>
+
+            <div class="mb-2 color-principal text-center w-100">
+              <i class="bi bi-arrow-left-right"></i>
+              {{ trip?.transport }}
+            </div>
+
+            <div class="mb-2 text-center w-100">
+              <i class="bi bi-people"></i>
+              Mínimo {{ trip?.min_participants }} viajeros
+            </div>
+
+            <div class="mb-2 color-principal fw-bold text-center w-100">
+              <i class="bi bi-cash-coin"></i>
+              {{ trip.estimated_cost | number : '0.0' }}€ por persona
+            </div>
+
+            <div class="mb-3 text-2lines text-muted text-center w-100">
+              {{ trip?.description }}
+            </div>
+
+            <div class="d-flex gap-2 w-100 justify-content-center mt-auto mb-2">
+              <button (click)="irADetalleViaje()" class="btn btn-outline-secondary btn-morado w-50">
+                Ver detalles
+              </button>
+              <button
+                type="button"
+                class="btn w-50"
+                [class.btn-success]="trip?.solicitado"
+                [class.btn-outline-secondary]="!trip?.solicitado"
+                [class.btn-morado]="!trip?.solicitado"
+                (click)="toggleSolicitud(trip)"
               >
-                {{ getBadgeText(trip?.status) }}
-              </div>
-
-              <div class="mb-2 text-muted text-center w-100">
-                <i class="bi bi-calendar3"></i>
-                {{ trip.start_date | date : 'dd/MM/yyyy' }} -
-                {{ trip.end_date | date : 'dd/MM/yyyy' }}
-              </div>
-
-              <div class="mb-2 color-principal text-center w-100">
-                <i class="bi bi-arrow-left-right"></i>
-                {{ trip?.transport }}
-              </div>
-
-              <div class="mb-2 text-center w-100">
-                <i class="bi bi-people"></i>
-                Mínimo {{ trip?.min_participants }} viajeros
-              </div>
-
-              <div class="mb-2 color-principal fw-bold text-center w-100">
-                <i class="bi bi-cash-coin"></i>
-                {{ trip.estimated_cost | number : '0.0' }}€ por persona
-              </div>
-
-              <div class="mb-3 text-2lines text-muted text-center w-100">
-                {{ trip?.description }}
-              </div>
-
-              <div class="d-flex gap-2 w-100 justify-content-center mt-auto mb-2">
-                <button
-                  (click)="irADetalleViaje()"
-                  class="btn btn-outline-secondary btn-morado w-50"
-                >
-                  Ver detalles
-                </button>
-                <button
-                  type="button"
-                  class="btn w-50"
-                  [class.btn-success]="trip?.solicitado"
-                  [class.btn-outline-secondary]="!trip?.solicitado"
-                  [class.btn-morado]="!trip?.solicitado"
-                  (click)="toggleSolicitud(trip)"
-                >
-                  {{ trip?.solicitado ? 'Solicitado' : 'Solicitar unirme' }}
-                </button>
-              </div>
+                {{ trip?.solicitado ? 'Solicitado' : 'Solicitar unirme' }}
+              </button>
             </div>
           </div>
           } @else {
+          <!-- VERSIÓN NO LOGUEADO: info básica + MINI LOGIN -->
           <div
             class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
-            style="background: rgba(255, 255, 255, 0.888)"
+            style="background: rgb(255, 255, 255)"
           >
-            <div class="login-container">
-              <app-login></app-login>
+            <!-- Info básica visible para todos -->
+            <div class="mb-2 text-success text-center w-100">
+              <i class="bi bi-calendar3"></i>
+              {{ trip.start_date | date : 'dd/MM/yyyy' }} -
+              {{ trip.end_date | date : 'dd/MM/yyyy' }}
+            </div>
+
+            <div class="mb-2 text-2lines text-muted text-center w-100">
+              {{ trip?.description }}
+            </div>
+
+            <!-- Mini login debajo -->
+            <div class="mt-2 w-100" style="max-width: 360px">
+              <app-minilogin></app-minilogin>
             </div>
           </div>
           }

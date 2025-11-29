@@ -1,60 +1,124 @@
 <form
   [formGroup]="loginForm"
   (ngSubmit)="onSubmit()"
-  class="login-form mx-auto my-4 p-4"
-  style="max-width: 360px"
+  class="mx-auto my-5"
+  style="max-width: 380px"
   novalidate
 >
-  <div class="d-flex flex-column align-items-center">
-    <input
-      type="email"
-      id="email"
-      formControlName="email"
-      class="form-control mb-3 text-center"
-      [class.is-invalid]="isFieldInvalid('email')"
-      placeholder="Correo electrónico"
-      autocomplete="email"
-    />
-    @if (isFieldInvalid('email')) {
-    <div class="invalid-feedback d-block text-center mt-1">
-      <!-- {{ getErrorMessage('email') }} -->
+  <div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-4">
+      <!-- Cabecera -->
+      <div class="d-flex flex-column align-items-center text-center mb-3">
+        <div
+          class="rounded-circle bg-light d-flex align-items-center justify-content-center mb-3"
+          style="width: 56px; height: 56px"
+        >
+          <i class="bi bi-door-open-fill text-primary fs-3"></i>
+        </div>
+        <h1 class="fs-3 mb-1 color-principal">Bienvenido de nuevo</h1>
+        <p class="text-muted small mb-0">
+          Inicia sesión para continuar organizando y descubriendo nuevos viajes.
+        </p>
+      </div>
+
+      <div class="d-flex flex-column">
+        <input
+          type="email"
+          id="email"
+          formControlName="email"
+          class="form-control mb-2 text-center"
+          [class.is-invalid]="isFieldInvalid('email')"
+          placeholder="Correo electrónico"
+          autocomplete="email"
+        />
+        @if (isFieldInvalid('email')) {
+        <div class="invalid-feedback d-block text-center mb-2 small">
+          Revisa tu correo electrónico.
+        </div>
+        }
+
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="form-control mb-2 text-center"
+          [class.is-invalid]="isFieldInvalid('password')"
+          placeholder="Contraseña"
+          autocomplete="current-password"
+        />
+        @if (isFieldInvalid('password')) {
+        <div class="invalid-feedback d-block text-center mb-2 small">Revisa tu contraseña.</div>
+        }
+
+        <button
+          type="submit"
+          class="btn btn-morado w-100 mb-3 d-flex align-items-center justify-content-center gap-2"
+        >
+          <i class="bi bi-box-arrow-in-right"></i>
+          Entrar
+        </button>
+
+        <hr class="my-3" />
+
+        <p class="text-center mb-2 small text-muted">¿Aún no tienes cuenta?</p>
+        <button
+          routerLink="/registro"
+          type="button"
+          class="btn btn-outline-secondary btn-morado w-100"
+        >
+          Regístrate y empieza tu aventura
+        </button>
+      </div>
     </div>
-    }
-
-    <input
-      type="password"
-      id="password"
-      formControlName="password"
-      class="form-control mb-3 text-center"
-      [class.is-invalid]="isFieldInvalid('password')"
-      placeholder="Contraseña"
-      autocomplete="current-password"
-    />
-    @if (isFieldInvalid('password')) {
-    <div class="invalid-feedback d-block text-center mt-1">
-      <!-- {{ getErrorMessage('password') }} -->
-    </div>
-    }
-
-    <button type="submit" class="btn btn-outline-secondary btn-morado w-100 mb-3">Entrar</button>
-
-    <!-- <div class="mb-2 form-check w-100 fs-6">
-      <input
-        type="checkbox"
-        formControlName="rememberMe"
-        class="form-check-input"
-        id="rememberMe"
-      />
-      <label class="form-check-label" for="rememberMe">Recuérdame</label>
-    </div> -->
-
-    <h5 class="text-center mb-3">¿Aún no estás registrado?</h5>
-    <button
-      routerLink="/registro"
-      type="button"
-      class="btn btn-outline-secondary btn-morado w-100 mb-2"
-    >
-      Regístrate
-    </button>
   </div>
 </form>
+<section class="mt-4">
+  <div class="d-flex justify-content-center mb-2">
+    <h2 class="h5 mb-0 d-flex align-items-center gap-2 mb-4">
+      <i class="bi bi-compass text-primary"></i>
+      Únete y no te pierdas estos viajes
+    </h2>
+  </div>
+
+  <div class="d-flex justify-content-center align-items-center gap-2">
+    <!-- Flecha izquierda -->
+    <span class="dot d-flex align-items-center justify-content-center">
+      <i class="fs-2 bi bi-chevron-left"></i>
+    </span>
+
+    <div class="d-flex gap-3 overflow-auto pb-2" style="max-width: 900px; scrollbar-width: thin">
+      @for (trip of viajesVisibles.slice(0, 8); track trip.id) {
+      <button
+        type="button"
+        class="text-decoration-none border-0 bg-transparent p-0"
+        (click)="onTripClick(trip)"
+        style="min-width: 210px; max-width: 210px"
+      >
+        <div class="card border-0 shadow-sm rounded-3 h-100">
+          <img
+            [src]="portadas[trip.id]?.url || 'images/coverDefault.jpg'"
+            [alt]="portadas[trip.id]?.alt || trip.title"
+            class="img-fluid rounded-top-3"
+            style="height: 90px; width: 100%; object-fit: cover"
+          />
+          <div class="p-2">
+            <h3 class="h6 mb-1 text-truncate">{{ trip.title }}</h3>
+            <p class="small text-muted mb-1 text-truncate">
+              <i class="bi bi-geo-alt"></i> {{ trip.destination }}
+            </p>
+            <p class="small mb-0 text-success">
+              {{ trip.start_date | date : 'dd/MM' }} -
+              {{ trip.end_date | date : 'dd/MM' }}
+            </p>
+          </div>
+        </div>
+      </button>
+      }
+    </div>
+
+    <!-- Flecha derecha -->
+    <span class="dot d-flex align-items-center justify-content-center">
+      <i class="fs-2 bi bi-chevron-right"></i>
+    </span>
+  </div>
+</section>

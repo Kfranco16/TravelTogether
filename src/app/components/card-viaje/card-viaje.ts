@@ -1,6 +1,6 @@
 import { Component, inject, Input, Pipe, PipeTransform } from '@angular/core';
 import { CardUsuario } from '../card-usuario/card-usuario';
-import { Login } from '../../pages/login/login';
+import { Minilogin } from '../minilogin/minilogin';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
 import { Iuser } from '../../interfaces/iuser';
@@ -17,7 +17,7 @@ export class CapitalizeFirstPipe implements PipeTransform {
 
 @Component({
   selector: 'app-card-viaje',
-  imports: [CardUsuario, Login, DatePipe, DecimalPipe, CapitalizeFirstPipe],
+  imports: [CardUsuario, DatePipe, DecimalPipe, CapitalizeFirstPipe, Minilogin],
   templateUrl: './card-viaje.html',
   styleUrl: './card-viaje.css',
 })

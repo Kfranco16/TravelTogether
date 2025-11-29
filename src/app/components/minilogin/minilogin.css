@@ -9,14 +9,3 @@
 .color-principal {
   color: #5223b9;
 }
-.dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #ccc;
-  display: inline-block;
-}
-
-.active-dot {
-  background-color: #6f42c1; /* tu morado */
-}

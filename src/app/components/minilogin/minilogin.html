@@ -1,0 +1,49 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="h-100 m-0 p-0" novalidate>
+  <div class="card border-0 rounded-3 h-100 m-0 p-0">
+    <div class="card-body m-0 p-0 d-flex flex-column">
+      <p class="mb-1 small fw-semibold text-center">
+        <i class="bi bi-person-circle text-primary"></i>
+        Inicia sesión para ver más detalles
+      </p>
+
+      <input
+        type="email"
+        id="email"
+        formControlName="email"
+        class="form-control form-control-sm mb-1 text-center"
+        [class.is-invalid]="isFieldInvalid('email')"
+        placeholder="Correo electrónico"
+        autocomplete="email"
+      />
+
+      <input
+        type="password"
+        id="password"
+        formControlName="password"
+        class="form-control form-control-sm mb-1 text-center"
+        [class.is-invalid]="isFieldInvalid('password')"
+        placeholder="Contraseña"
+        autocomplete="current-password"
+      />
+
+      @if (isFieldInvalid('email') || isFieldInvalid('password')) {
+      <div class="text-danger small mb-1 text-center">Revisa tu correo y contraseña.</div>
+      }
+
+      <button
+        type="submit"
+        class="btn btn-morado btn-sm w-100 mb-1 d-flex align-items-center justify-content-center gap-1"
+      >
+        <i class="bi bi-box-arrow-in-right"></i>
+        Entrar
+      </button>
+
+      <div class="mt-0 text-center">
+        <small class="text-muted">
+          ¿Aún no tienes cuenta?
+          <a routerLink="/registro" class="text-decoration-none fw-semibold">Regístrate</a>
+        </small>
+      </div>
+    </div>
+  </div>
+</form>
