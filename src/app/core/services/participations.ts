@@ -7,23 +7,32 @@ import { environment } from '../../../environment/environment';
 export class ParticipationService {
   constructor(private http: HttpClient) {}
 
-  // Obtener TODOS los participantes de un viaje
-  getParticipantsByTripId(tripId: number): Observable<any[]> {
-    const url = `${environment.apiUrl}/participations/trip/${tripId}`;
-
+  // Viajes que yo he creado (con detalles y participantes)
+  getMyCreatedTrips(): Observable<any[]> {
+    const url = `${environment.apiUrl}/participations/my-created`;
     return this.http.get<any[]>(url);
   }
 
-  // (Opcional) Obtener TODAS las participaciones de un usuario
-  getParticipationsByUserId(userId: number): Observable<any[]> {
-    const url = `${environment.apiUrl}/participations/user/${userId}`;
+  // Viajes a los que me he unido (con detalles y participantes)
+  getMyParticipations(): Observable<any[]> {
+    const url = `${environment.apiUrl}/participations/my-participations`;
+    return this.http.get<any[]>(url);
+  }
+
+  // Obtener TODOS los participantes de un viaje concreto (si lo necesitas)
+  getParticipantsByTripId(tripId: number): Observable<any[]> {
+    const url = `${environment.apiUrl}/participations/trip/${tripId}`;
     return this.http.get<any[]>(url);
   }
 
   // Invitar a un usuario a un viaje
   createParticipation(tripId: number, token: string): Observable<any> {
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return this.http.post<any>(`${environment.apiUrl}/participations`, { tripId }, { headers });
+    return this.http.post<any>(
+      `${environment.apiUrl}/participations/trip`,
+      { tripId },
+      { headers }
+    );
   }
 
   // Cambiar el estado de una participación (aceptar/rechazar)
