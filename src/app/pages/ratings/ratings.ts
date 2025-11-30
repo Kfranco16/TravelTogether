@@ -37,7 +37,18 @@ interface TripRatingCard {
 export class ValoracionesPendientesComponent implements OnInit {
   pendingRatings: TripRatingCard[] = [];
   upcomingRatings: TripRatingCard[] = [];
+  ratedTrips: {
+    tripId: number;
+    tripName: string;
+    destination: string;
+    startDate: string | Date;
+    imageUrl: string;
+    totalRated: number;
+    totalUsers: number;
+  }[] = [];
+
   currentUserId!: number;
+  private allCards: TripRatingCard[] = [];
 
   modalRating: {
     tripId: number;
@@ -65,7 +76,6 @@ export class ValoracionesPendientesComponent implements OnInit {
       return;
     }
     this.currentUserId = currentUser.id;
-    const userId = currentUser.id;
 
     forkJoin({
       createdResp: this.participationService
@@ -74,9 +84,12 @@ export class ValoracionesPendientesComponent implements OnInit {
       joinedResp: this.participationService
         .getMyParticipations()
         .pipe(catchError(() => of({ data: [] }))),
+      myRatings: this.ratingsService
+        .getRatingsByAuthor(currentUser.id)
+        .pipe(catchError(() => of([]))),
     })
       .pipe(
-        map(({ createdResp, joinedResp }: any) => {
+        map(({ createdResp, joinedResp, myRatings }: any) => {
           const created = createdResp.data ?? [];
           const joined = joinedResp.data ?? [];
 
@@ -85,44 +98,89 @@ export class ValoracionesPendientesComponent implements OnInit {
           );
           const joinedCards: TripRatingCard[] = joined.map((t: any) => this.mapJoinedTripToCard(t));
 
-          // Evitar duplicados: si un viaje aparece en created, no lo añadimos de joined
+          // evitar duplicados (prioridad a creados)
           const createdIds = new Set(createdCards.map((c) => c.tripId));
           const filteredJoined = joinedCards.filter((c) => !createdIds.has(c.tripId));
 
-          const allCards = [...createdCards, ...filteredJoined];
+          this.allCards = [...createdCards, ...filteredJoined];
 
-          this.upcomingRatings = allCards;
-          const today = new Date();
+          // marcar ya valorados
+          this.applyExistingRatings(this.allCards, myRatings, currentUser.id);
 
-          // 1. Primero calculamos pendientes
-          this.pendingRatings = allCards.filter((card) => {
-            const end = new Date(card.endDate);
-            if (end >= today) return false;
-
-            const hasPendingOrganizer = !card.organizer.isRated;
-            const hasPendingCompanions = card.companions.some((c) => !c.isRated);
-            return hasPendingOrganizer || hasPendingCompanions;
-          });
-
-          // 2. Luego “próximos” = todos menos los que ya están en pendientes
-          const pendingIds = new Set(this.pendingRatings.map((c) => c.tripId));
-          this.upcomingRatings = allCards.filter((c) => !pendingIds.has(c.tripId));
-          this.pendingRatings = allCards.filter((card) => {
-            const end = new Date(card.endDate);
-            if (end >= today) return false;
-
-            const hasPendingOrganizer = !card.organizer.isRated;
-            const hasPendingCompanions = card.companions.some((c) => !c.isRated);
-            return hasPendingOrganizer || hasPendingCompanions;
-          });
+          // calcular secciones
+          this.recalculateSections();
         })
       )
       .subscribe();
   }
 
+  private applyExistingRatings(cards: TripRatingCard[], myRatings: any[], currentUserId: number) {
+    const ratingsByTripAndUser = new Map<string, any>();
+
+    for (const r of myRatings) {
+      if (r.author_id !== currentUserId) continue;
+      const key = `${r.trip_id}-${r.rated_user_id}`;
+      ratingsByTripAndUser.set(key, r);
+    }
+
+    for (const card of cards) {
+      const orgKey = `${card.tripId}-${card.organizer.userId}`;
+      if (ratingsByTripAndUser.has(orgKey)) {
+        const r = ratingsByTripAndUser.get(orgKey);
+        card.organizer.isRated = true;
+        card.organizer.rating = r.score ?? null;
+      }
+
+      for (const c of card.companions) {
+        const key = `${card.tripId}-${c.userId}`;
+        if (ratingsByTripAndUser.has(key)) {
+          const r = ratingsByTripAndUser.get(key);
+          c.isRated = true;
+          c.rating = r.score ?? null;
+        }
+      }
+    }
+  }
+
+  private recalculateSections() {
+    const today = new Date();
+
+    // PENDIENTES
+    this.pendingRatings = this.allCards.filter((card) => {
+      const end = new Date(card.endDate);
+      if (end >= today) return false;
+
+      const hasPendingOrganizer = !card.organizer.isRated;
+      const hasPendingCompanions = card.companions.some((c) => !c.isRated);
+      return hasPendingOrganizer || hasPendingCompanions;
+    });
+
+    // PRÓXIMOS = allCards - pendientes
+    const pendingIds = new Set(this.pendingRatings.map((c) => c.tripId));
+    this.upcomingRatings = this.allCards.filter((c) => !pendingIds.has(c.tripId));
+
+    // YA VALORADOS (mini)
+    this.ratedTrips = this.allCards
+      .map((card) => {
+        const users = [card.organizer, ...card.companions];
+        const totalUsers = users.length;
+        const totalRated = users.filter((u) => u.isRated).length;
+
+        return {
+          tripId: card.tripId,
+          tripName: card.tripName,
+          destination: card.destination,
+          startDate: card.startDate,
+          imageUrl: card.imageUrl,
+          totalRated,
+          totalUsers,
+        };
+      })
+      .filter((t) => t.totalRated > 0);
+  }
+
   // Viajes que yo he creado (my-created)
   private mapCreatedTripToCard(trip: any, currentUser: any): TripRatingCard {
-    // accepted_participants_json viene como string con objetos separados por comas sin array
     const companions: TripUser[] = this.parseParticipantsJson(
       trip.accepted_participants_json,
       currentUser.id
@@ -132,7 +190,7 @@ export class ValoracionesPendientesComponent implements OnInit {
       userId: trip.creator_id,
       username: currentUser.username ?? 'Yo',
       avatarUrl: currentUser.image_url ?? trip.trip_image_url ?? '',
-      isRated: false, // aquí luego puedes usar valoraciones reales
+      isRated: false,
       rating: null,
     };
 
@@ -153,14 +211,12 @@ export class ValoracionesPendientesComponent implements OnInit {
   private mapJoinedTripToCard(trip: any): TripRatingCard {
     const organizer: TripUser = {
       userId: trip.creator_id,
-      username: 'Organizador', // si no te viene el nombre, pon genérico
+      username: 'Organizador',
       avatarUrl: trip.creator_image_url ?? '',
       isRated: false,
       rating: null,
     };
 
-    // Aquí no tienes la lista de compañeros en la respuesta,
-    // así que de momento la dejamos vacía
     const companions: TripUser[] = [];
 
     return {
@@ -169,14 +225,13 @@ export class ValoracionesPendientesComponent implements OnInit {
       destination: trip.destination,
       startDate: trip.start_date,
       endDate: trip.end_date,
-      cost: 0, // no viene en la respuesta, pon 0 o añade campo si lo expones
+      cost: 0,
       imageUrl: trip.trip_image_url,
       organizer,
       companions,
     };
   }
 
-  // Parsear accepted_participants_json raro (no es un JSON válido de array)
   private parseParticipantsJson(raw: string | null, currentUserId: number): TripUser[] {
     if (!raw) return [];
 
@@ -192,7 +247,7 @@ export class ValoracionesPendientesComponent implements OnInit {
           userId: p.id,
           username: p.username,
           avatarUrl: p.participant_image_url ?? '',
-          isRated: false, // aquí luego podrás meter si ya está valorado
+          isRated: false,
           rating: p.participant_avg_score ?? null,
         }));
     } catch (e) {
@@ -263,8 +318,9 @@ export class ValoracionesPendientesComponent implements OnInit {
           }
         };
 
-        updateInList(this.upcomingRatings);
+        updateInList(this.allCards);
         updateInList(this.pendingRatings);
+        updateInList(this.upcomingRatings);
 
         const modal = document.getElementById('valoracionModal');
         const win = window as any;
@@ -273,19 +329,7 @@ export class ValoracionesPendientesComponent implements OnInit {
         }
         this.modalRating = null;
 
-        this.recalculatePending();
+        this.recalculateSections();
       });
-  }
-
-  private recalculatePending() {
-    const today = new Date();
-    this.pendingRatings = this.upcomingRatings.filter((card) => {
-      const end = new Date(card.endDate);
-      if (end >= today) return false;
-
-      const hasPendingOrganizer = !card.organizer.isRated;
-      const hasPendingCompanions = card.companions.some((c) => !c.isRated);
-      return hasPendingOrganizer || hasPendingCompanions;
-    });
   }
 }
