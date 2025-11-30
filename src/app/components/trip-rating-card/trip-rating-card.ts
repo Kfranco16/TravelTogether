@@ -2,6 +2,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardUsuario } from '../../components/card-usuario/card-usuario';
 import { Iuser } from '../../interfaces/iuser';
+import { Router, RouterLink } from '@angular/router';
+import { AuthService } from '../../core/services/auth';
 
 export interface TripUser {
   userId: number;
@@ -36,6 +38,7 @@ export class TripRatingCardComponent {
   @Input() currentUserId!: number;
   @Input() isPendingSection: boolean = false;
 
+  constructor(private authService: AuthService, private router: Router) {}
   // Emite datos para abrir el modal en el padre
   @Output() rate = new EventEmitter<{
     tripId: number;
@@ -53,6 +56,16 @@ export class TripRatingCardComponent {
       avatarUrl: this.trip.organizer.avatarUrl,
       isOrganizer: true,
     });
+  }
+
+  irADetalleUsuario(companion: any) {
+    console.log('Click ejecutado, companion:', companion);
+    console.log('companion.userId:', companion?.userId);
+
+    if (companion && companion.userId) {
+      console.log('Navegando a:', companion.userId);
+      this.router.navigate([`perfil/${companion.userId}`]);
+    }
   }
 
   onRateCompanion(companion: TripUser) {

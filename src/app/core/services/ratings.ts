@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { environment } from '../../../environment/environment';
 
 @Injectable({
@@ -38,9 +38,11 @@ export class RatingsService {
 
   // Obtener valoraciones por autor
   getRatingsByAuthor(authorId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/author/${authorId}`, {
-      headers: this.getHeaders(),
-    });
+    return this.http
+      .get<any>(`${environment.apiUrl}/ratings/author/${authorId}`, {
+        headers: this.getHeaders(),
+      })
+      .pipe(map((resp) => resp.results?.results ?? []));
   }
 
   // Obtener valoraciones por usuario valorado

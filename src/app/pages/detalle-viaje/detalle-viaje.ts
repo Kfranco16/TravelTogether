@@ -163,9 +163,9 @@ export class DetalleViaje {
     }
   }
 
-  irADetalleUsuario() {
-    if (this.usuario && this.usuario.id) {
-      this.router.navigate([`perfil/${this.usuario.id}`]);
+  irADetalleUsuario(usuario: Iuser | null) {
+    if (usuario && usuario.id) {
+      this.router.navigate([`perfil/${usuario.id}`]);
     }
   }
 

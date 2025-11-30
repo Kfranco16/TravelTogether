@@ -118,7 +118,7 @@
             class="card-body d-flex align-items-center mb-1"
             style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
           >
-            <div class="user-link text-white" (click)="irADetalleUsuario()">
+            <div class="user-link text-white" (click)="irADetalleUsuario(usuario)">
               <app-card-usuario [usuario]="usuario"></app-card-usuario>
             </div>
           </div>
@@ -181,7 +181,7 @@
             class="card-body d-flex align-items-center"
             style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
           >
-            <div class="user-link text-white" (click)="irADetalleUsuario()">
+            <div class="user-link text-white" (click)="irADetalleUsuario(participant)">
               <app-card-usuario [usuario]="participant"></app-card-usuario>
             </div>
           </div>
