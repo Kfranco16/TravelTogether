@@ -1,5 +1,5 @@
 import { Component, inject, Input } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TripService, ImageResponse } from '../../core/services/viajes';
 import { Trip } from '../../interfaces/trip';
 import { DatePipe } from '@angular/common';
@@ -9,6 +9,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { CardUsuario } from '../../components/card-usuario/card-usuario';
 import { AuthService } from '../../core/services/auth';
+import { ParticipationService } from '../../core/services/participations';
 
 @Component({
   selector: 'app-detalle-viaje',
@@ -21,7 +22,11 @@ export class DetalleViaje {
   @Input() trip!: any;
   @Input() usuario: Iuser | null = null;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private participationService: ParticipationService
+  ) {}
 
   private route = inject(ActivatedRoute);
   private tripService = inject(TripService);
@@ -50,6 +55,7 @@ export class DetalleViaje {
   }
   usuarioActual: Iuser | null = null;
   participantesConfirmados: any[] = [];
+  participants: any[] = [];
 
   mainImageUrl: string = 'images/mainDefault.jpg';
   mainImageAlt: string = 'Foto principal por defecto';
@@ -82,7 +88,6 @@ export class DetalleViaje {
 
     try {
       this.viaje = await this.tripService.getTripById(Number(id));
-
       this.detalleViaje = this.viaje;
 
       if (this.viaje?.itinerary) {
@@ -92,19 +97,37 @@ export class DetalleViaje {
         this.itinerarioPorDia = [];
       }
 
+      // Organizador
       if (this.viaje?.creator_id) {
         try {
           this.usuario = await this.authService.getUserById(this.viaje.creator_id);
-        } catch (err) {
+        } catch {
           this.usuario = null;
         }
       }
 
-      this.tripService.getParticipantsByTripId(this.viaje.id).subscribe({
-        next: (response: any) => {
-          const participantes = Array.isArray(response.data) ? response.data : [];
+      // PARTICIPANTES (para card-usuario)
+      this.participationService.getParticipantsByTripId(this.viaje.id).subscribe({
+        next: (res: any) => {
+          const data = Array.isArray(res.data) ? res.data : [];
 
-          this.participantesConfirmados = participantes.filter(
+          // Array para las cards de usuario
+          this.participants = data
+            .filter(
+              (p: any) => p.status === 'accepted' && p.user_id !== this.viaje?.creator_id // excluir organizador
+            )
+            .map((p: any) => ({
+              id: p.user_id,
+              username: p.username,
+              email: p.email ?? '',
+              image: p.user_image_url,
+              // campos opcionales según tu Iuser
+              bio: '',
+              phone: '',
+            })) as Iuser[];
+
+          // Si quieres mantener también participantesConfirmados sin datos extra:
+          this.participantesConfirmados = data.filter(
             (p: any) => p.status === 'accepted' && p.user_id !== this.viaje?.creator_id
           );
         },
@@ -149,6 +172,12 @@ export class DetalleViaje {
   irAValoraciones() {
     if (this.usuario && this.usuario.id) {
       this.router.navigate([`valoraciones/${this.usuario.id}`]);
+    }
+  }
+
+  goToValorarPage() {
+    if (this.usuario && this.usuario.id) {
+      this.router.navigate([`mis-valoraciones/${this.usuario.id}`]);
     }
   }
   getGoogleMapsUrl(lat: number, lng: number, zoom: number): string {

@@ -34,7 +34,11 @@ export const routes: Routes = [
   { path: 'crear-viaje', component: CrearEditarViaje, canActivate: [authGuard] },
 
   { path: 'perfil/:id', component: Perfil, canActivate: [authGuard] },
-  { path: 'valoraciones', component: ValoracionesPendientesComponent, canActivate: [authGuard] },
+  {
+    path: 'mis-valoraciones/:id',
+    component: ValoracionesPendientesComponent,
+    canActivate: [authGuard],
+  },
   { path: 'valoraciones/:id', component: ViewRatings, canActivate: [authGuard] },
   {
     path: 'dashboard',

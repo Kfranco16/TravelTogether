@@ -66,12 +66,21 @@ export class CardViaje {
 
       if (globalUser && this.trip?.id) {
         const token = this.authService.gettoken();
-        this.tripService.isFavorite(this.trip.id, token!).subscribe({
-          next: (favorite) => {
-            this.trip.isFavorite = true;
+        this.tripService.isFavoriteByTrip(this.trip.id, token!).subscribe({
+          next: (favorites) => {
+            // favorites es un ARRAY
+            if (favorites && favorites.length > 0) {
+              this.trip.isFavorite = true;
+              // coge el id del favorito (el registro), para poder borrarlo luego
+              this.trip.favoriteId = favorites[0].id;
+            } else {
+              this.trip.isFavorite = false;
+              this.trip.favoriteId = null;
+            }
           },
-          error: (err) => {
+          error: () => {
             this.trip.isFavorite = false;
+            this.trip.favoriteId = null;
           },
         });
       }
@@ -136,17 +145,21 @@ export class CardViaje {
 
     if (!trip.isFavorite) {
       this.tripService.addFavorite(trip.id, token!).subscribe({
-        next: () => {
+        next: (favorite) => {
           trip.isFavorite = true;
+          // ojo: addFavorite probablemente devuelve un objeto, no array
+          trip.favoriteId = favorite.id;
         },
         error: () => {
           trip.isFavorite = false;
         },
       });
     } else {
-      this.tripService.removeFavorite(trip.id, token!).subscribe({
+      if (!trip.favoriteId) return; // seguridad
+      this.tripService.removeFavoriteById(trip.favoriteId, token!).subscribe({
         next: () => {
           trip.isFavorite = false;
+          trip.favoriteId = null;
         },
         error: () => {
           trip.isFavorite = true;

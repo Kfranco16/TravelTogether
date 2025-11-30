@@ -140,7 +140,7 @@ export class Login implements OnInit {
         this.router.navigate(['/home']);
       }
     } catch (err: any) {
-      toast.error(err?.error?.message || 'Error en el inicio de sesión');
+      alert(err?.error?.message || 'Error en el inicio de sesión');
     }
   }
 

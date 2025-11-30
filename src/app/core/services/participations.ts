@@ -10,6 +10,7 @@ export class ParticipationService {
   // Obtener TODOS los participantes de un viaje
   getParticipantsByTripId(tripId: number): Observable<any[]> {
     const url = `${environment.apiUrl}/participations/trip/${tripId}`;
+
     return this.http.get<any[]>(url);
   }
 

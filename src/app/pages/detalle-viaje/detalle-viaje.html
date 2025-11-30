@@ -15,11 +15,14 @@
           <i class="bi bi-trash"></i> Eliminar viaje
         </button>
       </div>
-      } @if (esCreador) {
       <div class="d-flex align-items-start justify-content-start">
         <button class="btn btn-primary"><i class="bi bi-arrow-left-right"></i> Editar viaje</button>
       </div>
-
+      <div class="d-flex align-items-start justify-content-start">
+        <button class="btn btn-warning" (click)="goToValorarPage()">
+          <i class="bi bi-people"></i>Valorar viaje
+        </button>
+      </div>
       }
     </div>
     <div class="row g-4">
@@ -172,14 +175,14 @@
         </div>
 
         <div class="fw-semibold mb-3 mt-3">Compañeros de viaje:</div>
-        @for (usuario of participantesConfirmados; track usuario.user_id) {
+        @for (participant of participants; track participant.userId) {
         <div class="card shadow-sm mb-4 border-0 rounded-4 overflow-hidden">
           <div
             class="card-body d-flex align-items-center"
             style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
           >
             <div class="user-link text-white" (click)="irADetalleUsuario()">
-              <app-card-usuario [usuario]="usuario"></app-card-usuario>
+              <app-card-usuario [usuario]="participant"></app-card-usuario>
             </div>
           </div>
         </div>
