@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environment/environment';
+import { of } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ParticipationService {
@@ -26,27 +27,27 @@ export class ParticipationService {
     return this.http.get<any[]>(url);
   }
 
-  // ✨ Obtener participantes CON imágenes correctas
+  // participation.service.ts
+
   getParticipantsByTripIdWithImages(tripId: number): Observable<any[]> {
     return this.getParticipantsByTripId(tripId).pipe(
       switchMap((response: any) => {
-        // Si la respuesta tiene estructura de mensaje + data
         const participants: any[] = Array.isArray(response) ? response : response.data || [];
 
-        // Si no hay participantes, devolver array vacío
-        if (participants.length === 0) {
-          return new Observable<any[]>((observer) => {
-            observer.next([]);
-            observer.complete();
-          });
+        // ✨ DEDUPLICAR por user_id (mantener el primero)
+        const uniqueParticipants = Array.from(
+          new Map(participants.map((p) => [p.user_id, p])).values()
+        );
+
+        if (uniqueParticipants.length === 0) {
+          return of([]);
         }
 
-        // Crear peticiones paralelas para obtener datos de cada usuario
-        const userRequests = participants.map((participant: any) =>
+        const userRequests = uniqueParticipants.map((participant: any) =>
           this.getUserData(participant.user_id).pipe(
             map((user) => ({
               ...participant,
-              user_image_url: user.image, // Reemplazar imagen con la correcta
+              user_image_url: user.image,
               phone: user.phone,
               bio: user.bio,
               interests: user.interests,
@@ -54,7 +55,6 @@ export class ParticipationService {
           )
         );
 
-        // Ejecutar todas las peticiones en paralelo
         return forkJoin(userRequests);
       })
     );

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { forkJoin, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { forkJoin, Observable, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { ParticipationService } from '../../core/services/participations';
 import { RatingsService } from '../../core/services/ratings';
 import { AuthService } from '../../core/services/auth';
@@ -78,7 +78,6 @@ export class ValoracionesPendientesComponent implements OnInit {
   ) {}
 
   private buildMyTripRatings(myRatings: any[]) {
-    // clave: tripId -> array de ratings míos en ese viaje
     const ratingsByTrip = new Map<number, any[]>();
     for (const r of myRatings) {
       const arr = ratingsByTrip.get(r.trip_id) ?? [];
@@ -89,7 +88,6 @@ export class ValoracionesPendientesComponent implements OnInit {
     this.myTripRatings = this.ratedTrips.map((trip) => {
       const tripRatings = ratingsByTrip.get(trip.tripId) ?? [];
 
-      // necesitamos el username del valorado: lo buscamos en allCards
       const card = this.allCards.find((c) => c.tripId === trip.tripId);
       const usersIndex = new Map<number, string>();
       if (card) {
@@ -138,19 +136,29 @@ export class ValoracionesPendientesComponent implements OnInit {
         .pipe(catchError(() => of([]))),
     })
       .pipe(
-        map(({ createdResp, joinedResp, myRatingsResp }: any) => {
+        switchMap(({ createdResp, joinedResp, myRatingsResp }: any) => {
           const created = createdResp.data ?? [];
           const joined = joinedResp.data ?? [];
           const myRatings = myRatingsResp as any[];
 
-          // CAMBIO: pasar myRatings a mapCreatedTripToCard
-          const createdCards: TripRatingCard[] = created.map((t: any) =>
-            this.mapCreatedTripToCard(t, currentUser, myRatings)
+          // ✨ Mapear createdCards CON imágenes correctas
+          const createdCardRequests = created.map((t: any) =>
+            this.mapCreatedTripToCardWithImages(t, currentUser, myRatings)
           );
-          const joinedCards: TripRatingCard[] = joined.map((t: any) => this.mapJoinedTripToCard(t));
 
-          const createdIds = new Set(createdCards.map((c) => c.tripId));
-          const filteredJoined = joinedCards.filter((c) => !createdIds.has(c.tripId));
+          // ✨ Mapear joinedCards CON imágenes correctas
+          const joinedCardRequests = joined.map((t: any) => this.mapJoinedTripToCardWithImages(t));
+
+          // Ejecutar todas las peticiones en paralelo
+          return forkJoin({
+            createdCards: forkJoin(createdCardRequests).pipe(catchError(() => of([]))),
+            joinedCards: forkJoin(joinedCardRequests).pipe(catchError(() => of([]))),
+            myRatings: of(myRatings),
+          });
+        }),
+        map(({ createdCards, joinedCards, myRatings }: any) => {
+          const createdIds = new Set(createdCards.map((c: any) => c.tripId));
+          const filteredJoined = joinedCards.filter((c: any) => !createdIds.has(c.tripId));
 
           this.allCards = [...createdCards, ...filteredJoined];
 
@@ -161,10 +169,145 @@ export class ValoracionesPendientesComponent implements OnInit {
       .subscribe();
   }
 
+  // ✨ NUEVO: Mapear viajes creados CON imágenes correctas
+  private mapCreatedTripToCardWithImages(
+    trip: any,
+    currentUser: any,
+    myRatings: any[]
+  ): Observable<TripRatingCard> {
+    const tripId = trip.trip_id;
+
+    // Obtener participantes con imágenes correctas
+    return this.participationService.getParticipantsByTripIdWithImages(tripId).pipe(
+      map((participants: any[]) => {
+        // Filtrar solo los aceptados y excluir al creador
+        const acceptedParticipants = participants.filter(
+          (p: any) => p.status === 'accepted' && p.user_id !== trip.creator_id
+        );
+
+        // Convertir a TripUser
+        const companions: TripUser[] = acceptedParticipants.map((p: any) => {
+          // Verificar si este usuario ha sido valorado por mí
+          const isRated = myRatings.some(
+            (r: any) => r.trip_id === tripId && r.rated_user_id === p.user_id
+          );
+
+          return {
+            userId: p.user_id,
+            username: p.username,
+            avatarUrl: p.user_image_url ?? '',
+            isRated,
+            rating: parseFloat(p.user_avg_score) || null,
+          };
+        });
+
+        const organizer: TripUser = {
+          userId: trip.creator_id,
+          username: currentUser.username ?? 'Yo',
+          avatarUrl: currentUser.image_url ?? trip.trip_image_url ?? '',
+          isRated: true,
+          rating: null,
+        };
+
+        return {
+          tripId: tripId,
+          tripName: trip.title,
+          destination: trip.destination,
+          startDate: trip.start_date,
+          endDate: trip.end_date,
+          cost: Number(trip.estimated_cost),
+          imageUrl: trip.trip_image_url,
+          organizer,
+          companions,
+        };
+      }),
+      catchError((err) => {
+        console.error('Error obteniendo participantes con imágenes:', err);
+        // Fallback: devolver card sin compañeros
+        return of({
+          tripId: trip.trip_id,
+          tripName: trip.title,
+          destination: trip.destination,
+          startDate: trip.start_date,
+          endDate: trip.end_date,
+          cost: Number(trip.estimated_cost),
+          imageUrl: trip.trip_image_url,
+          organizer: {
+            userId: trip.creator_id,
+            username: currentUser.username ?? 'Yo',
+            avatarUrl: currentUser.image_url ?? '',
+            isRated: true,
+            rating: null,
+          },
+          companions: [],
+        } as TripRatingCard);
+      })
+    );
+  }
+
+  // ✨ NUEVO: Mapear viajes unidos CON imágenes correctas
+  private mapJoinedTripToCardWithImages(trip: any): Observable<TripRatingCard> {
+    const tripId = trip.trip_id;
+
+    // Obtener organizador con imagen correcta
+    return this.participationService.getParticipantsByTripIdWithImages(tripId).pipe(
+      map((participants: any[]) => {
+        // Buscar al organizador
+        const organizerParticipant = participants.find(
+          (p: any) => p.user_id === trip.creator_id && p.status === 'accepted'
+        );
+
+        const organizer: TripUser = {
+          userId: trip.creator_id,
+          username: organizerParticipant?.username ?? 'Organizador',
+          avatarUrl: organizerParticipant?.user_image_url ?? trip.creator_image_url ?? '',
+          isRated: false,
+          rating: organizerParticipant
+            ? parseFloat(organizerParticipant.user_avg_score) || null
+            : null,
+        };
+
+        return {
+          tripId: tripId,
+          tripName: trip.trip_name,
+          destination: trip.destination,
+          startDate: trip.start_date,
+          endDate: trip.end_date,
+          cost: 0,
+          imageUrl: trip.trip_image_url,
+          organizer,
+          companions: [],
+        } as TripRatingCard;
+      }),
+      catchError((err) => {
+        console.error('Error obteniendo organizador con imagen:', err);
+        // Fallback
+        return of({
+          tripId: trip.trip_id,
+          tripName: trip.trip_name,
+          destination: trip.destination,
+          startDate: trip.start_date,
+          endDate: trip.end_date,
+          cost: 0,
+          imageUrl: trip.trip_image_url,
+          organizer: {
+            userId: trip.creator_id,
+            username: 'Organizador',
+            avatarUrl: trip.creator_image_url ?? '',
+            isRated: false,
+            rating: null,
+          },
+          companions: [],
+        } as TripRatingCard);
+      })
+    );
+  }
+
+  // ... resto del código igual ...
+
   private recalculateSections(myRatings: any[]) {
     const today = new Date();
 
-    // Construir mapa: tripId -> Set de usuarios que YO he valorado
     const myRatedUsersPerTrip = new Map<number, Set<number>>();
     for (const r of myRatings) {
       if (!myRatedUsersPerTrip.has(r.trip_id)) {
@@ -173,30 +316,26 @@ export class ValoracionesPendientesComponent implements OnInit {
       myRatedUsersPerTrip.get(r.trip_id)!.add(r.rated_user_id);
     }
 
-    // Filtrar solo viajes donde hay al menos un compañero
     const cardsWithCompanions = this.allCards.filter((card) => card.companions.length > 0);
 
-    // 1) PENDIENTES: viajes pasados donde me falte alguien por valorar (según myRatings, no isRated)
     this.pendingRatings = cardsWithCompanions.filter((card) => {
       const end = new Date(card.endDate);
-      if (end >= today) return false; // solo pasados
+      if (end >= today) return false;
 
       const myRatedUsers = myRatedUsersPerTrip.get(card.tripId) ?? new Set();
-      const usersToRate = card.companions.length; // solo compañeros, no yo (organizador)
+      const usersToRate = card.companions.length;
       const myRatedCount = myRatedUsers.size;
 
-      // pendiente = me falta alguien por valorar
       return myRatedCount < usersToRate;
     });
 
-    // 2) YA VALORADOS: pasados donde he valorado a TODOS los compañeros
     this.ratedTrips = cardsWithCompanions
       .map((card) => {
         const myRatedUsers = myRatedUsersPerTrip.get(card.tripId) ?? new Set();
         const users = [card.organizer, ...card.companions];
         const totalUsers = users.length;
         const usersToRate = card.companions.length;
-        const totalRated = usersToRate; // si está aquí es que he valorado a todos
+        const totalRated = usersToRate;
 
         return {
           tripId: card.tripId,
@@ -215,7 +354,6 @@ export class ValoracionesPendientesComponent implements OnInit {
         const isPast = end < today;
         const hasCompanions = t.companionsCount > 0;
 
-        // Recalcular aquí también para ser seguro
         const myRatedUsers = myRatedUsersPerTrip.get(t.tripId) ?? new Set();
         const usersToRate = t.companionsCount;
         const allRatedByMe = myRatedUsers.size === usersToRate;
@@ -226,7 +364,6 @@ export class ValoracionesPendientesComponent implements OnInit {
     const pendingIds = new Set(this.pendingRatings.map((c) => c.tripId));
     const ratedIds = new Set(this.ratedTrips.map((t) => t.tripId));
 
-    // 3) PRÓXIMOS: todo lo que no es ni pendiente ni ya valorado (y tiene compañeros)
     this.upcomingRatings = cardsWithCompanions.filter((card) => {
       if (pendingIds.has(card.tripId)) return false;
       if (ratedIds.has(card.tripId)) return false;
@@ -235,106 +372,9 @@ export class ValoracionesPendientesComponent implements OnInit {
   }
 
   openRatingsDetail(tripId: number) {
-    // Más adelante: abrir modal o navegar al detalle
     console.log('Ver valoraciones dadas en viaje', tripId);
   }
 
-  // Viajes que yo he creado (my-created)
-  private mapCreatedTripToCard(trip: any, currentUser: any, myRatings: any[]): TripRatingCard {
-    const companions: TripUser[] = this.parseParticipantsJson(
-      trip.accepted_participants_json,
-      currentUser.id,
-      trip.trip_id, // pasar tripId
-      myRatings // pasar myRatings
-    );
-
-    const organizer: TripUser = {
-      userId: trip.creator_id,
-      username: currentUser.username ?? 'Yo',
-      avatarUrl: currentUser.image_url ?? trip.trip_image_url ?? '',
-      isRated: true,
-      rating: null,
-    };
-
-    return {
-      tripId: trip.trip_id,
-      tripName: trip.title,
-      destination: trip.destination,
-      startDate: trip.start_date,
-      endDate: trip.end_date,
-      cost: Number(trip.estimated_cost),
-      imageUrl: trip.trip_image_url,
-      organizer,
-      companions,
-    };
-  }
-
-  // Viajes a los que me he unido (my-participations)
-  private mapJoinedTripToCard(trip: any): TripRatingCard {
-    const organizer: TripUser = {
-      userId: trip.creator_id,
-      username: 'Organizador',
-      avatarUrl: trip.creator_image_url ?? '',
-      // idem: si tuvieras creator_avg_score aquí, podrías marcarlo
-      isRated: false,
-      rating: null,
-    };
-
-    const companions: TripUser[] = [];
-
-    return {
-      tripId: trip.trip_id,
-      tripName: trip.trip_name,
-      destination: trip.destination,
-      startDate: trip.start_date,
-      endDate: trip.end_date,
-      cost: 0,
-      imageUrl: trip.trip_image_url,
-      organizer,
-      companions,
-    };
-  }
-
-  // Parsear accepted_participants_json y marcar isRated según participant_avg_score
-  private parseParticipantsJson(
-    raw: string | null,
-    currentUserId: number,
-    tripId: number,
-    myRatings: any[]
-  ): TripUser[] {
-    if (!raw) return [];
-
-    // Construir Set de usuarios que YO he valorado en este viaje
-    const myRatedUsers = new Set<number>();
-    for (const r of myRatings) {
-      if (r.trip_id === tripId) {
-        myRatedUsers.add(r.rated_user_id);
-      }
-    }
-
-    let fixed = raw.trim();
-    if (!fixed.startsWith('[')) fixed = '[' + fixed;
-    if (!fixed.endsWith(']')) fixed = fixed + ']';
-
-    try {
-      const arr = JSON.parse(fixed) as any[];
-      return arr
-        .filter((p) => p.id !== currentUserId)
-        .map((p) => ({
-          userId: p.id,
-          username: p.username,
-          avatarUrl: p.participant_image_url ?? '',
-          // CAMBIO: isRated = true solo si YO he valorado a este usuario en este viaje
-          isRated: myRatedUsers.has(p.id),
-          rating: p.participant_avg_score ?? null,
-        }));
-    } catch (e) {
-      console.error('Error parseando accepted_participants_json', e, raw);
-      return [];
-    }
-  }
-
-  // Modal helpers
   openModal(
     tripId: number,
     userId: number,
@@ -407,7 +447,6 @@ export class ValoracionesPendientesComponent implements OnInit {
         }
         this.modalRating = null;
 
-        // Reload ratings to recalculate sections with updated data
         this.ratingsService
           .getRatingsByAuthor(authorId)
           .pipe(catchError(() => of([])))
