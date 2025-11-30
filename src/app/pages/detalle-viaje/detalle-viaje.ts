@@ -111,28 +111,31 @@ export class DetalleViaje {
         next: (res: any) => {
           const data = Array.isArray(res.data) ? res.data : [];
 
-          // Array para las cards de usuario
-          this.participants = data
-            .filter(
-              (p: any) => p.status === 'accepted' && p.user_id !== this.viaje?.creator_id // excluir organizador
-            )
-            .map((p: any) => ({
-              id: p.user_id,
-              username: p.username,
-              email: p.email ?? '',
-              image: p.user_image_url,
-              // campos opcionales según tu Iuser
-              bio: '',
-              phone: '',
-            })) as Iuser[];
+          // ✅ NUEVO - con imágenes correctas
+          if (!this.viaje) return;
+          this.participationService.getParticipantsByTripIdWithImages(this.viaje.id).subscribe({
+            next: (data: any[]) => {
+              // Array para las cards de usuario
+              this.participants = data
+                .filter((p: any) => p.status === 'accepted' && p.user_id !== this.viaje?.creator_id)
+                .map((p: any) => ({
+                  id: p.user_id,
+                  username: p.username,
+                  email: p.email ?? '',
+                  image: p.user_image_url, // ✨ Ahora trae la imagen correcta
+                  bio: p.bio || '',
+                  phone: p.phone || '',
+                })) as Iuser[];
 
-          // Si quieres mantener también participantesConfirmados sin datos extra:
-          this.participantesConfirmados = data.filter(
-            (p: any) => p.status === 'accepted' && p.user_id !== this.viaje?.creator_id
-          );
-        },
-        error: (err) => {
-          console.error('Error al obtener participantes', err);
+              // Si quieres mantener también participantesConfirmados
+              this.participantesConfirmados = data.filter(
+                (p: any) => p.status === 'accepted' && p.user_id !== this.viaje?.creator_id
+              );
+            },
+            error: (err) => {
+              console.error('Error al obtener participantes', err);
+            },
+          });
         },
       });
 
