@@ -1,0 +1,101 @@
+/* ============================================================================
+   PENDING PARTICIPATIONS - STYLES
+   ============================================================================
+   Estilos para el componente temporal de debugging de participaciones.
+   ============================================================================ */
+
+/* Contenedor principal */
+.container {
+  max-width: 1200px;
+}
+
+/* Encabezado */
+h1 {
+  color: #333;
+  font-weight: 600;
+}
+
+/* Tabla responsiva */
+.table {
+  margin-bottom: 0;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.table td {
+  vertical-align: middle;
+  padding: 1rem;
+}
+
+/* Badges */
+.badge {
+  padding: 0.5rem 0.75rem;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+/* JSON Code Block */
+pre {
+  max-height: 500px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+pre code {
+  color: #d4d4d4;
+  font-family: 'Courier New', monospace;
+}
+
+/* Cards */
+.card {
+  border-radius: 8px;
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Alertas */
+.alert {
+  border-radius: 8px;
+  border: none;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+/* Spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Responsive table */
+@media (max-width: 768px) {
+  .table-responsive {
+    font-size: 0.9rem;
+  }
+
+  .table td {
+    padding: 0.75rem;
+  }
+
+  pre {
+    max-height: 400px;
+  }
+}

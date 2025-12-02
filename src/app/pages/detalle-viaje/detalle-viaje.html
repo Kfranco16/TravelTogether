@@ -59,15 +59,29 @@
             </div>
           </div>
 
+          <!-- 🎯 Botón para solicitar unirse al viaje - Ahora con lógica real -->
           <button
             class="btn btn-outline-secondary btn-morado position-absolute top-0 end-0 m-3"
             type="button"
-            [class.btn-success]="trip?.solicitado"
-            [class.btn-outline-secondary]="!trip?.solicitado"
-            [class.btn-morado]="!trip?.solicitado"
-            (click)="toggleSolicitud(trip)"
+            [class.btn-success]="solicitudEnviada()"
+            [class.btn-outline-secondary]="!solicitudEnviada()"
+            [class.btn-morado]="!solicitudEnviada()"
+            [disabled]="enviandoSolicitud() || solicitudEnviada() || esCreador"
+            (click)="handleSolicitud()"
           >
-            {{ trip?.solicitado ? 'Solicitado' : 'Solicitar unirme' }}
+            <!-- Estado 1: Enviando solicitud -->
+            @if (enviandoSolicitud()) {
+            <span
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            Enviando solicitud... }
+            <!-- Estado 2: Solicitud ya enviada -->
+            @else if (solicitudEnviada()) {
+            <i class="bi bi-check-circle"></i> Solicitud enviada }
+            <!-- Estado 3: Normal - Solicitar unirse -->
+            @else { Solicitar unirme }
           </button>
         </div>
 

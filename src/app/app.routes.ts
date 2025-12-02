@@ -10,6 +10,7 @@ import { Dashboard } from './pages/dashboard/dashboard';
 import { CrearEditarViaje } from './pages/crear-editar-viaje/crear-editar-viaje';
 import { ValoracionesPendientesComponent } from './pages/ratings/ratings';
 import { ViewRatings } from './pages/ratings/view-ratings/view-ratings';
+import { PendingParticipationsComponent } from './pages/pending-participations/pending-participations';
 
 export const routes: Routes = [
   //RUTAS PÚBLICAS (Accesibles por todos)
@@ -40,6 +41,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   { path: 'valoraciones/:id', component: ViewRatings, canActivate: [authGuard] },
+  // 🎯 RUTA TEMPORAL: Para debugging de solicitudes de participación
+  {
+    path: 'debug/pending-participations',
+    component: PendingParticipationsComponent,
+    canActivate: [authGuard],
+  },
   {
     path: 'dashboard',
     component: Dashboard,

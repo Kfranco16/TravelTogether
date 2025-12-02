@@ -1,0 +1,193 @@
+<!-- ============================================================================
+     PENDING PARTICIPATIONS - TEMPLATE
+     ============================================================================
+     Vista temporal para debugging de solicitudes de participación.
+     Muestra toda la información del API en formato legible y JSON.
+     ============================================================================ -->
+
+<div class="container my-5">
+  <!-- Encabezado -->
+  <div class="row mb-4">
+    <div class="col">
+      <h1 class="mb-2">
+        <i class="bi bi-person-check"></i>
+        Solicitudes Pendientes de Participación
+      </h1>
+      <p class="text-muted">Visualización temporal para validar el endpoint de participaciones</p>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       ESTADO: CARGANDO
+       ======================================================================== -->
+  @if (isLoading) {
+  <div class="card border-0 shadow-sm">
+    <div class="card-body text-center p-5">
+      <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="text-muted">Cargando solicitudes pendientes...</p>
+    </div>
+  </div>
+  }
+
+  <!-- ========================================================================
+       ESTADO: ERROR
+       ======================================================================== -->
+  @if (errorMessage && !isLoading) {
+  <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    <strong>Error:</strong>
+    {{ errorMessage }}
+  </div>
+  }
+
+  <!-- ========================================================================
+       ESTADO: ÉXITO - MENSAJE DEL SERVIDOR
+       ======================================================================== -->
+  @if (successMessage && !isLoading) {
+  <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+    <i class="bi bi-check-circle me-2"></i>
+    <strong>Éxito:</strong>
+    {{ successMessage }}
+  </div>
+  }
+
+  <!-- ========================================================================
+       BOTÓN PARA RECARGAR DATOS
+       ======================================================================== -->
+  <div class="mb-4">
+    <button class="btn btn-primary" (click)="refreshParticipations()" [disabled]="isLoading">
+      <i class="bi bi-arrow-clockwise"></i>
+      Recargar Solicitudes
+    </button>
+  </div>
+
+  <!-- ========================================================================
+       LISTA DE SOLICITUDES PENDIENTES (HTML TABLE)
+       ======================================================================== -->
+  @if (pendingParticipations.length > 0 && !isLoading) {
+  <div class="card border-0 shadow-sm mb-5">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">
+        <i class="bi bi-list-ul"></i>
+        Total: {{ pendingParticipations.length }} solicitud(es)
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>ID Solicitud</th>
+              <th>Usuario</th>
+              <th>Viaje</th>
+              <th>Estado</th>
+              <th>Fecha Solicitud</th>
+              <th>Puntuación</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (participation of pendingParticipations; track participation.participation_id) {
+            <tr>
+              <!-- ID de la solicitud -->
+              <td>
+                <span class="badge bg-secondary">{{ participation.participation_id }}</span>
+              </td>
+
+              <!-- Información del usuario -->
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  @if (participation.participant_image_url) {
+                  <img
+                    [src]="participation.participant_image_url"
+                    alt="Avatar"
+                    class="rounded-circle"
+                    style="width: 32px; height: 32px; object-fit: cover"
+                  />
+                  } @else {
+                  <div
+                    class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white"
+                    style="width: 32px; height: 32px"
+                  >
+                    <i class="bi bi-person"></i>
+                  </div>
+                  }
+                  <div>
+                    <div class="fw-bold">{{ participation.participant_username }}</div>
+                    <small class="text-muted">{{ participation.participant_email }}</small>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Información del viaje -->
+              <td>
+                <small class="text-muted">ID: {{ participation.trip_id }}</small>
+                <br />
+                {{ participation.trip_name }}
+              </td>
+
+              <!-- Estado -->
+              <td>
+                <span class="badge" [ngClass]="getStatusBadgeClass(participation.status)">
+                  {{ translateStatus(participation.status) }}
+                </span>
+              </td>
+
+              <!-- Fecha de solicitud -->
+              <td>
+                <small class="text-muted">
+                  {{ participation.request_date | date : 'dd/MM/yyyy HH:mm' }}
+                </small>
+              </td>
+
+              <!-- Puntuación del participante -->
+              <td>
+                <span class="badge bg-info">⭐ {{ participation.participant_avg_score }}</span>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  }
+
+  <!-- ========================================================================
+       VISTA JSON COMPLETA (DEBUGGING)
+       ======================================================================== -->
+  @if (debugResponseData && !isLoading) {
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">
+        <i class="bi bi-code-square"></i>
+        Respuesta Completa del API (JSON)
+      </h5>
+      <button
+        class="btn btn-sm btn-outline-secondary"
+        (click)="copyToClipboard(debugResponseData)"
+        title="Copiar JSON al portapapeles"
+      >
+        <i class="bi bi-clipboard"></i>
+        Copiar
+      </button>
+    </div>
+    <div class="card-body">
+      <pre
+        class="bg-dark text-light p-3 rounded overflow-auto"
+      ><code>{{ debugResponseData | json }}</code></pre>
+    </div>
+  </div>
+  }
+
+  <!-- ========================================================================
+       ESTADO: SIN DATOS
+       ======================================================================== -->
+  @if (pendingParticipations.length === 0 && !isLoading && !errorMessage) {
+  <div class="alert alert-info" role="alert">
+    <i class="bi bi-info-circle me-2"></i>
+    No hay solicitudes pendientes en este momento.
+  </div>
+  }
+</div>

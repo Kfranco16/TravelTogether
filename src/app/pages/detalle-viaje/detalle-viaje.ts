@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TripService, ImageResponse } from '../../core/services/viajes';
 import { Trip } from '../../interfaces/trip';
@@ -6,9 +6,11 @@ import { DatePipe } from '@angular/common';
 import { Iuser } from '../../interfaces/iuser';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
+import { toast } from 'ngx-sonner';
 
 import { CardUsuario } from '../../components/card-usuario/card-usuario';
 import { AuthService } from '../../core/services/auth';
+import { ParticipantService } from '../../core/services/participant.service';
 import { ParticipationService } from '../../core/services/participations';
 
 @Component({
@@ -22,17 +24,25 @@ export class DetalleViaje {
   @Input() trip!: any;
   @Input() usuario: Iuser | null = null;
 
-  constructor(
-    private authService: AuthService,
-    private router: Router,
-    private participationService: ParticipationService
-  ) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   private route = inject(ActivatedRoute);
   private tripService = inject(TripService);
+  // 🎯 Nuevo: Inyectar el servicio de participantes para manejar solicitudes
+  private participantService = inject(ParticipantService);
+
+  // ========================================================================
+  // PROPIEDADES DEL COMPONENTE
+  // ========================================================================
 
   viaje: Trip | null = null;
   public itinerarioPorDia: string[] = [];
+
+  // 🎯 Nuevo: Signal para rastrear si ya se envió solicitud (evita duplicados)
+  solicitudEnviada = signal<boolean>(false);
+
+  // 🎯 Nuevo: Signal para mostrar spinner mientras se procesa la solicitud
+  enviandoSolicitud = signal<boolean>(false);
 
   services = [
     { control: 'flights', label: 'Transporte (Vuelos, Tren, Bus...)' },
@@ -49,10 +59,6 @@ export class DetalleViaje {
 
   detalleViaje: any = {};
 
-  toggleSolicitud(trip: any) {
-    trip.solicitado = !trip.solicitado;
-    // Futura llamada a la API para la solicitud de unirse al viaje.
-  }
   usuarioActual: Iuser | null = null;
   participantesConfirmados: any[] = [];
   participants: any[] = [];
@@ -61,6 +67,10 @@ export class DetalleViaje {
   mainImageAlt: string = 'Foto principal por defecto';
   portadaImageUrl: string = 'images/coverDefault.jpg';
   portadaImageAlt: string = 'Imagen de portada por defecto';
+
+  // ========================================================================
+  // MÉTODOS DEL CICLO DE VIDA
+  // ========================================================================
 
   cargarImagenes(tripId: number) {
     this.tripService.getImagesByTripId(tripId).subscribe({
@@ -144,6 +154,84 @@ export class DetalleViaje {
 
   get esCreador(): boolean {
     return this.usuarioActual?.id === this.viaje?.creator_id;
+  }
+
+  // ========================================================================
+  // MÉTODOS DE PARTICIPACIÓN
+  // ========================================================================
+
+  /**
+   * Método para solicitar unirse a un viaje
+   *
+   * Flujo:
+   * 1. Validar que el usuario no sea el creador
+   * 2. Activar estado de carga
+   * 3. Llamar al servicio ParticipantService.requestToJoinTrip()
+   * 4. Si es exitoso: mostrar toast con el mensaje del API
+   * 5. Si falla: mostrar toast de error
+   * 6. Actualizar estado del botón
+   *
+   * @async
+   */
+  async handleSolicitud() {
+    // ✅ Validación 1: Verificar que el usuario esté autenticado
+    if (!this.usuarioActual) {
+      toast.error('Debes iniciar sesión para solicitar unirte');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    // ✅ Validación 2: Verificar que el viaje exista
+    if (!this.viaje?.id) {
+      toast.error('El viaje no existe o no se cargó correctamente');
+      return;
+    }
+
+    // ✅ Validación 3: Verificar que no sea el creador
+    if (this.esCreador) {
+      toast.error('No puedes solicitar unirte a tu propio viaje');
+      return;
+    }
+
+    // ✅ Validación 4: Prevenir solicitudes duplicadas
+    if (this.solicitudEnviada() || this.enviandoSolicitud()) {
+      toast.info('Ya has enviado una solicitud para este viaje');
+      return;
+    }
+
+    try {
+      // 🔄 Activar estado de carga (mostrar spinner)
+      this.enviandoSolicitud.set(true);
+
+      // 📡 Realizar la petición al servidor
+      const response = await firstValueFrom(
+        this.participantService.requestToJoinTrip(this.viaje.id)
+      );
+
+      // ✅ Si la respuesta es exitosa
+      // Mostrar el mensaje del API en un toast
+      toast.success(response.message, {
+        description: 'Tu solicitud ha sido registrada',
+      });
+
+      // 🎯 Marcar que la solicitud fue enviada
+      this.solicitudEnviada.set(true);
+
+      // 💬 Log para debugging
+      console.log('✅ Solicitud de participación exitosa:', response.data);
+    } catch (error: any) {
+      // ❌ Manejar error
+      const errorMsg = error?.message || 'Error al enviar la solicitud de participación';
+
+      console.error('❌ Error en handleSolicitud:', error);
+
+      toast.error(errorMsg, {
+        description: 'Por favor, intenta de nuevo más tarde',
+      });
+    } finally {
+      // 🔄 Desactivar estado de carga
+      this.enviandoSolicitud.set(false);
+    }
   }
 
   async eliminarViaje() {
