@@ -1,31 +1,68 @@
 import { Component, inject } from '@angular/core';
+import { NgIf, NgFor, DatePipe, DecimalPipe } from '@angular/common';
 import { AuthService } from '../../../core/services/auth';
 import { Iuser } from '../../../interfaces/iuser';
 
-// Importamos el componente standalone de edición de perfil
-import { EditarPerfil } from '../../editar-perfil/editar-perfil';
+type Rating = {
+  id: number;
+  from: string;
+  score: number;
+  comment: string;
+  createdAt: string;
+};
 
 @Component({
-  selector: 'app-perfil',
+  selector: 'app-dashboard-perfil',
   standalone: true,
-  imports: [EditarPerfil],
+  imports: [NgIf, NgFor, DatePipe, DecimalPipe],
   templateUrl: './perfil.html',
   styleUrls: ['./perfil.css'],
 })
 export class Perfil {
   private auth = inject(AuthService);
 
+  // 👤 Usuario actual (el mismo que usa la navbar)
   user: Iuser | null = this.auth.getCurrentUser();
   defaultAvatar = 'https://i.pravatar.cc/120?u=traveltogether';
 
-  // Control del modo edición
-  editMode = false;
+  // ⭐ Valoraciones de prueba (luego vienen de back)
+  ratings: Rating[] = [
+    {
+      id: 1,
+      from: 'Laura M.',
+      score: 5,
+      comment: 'Una compañera de viaje increíble, muy organizada y positiva.',
+      createdAt: '2025-11-01T10:00:00Z',
+    },
+    {
+      id: 2,
+      from: 'Carlos G.',
+      score: 4,
+      comment: 'Buen ambiente en el grupo y muy puntual.',
+      createdAt: '2025-11-05T18:30:00Z',
+    },
+  ];
 
-  activarEdicion() {
-    this.editMode = true;
+  // ¿Hay valoraciones?
+  get hasRatings(): boolean {
+    return this.ratings.length > 0;
   }
 
-  cerrarEdicion() {
-    this.editMode = false;
+  // Nota media
+  get averageStars(): number {
+    if (!this.hasRatings) return 0;
+    const total = this.ratings.reduce((sum, r) => sum + r.score, 0);
+    return total / this.ratings.length;
+  }
+
+  // Botón "Modificar foto de perfil"
+  onModificarFoto(): void {
+    // De momento solo mostramos por consola.
+    console.log('Modificar foto de perfil');
+  }
+
+  // Botón "Guardar cambios"
+  onGuardarCambios(): void {
+    console.log('Guardar cambios de perfil');
   }
 }

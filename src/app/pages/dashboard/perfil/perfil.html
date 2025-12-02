@@ -2,7 +2,9 @@
   <h2 class="tt-title mb-3">Mi perfil</h2>
 
   @if (user) {
-  <div class="tt-card tt-profile d-flex gap-3 align-items-center">
+
+  <!-- Tarjeta de perfil -->
+  <article class="tt-card tt-profile d-flex gap-3 align-items-center mb-4">
     <img
       [src]="user.image || defaultAvatar"
       alt="Foto de perfil"
@@ -16,27 +18,74 @@
       <p class="text-muted small mb-1">{{ user.email }}</p>
 
       @if (user.bio) {
-      <p class="small mb-2">{{ user.bio }}</p>
+      <p class="small mb-0">{{ user.bio }}</p>
+      } @else {
+      <p class="small mb-0 text-muted">Todavía no has escrito nada sobre ti.</p>
       }
+    </div>
 
-      <!-- Botón para pasar a modo edición -->
-      <button
-        type="button"
-        class="btn btn-outline-secondary btn-morado btn-sm mt-1"
-        (click)="activarEdicion()"
-      >
+    <div class="d-flex flex-column gap-2">
+      <button type="button" class="btn btn-outline-secondary btn-sm" (click)="onModificarFoto()">
         Modificar foto de perfil
       </button>
+      <button type="button" class="btn tt-btn-primary btn-sm" (click)="onGuardarCambios()">
+        Guardar cambios
+      </button>
     </div>
-  </div>
+  </article>
 
-  <!-- Bloque de edición: reutiliza el formulario de EditarPerfil -->
-  @if (editMode) {
-  <div class="mt-4">
-    <h5 class="mb-2">Editar perfil</h5>
-    <app-editar-perfil></app-editar-perfil>
-  </div>
-  } } @else {
+  <!-- Bloque de valoraciones -->
+  <section class="tt-ratings mt-4">
+    <h3 class="tt-subtitle mb-2">Mis valoraciones</h3>
+
+    @if (hasRatings) {
+
+    <!-- Resumen -->
+    <div class="tt-ratings-summary mb-3">
+      <div class="tt-ratings-score">
+        <span class="tt-ratings-number">
+          {{ averageStars | number : '1.1-1' }}
+        </span>
+        <span class="tt-ratings-stars">★★★★★</span>
+      </div>
+      <p class="text-muted small mb-0">
+        Basado en {{ ratings.length }} valoración{{ ratings.length > 1 ? 'es' : '' }}.
+      </p>
+    </div>
+
+    <!-- Lista de valoraciones -->
+    <div class="tt-rating-list">
+      @for (r of ratings; track r.id) {
+      <article class="tt-rating-item mb-3">
+        <header class="tt-rating-header">
+          <strong class="tt-rating-from">{{ r.from }}</strong>
+          <span class="tt-rating-score">
+            {{ '★'.repeat(r.score) }}{{ '☆'.repeat(5 - r.score) }}
+          </span>
+        </header>
+
+        <p class="tt-rating-comment mb-1">{{ r.comment }}</p>
+        <p class="tt-rating-date text-muted small">
+          {{ r.createdAt | date : 'dd/MM/yyyy' }}
+        </p>
+      </article>
+      }
+    </div>
+
+    } @else {
+
+    <!-- Sin valoraciones -->
+    <p class="text-muted small">
+      Aún no has recibido valoraciones. Cuando otros viajeros te valoren, aparecerán aquí.
+    </p>
+
+    }
+  </section>
+
+  } @else {
+
+  <!-- Sin usuario cargado -->
   <p class="text-muted">Cargando perfil…</p>
+
   }
 </section>

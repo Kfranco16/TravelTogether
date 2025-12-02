@@ -8,45 +8,55 @@ import { DetalleViaje } from './pages/detalle-viaje/detalle-viaje';
 import { Perfil } from './pages/perfil/perfil';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { CrearEditarViaje } from './pages/crear-editar-viaje/crear-editar-viaje';
-import { ValoracionesPendientesComponent } from './pages/ratings/ratings';
-import { ViewRatings } from './pages/ratings/view-ratings/view-ratings';
 
 export const routes: Routes = [
-  //RUTAS PÚBLICAS (Accesibles por todos)
-  {
-    path: '',
-    component: Landing,
-  },
-  {
-    path: 'login',
-    component: Login,
-  },
-  {
-    path: 'registro',
-    component: Registro,
-  },
-  {
-    path: 'viajes',
-    component: BuscadorViajes,
-  },
-  // RUTAS PRIVADAS (Requieren inicio de sesión)
+  // RUTAS PÚBLICAS
+  { path: '', component: Landing },
+  { path: 'login', component: Login },
+  { path: 'registro', component: Registro },
+  { path: 'viajes', component: BuscadorViajes },
+
+  // RUTAS PRIVADAS (requieren login)
   { path: 'viaje/:id', component: DetalleViaje, canActivate: [authGuard] },
   { path: 'crear-viaje', component: CrearEditarViaje, canActivate: [authGuard] },
-
   { path: 'perfil/:id', component: Perfil, canActivate: [authGuard] },
-  { path: 'valoraciones', component: ValoracionesPendientesComponent, canActivate: [authGuard] },
-  { path: 'valoraciones/:id', component: ViewRatings, canActivate: [authGuard] },
+
+  // MI ESPACIO (Dashboard con rutas hijas)
   {
     path: 'dashboard',
     component: Dashboard,
-    canActivate: [authGuard], // PROTEGIDA: La ruta padre protege a todas las hijas.
+    canActivate: [authGuard],
     children: [
-      // Aquí irán todas las páginas de gestión del usuario.
-      // Por ejemplo:
-      // { path: 'crear-viaje', component: CrearViajeComponent },
-      // { path: 'editar-perfil', component: EditarPerfilComponent },
-      // { path: 'gestionar/:viajeId', component: GestionarViajeComponent },
+      { path: '', redirectTo: 'perfil', pathMatch: 'full' },
+
+      {
+        path: 'perfil',
+        loadComponent: () => import('./pages/dashboard/perfil/perfil').then((m) => m.Perfil),
+      },
+      {
+        path: 'datos',
+        loadComponent: () => import('./pages/dashboard/datos/datos').then((m) => m.Datos),
+      },
+      {
+        path: 'reservas',
+        loadComponent: () => import('./pages/dashboard/reservas/reservas').then((m) => m.Reservas),
+      },
+      {
+        path: 'mis-viajes',
+        loadComponent: () =>
+          import('./pages/dashboard/mis-viajes/mis-viajes').then((m) => m.MisViajes),
+      },
+      {
+        path: 'favoritos',
+        loadComponent: () =>
+          import('./pages/dashboard/favoritos/favoritos').then((m) => m.Favoritos),
+      },
+      {
+        path: 'foros',
+        loadComponent: () => import('./pages/dashboard/foros/foros').then((m) => m.Foros),
+      },
     ],
   },
+
   { path: '**', redirectTo: '' },
 ];

@@ -1,6 +1,5 @@
-/* Contenedor general */
 .tt-panel {
-  max-width: 720px;
+  max-width: 800px;
   margin: 0 auto;
 }
 
@@ -10,7 +9,7 @@
   font-weight: 700;
 }
 
-/* Tarjeta del perfil */
+/* Tarjeta principal de perfil */
 .tt-card {
   background-color: #ffffff;
   border-radius: 16px;
@@ -27,41 +26,107 @@
   object-fit: cover;
 }
 
-/* Botón edición */
-.btn-morado {
+/* Botones de acciones */
+.tt-btn-primary {
   background-image: var(--tt-gradient);
-  color: white;
-  border: none;
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: filter 0.2s ease, transform 0.15s ease;
+  color: #fff;
+  border: 0;
+  border-radius: 12px;
+  padding: 0.5rem 1.1rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.22);
+  transition: transform 0.15s ease, box-shadow 0.25s ease, filter 0.2s ease;
 }
 
-.btn-morado:hover,
-.btn-morado:focus {
-  filter: brightness(1.1);
+.tt-btn-primary:hover,
+.tt-btn-primary:focus {
   transform: translateY(-1px);
+  filter: brightness(1.05);
+  box-shadow: 0 12px 28px rgba(139, 92, 246, 0.3), 0 6px 16px rgba(59, 130, 246, 0.18);
 }
 
-/* Contenedor donde aparece el formulario de edición */
-.mt-4 {
-  margin-top: 1.5rem !important;
-}
+/* === Valoraciones === */
 
-/* Encabezado del formulario */
-.tt-edit-title {
+.tt-subtitle {
   font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
+  font-weight: 700;
 }
 
-/* Estilo extra para cohesión visual del formulario dentro del perfil */
-app-editar-perfil {
-  display: block;
-  background: #fff;
-  padding: 1.25rem 1.5rem;
-  border-radius: 16px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+.tt-ratings-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.tt-ratings-score {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.tt-ratings-number {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.tt-ratings-stars {
+  font-size: 1.2rem;
+  color: #fbbf24;
+}
+
+/* Lista de valoraciones */
+.tt-rating-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tt-rating-item {
+  padding: 0.75rem 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.tt-rating-item:first-child {
+  border-top: 0;
+}
+
+.tt-rating-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.tt-rating-from {
+  font-weight: 600;
+}
+
+.tt-rating-score {
+  font-size: 0.95rem;
+  color: #fbbf24;
+}
+
+.tt-rating-comment {
+  font-size: 0.9rem;
+}
+
+.tt-rating-date {
+  font-size: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 575.98px) {
+  .tt-card {
+    padding: 1rem;
+  }
+
+  .tt-avatar {
+    width: 72px;
+    height: 72px;
+  }
 }
