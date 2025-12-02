@@ -1,6 +1,7 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { firstValueFrom, Observable } from 'rxjs';
+import { firstValueFrom, Observable, forkJoin } from 'rxjs';
+import { catchError, of, switchMap } from 'rxjs';
 import { Trip } from '../../interfaces/trip';
 import { HttpParams } from '@angular/common/http';
 import { environment } from '../../../environment/environment';
@@ -26,6 +27,19 @@ export interface ImageResponse {
 @Injectable({ providedIn: 'root' })
 export class TripService {
   private http = inject(HttpClient);
+
+  // ==================== SIGNALS PARA MANEJO REACTIVO ====================
+  // Signal que almacena todos los viajes cargados (incluyendo todas las páginas)
+  tripsSignal = signal<Trip[]>([]);
+
+  // Signal que indica si hay carga en progreso
+  loadingSignal = signal<boolean>(false);
+
+  // Signal que almacena mensajes de error
+  errorSignal = signal<string | null>(null);
+
+  // Signal privado para cachear los viajes y evitar peticiones repetidas
+  private tripsCacheSignal = signal<Trip[] | null>(null);
 
   getTrips(token: string): Observable<TripApiResponse> {
     const headers = new HttpHeaders({
@@ -160,5 +174,147 @@ export class TripService {
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
     const params = new HttpParams().set('user_id', String(userId));
     return this.http.get<any[]>(environment.apiUrl + '/favorites', { headers, params });
+  }
+
+  // ==================== NUEVO MÉTODO: CARGAR TODOS LOS VIAJES CON SIGNALS ====================
+  /**
+   * Carga TODOS los viajes disponibles en la API, resolviendo la paginación automáticamente
+   * Utiliza Signals para reactividad moderna en Angular 16+
+   * Implementa caché para evitar peticiones repetidas
+   *
+   * @param token - Token de autenticación (opcional, se obtiene de localStorage si no se proporciona)
+   * @param forceRefresh - Si es true, ignora el caché y fuerza nueva carga
+   * @returns Observable<Trip[]> con todos los viajes consolidados
+   *
+   * FLUJO DE EJECUCIÓN:
+   * 1. Verifica si hay datos en caché y forceRefresh es false
+   * 2. Si hay caché válido, retorna los datos inmediatamente
+   * 3. Si no, obtiene la primera página para saber el total de páginas
+   * 4. Crea peticiones paralelas para todas las páginas restantes
+   * 5. Consolida todos los resultados en un único array
+   * 6. Almacena en caché y actualiza los signals
+   */
+  loadAllTrips(token?: string, forceRefresh: boolean = false): Observable<Trip[]> {
+    // ========== PASO 1: VERIFICAR CACHÉ ==========
+    const cachedTrips = this.tripsCacheSignal();
+    if (cachedTrips && !forceRefresh) {
+      // Retornar del caché de forma inmediata
+      this.tripsSignal.set(cachedTrips);
+      this.loadingSignal.set(false);
+      return of(cachedTrips);
+    }
+
+    // ========== PASO 2: OBTENER TOKEN ==========
+    const authToken =
+      token || localStorage.getItem('authToken') || localStorage.getItem('tt_token') || '';
+    const headers = new HttpHeaders({ Authorization: `Bearer ${authToken}` });
+
+    // ========== PASO 3: ACTIVAR ESTADO DE CARGA ==========
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    // ========== PASO 4: OBTENER PRIMERA PÁGINA PARA CONOCER EL TOTAL ==========
+    return this.http
+      .get<TripApiResponse>(`${environment.apiUrl}/trips`, {
+        headers,
+        params: new HttpParams().set('page', '1'),
+      })
+      .pipe(
+        // En caso de error en la primera página
+        catchError((error) => {
+          const errorMsg =
+            'Error al cargar viajes: ' +
+            (error?.error?.message || error.statusText || 'Error desconocido');
+          this.errorSignal.set(errorMsg);
+          this.loadingSignal.set(false);
+          console.error(errorMsg);
+          return of({ page: 1, per_page: 0, total: 0, total_pages: 0, results: [] });
+        }),
+        // Procesar la primera página
+        switchMap((firstPageResponse) => {
+          // Si no hay resultados
+          if (firstPageResponse.total === 0 || firstPageResponse.total_pages === 0) {
+            this.tripsSignal.set([]);
+            this.tripsCacheSignal.set([]);
+            this.loadingSignal.set(false);
+            return of([]);
+          }
+
+          // Recolectar los viajes de la primera página
+          const allTrips = [...firstPageResponse.results];
+
+          // Si solo hay una página, retornar inmediatamente
+          if (firstPageResponse.total_pages === 1) {
+            this.tripsSignal.set(allTrips);
+            this.tripsCacheSignal.set(allTrips);
+            this.loadingSignal.set(false);
+            return of(allTrips);
+          }
+
+          // ========== PASO 5: CREAR PETICIONES PARALELAS PARA PÁGINAS RESTANTES ==========
+          // Calcular páginas restantes (desde página 2 hasta la última)
+          const paginasRestantes = Array.from(
+            { length: firstPageResponse.total_pages - 1 },
+            (_, i) => i + 2
+          );
+
+          // Crear array de observables para cada página
+          const peticionesPaginas$ = paginasRestantes.map((numeroPagina) =>
+            this.http
+              .get<TripApiResponse>(`${environment.apiUrl}/trips`, {
+                headers,
+                params: new HttpParams().set('page', numeroPagina.toString()),
+              })
+              .pipe(
+                // Si una página falla, retornar array vacío para esa página
+                catchError((error) => {
+                  console.warn(`Error al cargar página ${numeroPagina}:`, error);
+                  return of({
+                    page: numeroPagina,
+                    per_page: 0,
+                    total: 0,
+                    total_pages: 0,
+                    results: [],
+                  });
+                })
+              )
+          );
+
+          // ========== PASO 6: EJECUTAR TODAS LAS PETICIONES EN PARALELO ==========
+          // forkJoin espera a que TODAS las peticiones terminen, maximizando rendimiento
+          return forkJoin(peticionesPaginas$).pipe(
+            // Procesar resultados cuando todas las peticiones terminen
+            switchMap((respuestasOtrasPaginas) => {
+              // Consolidar todos los viajes de todas las páginas
+              respuestasOtrasPaginas.forEach((respuesta) => {
+                allTrips.push(...respuesta.results);
+              });
+
+              // ========== PASO 7: ACTUALIZAR SIGNALS Y CACHÉ ==========
+              this.tripsSignal.set(allTrips);
+              this.tripsCacheSignal.set(allTrips);
+              this.loadingSignal.set(false);
+
+              return of(allTrips);
+            }),
+            catchError((error) => {
+              const errorMsg = 'Error al consolidar viajes: ' + error?.message;
+              this.errorSignal.set(errorMsg);
+              this.loadingSignal.set(false);
+              console.error(errorMsg);
+              // Retornar lo que se pudo cargar de la primera página
+              return of(allTrips);
+            })
+          );
+        })
+      );
+  }
+
+  /**
+   * Método auxiliar para obtener los viajes desde el signal (útil en templates con async pipeline)
+   * @returns Observable<Trip[]> que emite cuando los viajes están listos
+   */
+  getTripsSignal(): Observable<Trip[]> {
+    return of(this.tripsSignal());
   }
 }

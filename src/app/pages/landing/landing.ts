@@ -724,20 +724,32 @@ export class Landing {
       this.currentImageIndex.set(nextIndex);
     }, 5000);
 
-    // Cargar todos los viajes desde el servicio
-    this.tripService.getTrips(this.token).subscribe({
-      next: (data: { results: Trip[] }) => {
-        // Los viajes están dentro de data.results
-        this.trips = data.results;
+    // ========== CARGAR TODOS LOS VIAJES CON EL NUEVO MÉTODO ==========
+    // loadAllTrips() maneja automáticamente:
+    // - Obtención de todas las páginas en paralelo
+    // - Consolidación de resultados
+    // - Manejo de errores
+    // - Caché para evitar peticiones repetidas
+    this.tripService.loadAllTrips(this.token).subscribe({
+      next: (allTrips: Trip[]) => {
+        // Los viajes ya están completamente cargados (todas las páginas)
+        this.trips = allTrips;
 
         // Inicializar los viajes filtrados con todos los viajes disponibles
         this.viajesFiltrados.set(this.trips);
 
         // Mostrar los primeros viajes (primeros 6 items)
         this.actualizarPaginacionFiltrada();
+
+        console.log(`✅ ${allTrips.length} viajes cargados exitosamente`);
       },
       error: (err: any) => {
-        console.error('Error al cargar viajes', err);
+        // Manejo de errores del servicio
+        const errorMsg = err?.error?.message || err?.message || 'Error desconocido';
+        console.error('❌ Error al cargar viajes:', errorMsg);
+
+        // Mostrar feedback al usuario (opcional)
+        alert('No pudimos cargar los viajes. Intenta recargar la página.');
       },
     });
 
