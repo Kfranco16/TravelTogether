@@ -1,146 +1,390 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TripService } from '../../core/services/viajes';
-import { RatingsService } from '../../core/services/ratings'; // Debes crear/adaptar este servicio
-import { AuthService } from '../../core/services/auth';
-import { Trip } from '../../interfaces/trip';
-import { Iuser } from '../../interfaces/iuser';
-
 import { DatePipe } from '@angular/common';
+import { forkJoin, Observable, of } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
+import { ParticipationService } from '../../core/services/participations';
+import { RatingsService } from '../../core/services/ratings';
+import { AuthService } from '../../core/services/auth';
+import { TripRatingCardComponent } from '../../components/trip-rating-card/trip-rating-card';
 
-// Interfaces auxiliares
-interface Companion {
+interface TripUser {
   userId: number;
   username: string;
-  avatarUrl?: string;
+  avatarUrl: string;
   isRated: boolean;
+  rating: number | null;
 }
 
-interface TripRating {
+interface TripRatingCard {
   tripId: number;
   tripName: string;
   destination: string;
   startDate: string;
   endDate: string;
   cost: number;
-  imageUrl?: string;
-  companions: Companion[];
+  imageUrl: string;
+  organizer: TripUser;
+  companions: TripUser[];
 }
 
 @Component({
   selector: 'app-valoraciones-pendientes',
   standalone: true,
-  imports: [ReactiveFormsModule, DatePipe],
-  providers: [TripService, RatingsService, AuthService],
   templateUrl: './ratings.html',
   styleUrls: ['./ratings.css'],
+  imports: [DatePipe, TripRatingCardComponent],
 })
-export class ValoracionesPendientesComponent {
-  pendingRatings = [
-    {
-      tripId: 1,
-      tripName: 'Escapada cultural a Roma',
-      destination: 'Roma',
-      startDate: '2025-03-20',
-      endDate: '2025-03-25',
-      cost: 850,
-      imageUrl:
-        'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80',
-      organizer: {
-        userId: 88,
-        username: 'Laura (Organizadora)',
-        avatarUrl: 'https://randomuser.me/api/portraits/women/47.jpg',
-        isRated: false,
-        rating: 5,
-      },
-      companions: [
-        {
-          userId: 42,
-          username: 'Ana',
-          avatarUrl: 'https://randomuser.me/api/portraits/women/42.jpg',
-          isRated: false,
-          rating: 4,
-        },
-        {
-          userId: 65,
-          username: 'Carlos',
-          avatarUrl: 'https://randomuser.me/api/portraits/men/65.jpg',
-          isRated: true,
-          rating: 5,
-        },
-      ],
-    },
-    {
-      tripId: 2,
-      tripName: 'Senderismo en Pirineos',
-      destination: 'Huesca',
-      startDate: '2025-04-08',
-      endDate: '2025-04-13',
-      cost: 650,
-      imageUrl:
-        'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80',
-      organizer: {
-        userId: 51,
-        username: 'Marcos (Organizador)',
-        avatarUrl: 'https://randomuser.me/api/portraits/men/51.jpg',
-        isRated: false,
-        rating: 4,
-      },
-      companions: [
-        {
-          userId: 39,
-          username: 'Jorge',
-          avatarUrl: 'https://randomuser.me/api/portraits/men/39.jpg',
-          isRated: false,
-          rating: 3,
-        },
-        {
-          userId: 18,
-          username: 'Lucía',
-          avatarUrl: 'https://randomuser.me/api/portraits/women/15.jpg',
-          isRated: true,
-          rating: 5,
-        },
-      ],
-    },
-  ];
+export class ValoracionesPendientesComponent implements OnInit {
+  pendingRatings: TripRatingCard[] = [];
+  upcomingRatings: TripRatingCard[] = [];
+  ratedTrips: {
+    tripId: number;
+    tripName: string;
+    destination: string;
+    startDate: string | Date;
+    endDate: string | Date;
+    imageUrl: string;
+    totalRated: number;
+    totalUsers: number;
+    companionsCount: number;
+  }[] = [];
+
+  myTripRatings: {
+    tripId: number;
+    tripName: string;
+    destination: string;
+    startDate: string | Date;
+    rated: { ratedUserId: number; username: string; score: number; comment: string }[];
+  }[] = [];
+
+  currentUserId!: number;
+  private allCards: TripRatingCard[] = [];
 
   modalRating: {
     tripId: number;
     userId: number;
     username: string;
     avatarUrl: string;
-    isOrganizer?: boolean;
+    isOrganizer: boolean;
   } | null = null;
+
   modalScore = 0;
   modalComment = '';
 
-  getEstrellas(valoracion: number): { icon: string; color: string }[] {
-    if (valoracion <= 2) {
-      return [
-        { icon: 'bi-star-fill', color: 'text-danger' },
-        { icon: 'bi-star', color: 'text-secondary' },
-        { icon: 'bi-star', color: 'text-secondary' },
-      ];
-    } else if (valoracion <= 3) {
-      return [
-        { icon: 'bi-star-fill', color: 'text-warning' },
-        { icon: 'bi-star', color: 'text-secondary' },
-        { icon: 'bi-star', color: 'text-secondary' },
-      ];
-    } else if (valoracion <= 4) {
-      return [
-        { icon: 'bi-star-fill', color: 'text-warning' },
-        { icon: 'bi-star-fill', color: 'text-warning' },
-        { icon: 'bi-star', color: 'text-secondary' },
-      ];
-    } else {
-      return [
-        { icon: 'bi-star-fill', color: 'text-warning' },
-        { icon: 'bi-star-fill', color: 'text-warning' },
-        { icon: 'bi-star-fill', color: 'text-warning' },
-      ];
+  constructor(
+    private participationService: ParticipationService,
+    private ratingsService: RatingsService,
+    private authService: AuthService
+  ) {}
+
+  private buildMyTripRatings(myRatings: any[]) {
+    const ratingsByTrip = new Map<number, any[]>();
+    for (const r of myRatings) {
+      const arr = ratingsByTrip.get(r.trip_id) ?? [];
+      arr.push(r);
+      ratingsByTrip.set(r.trip_id, arr);
     }
+
+    this.myTripRatings = this.ratedTrips.map((trip) => {
+      const tripRatings = ratingsByTrip.get(trip.tripId) ?? [];
+
+      const card = this.allCards.find((c) => c.tripId === trip.tripId);
+      const usersIndex = new Map<number, string>();
+      if (card) {
+        usersIndex.set(card.organizer.userId, card.organizer.username);
+        for (const c of card.companions) {
+          usersIndex.set(c.userId, c.username);
+        }
+      }
+
+      const rated = tripRatings.map((r) => ({
+        ratedUserId: r.rated_user_id,
+        username: usersIndex.get(r.rated_user_id) ?? `Usuario ${r.rated_user_id}`,
+        score: r.score,
+        comment: r.comment,
+      }));
+
+      return {
+        tripId: trip.tripId,
+        tripName: trip.tripName,
+        destination: trip.destination,
+        startDate: trip.startDate,
+        rated,
+      };
+    });
+  }
+
+  ngOnInit(): void {
+    const currentUser: { id: number; username?: string; image_url?: string } | null =
+      this.authService.getCurrentUser();
+
+    if (!currentUser) {
+      console.error('No hay usuario autenticado');
+      return;
+    }
+    this.currentUserId = currentUser.id;
+
+    forkJoin({
+      createdResp: this.participationService
+        .getMyCreatedTrips()
+        .pipe(catchError(() => of({ data: [] }))),
+      joinedResp: this.participationService
+        .getMyParticipations()
+        .pipe(catchError(() => of({ data: [] }))),
+      myRatingsResp: this.ratingsService
+        .getRatingsByAuthor(currentUser.id)
+        .pipe(catchError(() => of([]))),
+    })
+      .pipe(
+        switchMap(({ createdResp, joinedResp, myRatingsResp }: any) => {
+          const created = createdResp.data ?? [];
+          const joined = joinedResp.data ?? [];
+          const myRatings = myRatingsResp as any[];
+
+          const createdCardRequests = created.map((t: any) =>
+            this.mapCreatedTripToCardWithImages(t, currentUser, myRatings)
+          );
+
+          const joinedCardRequests = joined.map((t: any) => this.mapJoinedTripToCardWithImages(t));
+
+          return forkJoin({
+            createdCards: forkJoin(createdCardRequests).pipe(catchError(() => of([]))),
+            joinedCards: forkJoin(joinedCardRequests).pipe(catchError(() => of([]))),
+            myRatings: of(myRatings),
+          });
+        }),
+        map(({ createdCards, joinedCards, myRatings }: any) => {
+          const createdIds = new Set(createdCards.map((c: any) => c.tripId));
+          const filteredJoined = joinedCards.filter((c: any) => !createdIds.has(c.tripId));
+
+          this.allCards = [...createdCards, ...filteredJoined];
+
+          this.recalculateSections(myRatings);
+          this.buildMyTripRatings(myRatings);
+        })
+      )
+      .subscribe();
+  }
+
+  private mapCreatedTripToCardWithImages(
+    trip: any,
+    currentUser: any,
+    myRatings: any[]
+  ): Observable<TripRatingCard> {
+    const tripId = trip.trip_id;
+
+    return this.participationService.getParticipantsByTripIdWithImages(tripId).pipe(
+      map((participants: any[]) => {
+        const acceptedParticipants = participants.filter(
+          (p: any) => p.status === 'accepted' && p.user_id !== trip.creator_id
+        );
+
+        const companions: TripUser[] = acceptedParticipants.map((p: any) => {
+          const isRated = myRatings.some(
+            (r: any) => r.trip_id === tripId && r.rated_user_id === p.user_id
+          );
+
+          return {
+            userId: p.user_id,
+            username: p.username,
+            avatarUrl: p.user_image_url ?? '',
+            isRated,
+            rating: parseFloat(p.user_avg_score) || null,
+          };
+        });
+
+        const organizer: TripUser = {
+          userId: trip.creator_id,
+          username: currentUser.username ?? 'Yo',
+          avatarUrl: currentUser.image_url ?? trip.trip_image_url ?? '',
+          isRated: true,
+          rating: null,
+        };
+
+        return {
+          tripId: tripId,
+          tripName: trip.title,
+          destination: trip.destination,
+          startDate: trip.start_date,
+          endDate: trip.end_date,
+          cost: Number(trip.estimated_cost),
+          imageUrl: trip.trip_image_url,
+          organizer,
+          companions,
+        };
+      }),
+      catchError((err) => {
+        console.error('Error obteniendo participantes con imágenes:', err);
+
+        return of({
+          tripId: trip.trip_id,
+          tripName: trip.title,
+          destination: trip.destination,
+          startDate: trip.start_date,
+          endDate: trip.end_date,
+          cost: Number(trip.estimated_cost),
+          imageUrl: trip.trip_image_url,
+          organizer: {
+            userId: trip.creator_id,
+            username: currentUser.username ?? 'Yo',
+            avatarUrl: currentUser.image_url ?? '',
+            isRated: true,
+            rating: null,
+          },
+          companions: [],
+        } as TripRatingCard);
+      })
+    );
+  }
+
+  private mapJoinedTripToCardWithImages(trip: any): Observable<TripRatingCard> {
+    const tripId = trip.trip_id;
+
+    return this.participationService.getParticipantsByTripIdWithImages(tripId).pipe(
+      map((participants: any[]) => {
+        const organizerParticipant = participants.find(
+          (p: any) => p.user_id === trip.creator_id && p.status === 'accepted'
+        );
+
+        const organizer: TripUser = {
+          userId: trip.creator_id,
+          username: organizerParticipant?.username ?? 'Organizador',
+          avatarUrl: organizerParticipant?.user_image_url ?? trip.creator_image_url ?? '',
+          isRated: false,
+          rating: organizerParticipant
+            ? parseFloat(organizerParticipant.user_avg_score) || null
+            : null,
+        };
+
+        const companions: TripUser[] = participants
+          .filter(
+            (p: any) =>
+              p.status === 'accepted' &&
+              p.user_id !== trip.creator_id &&
+              p.user_id !== this.currentUserId
+          )
+          .map((p: any) => ({
+            userId: p.user_id,
+            username: p.username,
+            avatarUrl: p.user_image_url ?? '',
+            isRated: false,
+            rating: parseFloat(p.user_avg_score) || null,
+          }));
+
+        const currentUser = this.authService.getCurrentUser();
+        if (currentUser) {
+          companions.push({
+            userId: currentUser.id,
+            username: currentUser.username ?? 'Yo',
+            avatarUrl: currentUser.image ?? '',
+            isRated: true,
+            rating: null,
+          });
+        }
+
+        return {
+          tripId: tripId,
+          tripName: trip.trip_name,
+          destination: trip.destination,
+          startDate: trip.start_date,
+          endDate: trip.end_date,
+          cost: 0,
+          imageUrl: trip.trip_image_url,
+          organizer,
+          companions,
+        } as TripRatingCard;
+      }),
+      catchError((err) => {
+        console.error('Error obteniendo organizador con imagen:', err);
+        return of({
+          tripId: trip.trip_id,
+          tripName: trip.trip_name,
+          destination: trip.destination,
+          startDate: trip.start_date,
+          endDate: trip.end_date,
+          cost: 0,
+          imageUrl: trip.trip_image_url,
+          organizer: {
+            userId: trip.creator_id,
+            username: 'Organizador',
+            avatarUrl: trip.creator_image_url ?? '',
+            isRated: false,
+            rating: null,
+          },
+          companions: [],
+        } as TripRatingCard);
+      })
+    );
+  }
+
+  private recalculateSections(myRatings: any[]) {
+    const today = new Date();
+
+    const myRatedUsersPerTrip = new Map<number, Set<number>>();
+    for (const r of myRatings) {
+      if (!myRatedUsersPerTrip.has(r.trip_id)) {
+        myRatedUsersPerTrip.set(r.trip_id, new Set());
+      }
+      myRatedUsersPerTrip.get(r.trip_id)!.add(r.rated_user_id);
+    }
+
+    const cardsWithCompanions = this.allCards.filter((card) => card.companions.length > 0);
+
+    this.pendingRatings = cardsWithCompanions.filter((card) => {
+      const end = new Date(card.endDate);
+      if (end >= today) return false;
+
+      const myRatedUsers = myRatedUsersPerTrip.get(card.tripId) ?? new Set();
+      const usersToRate = card.companions.length;
+      const myRatedCount = myRatedUsers.size;
+
+      return myRatedCount < usersToRate;
+    });
+
+    this.ratedTrips = cardsWithCompanions
+      .map((card) => {
+        const myRatedUsers = myRatedUsersPerTrip.get(card.tripId) ?? new Set();
+        const users = [card.organizer, ...card.companions];
+        const totalUsers = users.length;
+        const usersToRate = card.companions.length;
+        const totalRated = usersToRate;
+
+        return {
+          tripId: card.tripId,
+          tripName: card.tripName,
+          destination: card.destination,
+          startDate: card.startDate,
+          endDate: card.endDate,
+          imageUrl: card.imageUrl,
+          totalRated,
+          totalUsers,
+          companionsCount: card.companions.length,
+        };
+      })
+      .filter((t) => {
+        const end = new Date(t.endDate as string);
+        const isPast = end < today;
+        const hasCompanions = t.companionsCount > 0;
+
+        const myRatedUsers = myRatedUsersPerTrip.get(t.tripId) ?? new Set();
+        const usersToRate = t.companionsCount;
+        const allRatedByMe = myRatedUsers.size === usersToRate;
+
+        return isPast && hasCompanions && allRatedByMe;
+      });
+
+    const pendingIds = new Set(this.pendingRatings.map((c) => c.tripId));
+    const ratedIds = new Set(this.ratedTrips.map((t) => t.tripId));
+
+    this.upcomingRatings = cardsWithCompanions.filter((card) => {
+      if (pendingIds.has(card.tripId)) return false;
+      if (ratedIds.has(card.tripId)) return false;
+      return true;
+    });
+  }
+
+  openRatingsDetail(tripId: number) {
+    console.log('Ver valoraciones dadas en viaje', tripId);
   }
 
   openModal(
@@ -155,41 +399,73 @@ export class ValoracionesPendientesComponent {
     this.modalComment = '';
     setTimeout(() => {
       const modal = document.getElementById('valoracionModal');
-      // @ts-ignore
-      if (modal && window.bootstrap) window.bootstrap.Modal.getOrCreateInstance(modal).show();
+      const win = window as any;
+      if (modal && win.bootstrap) {
+        win.bootstrap.Modal.getOrCreateInstance(modal).show();
+      }
     });
   }
 
   setModalScore(score: number) {
     this.modalScore = score;
   }
+
   setModalComment(event: Event) {
     const input = event.target as HTMLTextAreaElement;
     this.modalComment = input.value;
   }
+
   submitModalRating() {
     if (!this.modalRating) return;
-    const { tripId, userId, isOrganizer } = this.modalRating;
-    for (const trip of this.pendingRatings) {
-      if (trip.tripId === tripId) {
-        // Organizador
-        if (isOrganizer && trip.organizer.userId === userId) {
-          trip.organizer.isRated = true;
-          trip.organizer.rating = this.modalScore;
-        }
-        // Compañeros
-        for (const companion of trip.companions) {
-          if (!isOrganizer && companion.userId === userId) {
-            companion.isRated = true;
-            companion.rating = this.modalScore;
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) return;
+    const authorId = currentUser.id;
+
+    const { tripId, userId } = this.modalRating;
+
+    this.ratingsService
+      .createRating({
+        trip_id: tripId,
+        author_id: authorId,
+        rated_user_id: userId,
+        score: this.modalScore,
+        comment: this.modalComment,
+      })
+      .subscribe(() => {
+        const updateInList = (list: TripRatingCard[]) => {
+          const trip = list.find((t) => t.tripId === tripId);
+          if (!trip) return;
+
+          if (this.modalRating?.isOrganizer && trip.organizer.userId === userId) {
+            trip.organizer.isRated = true;
+            trip.organizer.rating = this.modalScore;
+          } else {
+            const companion = trip.companions.find((c) => c.userId === userId);
+            if (companion) {
+              companion.isRated = true;
+              companion.rating = this.modalScore;
+            }
           }
+        };
+
+        updateInList(this.allCards);
+        updateInList(this.pendingRatings);
+        updateInList(this.upcomingRatings);
+
+        const modal = document.getElementById('valoracionModal');
+        const win = window as any;
+        if (modal && win.bootstrap) {
+          win.bootstrap.Modal.getOrCreateInstance(modal).hide();
         }
-      }
-    }
-    // Cierra modal
-    const modal = document.getElementById('valoracionModal');
-    // @ts-ignore
-    if (modal && window.bootstrap) window.bootstrap.Modal.getOrCreateInstance(modal).hide();
-    this.modalRating = null;
+        this.modalRating = null;
+
+        this.ratingsService
+          .getRatingsByAuthor(authorId)
+          .pipe(catchError(() => of([])))
+          .subscribe((myRatings: any[]) => {
+            this.recalculateSections(myRatings);
+            this.buildMyTripRatings(myRatings);
+          });
+      });
   }
 }

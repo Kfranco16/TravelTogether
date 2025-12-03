@@ -1,7 +1,8 @@
-import { Component, inject, signal, Input } from '@angular/core';
+import { Component, inject, signal, Input, SimpleChanges } from '@angular/core';
 import { AuthService } from '../../core/services/auth';
 import { Iuser } from '../../interfaces/iuser';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+
 @Component({
   selector: 'app-perfil',
   imports: [],
@@ -27,10 +28,30 @@ export class Perfil {
   // };
 
   usuario: Iuser | null = null;
-  constructor(private route: ActivatedRoute, private authService: AuthService) {}
+  constructor(private router: Router, private authService: AuthService) {}
+
+  private route = inject(ActivatedRoute);
+
+  usuarioValoracion: number | null = null;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['usuario'] && this.usuario && this.usuario.id) {
+      const token = localStorage.getItem('tt_token') || '';
+      this.authService.getUserRating(this.usuario.id, token).subscribe({
+        next: (rating: number) => {
+          this.usuarioValoracion = rating;
+        },
+        error: (error) => {
+          this.usuarioValoracion = null;
+        },
+      });
+    }
+  }
 
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
+
+    const token = localStorage.getItem('tt_token') || '';
     try {
       if (id) {
         this.usuario = await this.authService.getUserById(Number(id));
@@ -39,11 +60,28 @@ export class Perfil {
       // Normalizar intereses: siempre convertir a array
       if (this.usuario && typeof this.usuario.interests === 'string') {
         this.usuario.interests = this.usuario.interests.split(',').map((i: string) => i.trim());
+        this.authService.getUserRating(this.usuario.id, token).subscribe({
+          next: (rating: number) => {
+            console.log('Valoración recibida:', rating);
+            this.usuarioValoracion = rating;
+          },
+          error: (error) => {
+            console.error('No se pudo obtener la valoración:', error);
+            this.usuarioValoracion = null;
+          },
+        });
       }
     } catch (error) {
       console.log(error, 'ERROR AL OBTENER EL USUARIO');
     }
   }
+
+  irAValoraciones() {
+    if (this.usuario && this.usuario.id) {
+      this.router.navigate([`valoraciones/${this.usuario.id}`]);
+    }
+  }
+
   getEstrellas(valoracion: number): { icon: string; color: string }[] {
     if (valoracion <= 2) {
       return [
@@ -71,5 +109,4 @@ export class Perfil {
       ];
     }
   }
-  usuarioProvisional = [{ valoracion: 4.2 }];
 }

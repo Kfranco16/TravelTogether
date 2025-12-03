@@ -19,15 +19,21 @@
           class="profile-photo mx-auto mb-3 rounded-circle img-fluid"
           style="width: 200px; height: 200px"
         />
-        <div>
-          <h2 class="fw-semibold h1 mb-1">{{ usuario?.username }}</h2>
-          @if (usuarioProvisional[0].valoracion) {
-          <div class="">
-            @for (estrella of getEstrellas(usuarioProvisional[0].valoracion); track estrella.icon +
-            estrella.color + $index) {
+        <div class="d-flex flex-column align-items-center">
+          <h2 class="fw-semibold h1 mb-1 text-center">
+            {{ usuario?.username }}
+          </h2>
+
+          @if (usuarioValoracion != null) {
+          <div
+            class="d-flex align-items-center justify-content-center gap-1 text-shadow-black mt-1"
+            (click)="irAValoraciones()"
+          >
+            @for (estrella of getEstrellas(usuarioValoracion); track estrella.icon + estrella.color
+            + $index) {
             <i class="bi {{ estrella.icon }} {{ estrella.color }}"></i>
             }
-            <span class="ms-2 fw-semibold">{{ usuarioProvisional[0].valoracion }}</span>
+            <span class="ms-2">{{ usuarioValoracion }}</span>
           </div>
           }
         </div>
@@ -80,11 +86,7 @@
             Intereses
           </h4>
           <div class="d-flex flex-wrap gap-2">
-            @for (interests of usuario?.interests ?? []; track interests) {
-            <span class="badge rounded-pill text-bg-light border px-3 py-2 fw-normal">{{
-              interests
-            }}</span>
-            }
+            <span class="card-text text-muted">{{ usuario?.interests }}</span>
           </div>
         </div>
       </div>

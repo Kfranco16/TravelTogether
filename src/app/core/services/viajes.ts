@@ -47,6 +47,9 @@ export class TripService {
     const url = `${environment.apiUrl}/trips/`;
     return await firstValueFrom(this.http.post<any>(url, tripData, { headers }));
   }
+  getAllTrips(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/trips/`);
+  }
 
   deleteTripById(id: number) {
     return this.http.delete(`${environment.apiUrl}/trips/${id}`);
@@ -54,6 +57,50 @@ export class TripService {
 
   getImagesByTripId(tripId: number): Observable<any[]> {
     return this.http.get<any[]>(`${environment.apiUrl}/images/trips/${tripId}`);
+  }
+
+  getParticipantsByTripId(tripId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/participations/trip/${tripId}`);
+  }
+
+  addFavorite(tripId: number, token: string): Observable<any> {
+    return this.http.post(
+      `${environment.apiUrl}/favorites`,
+      { trip_id: tripId },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+  }
+
+  removeFavoriteById(favoriteId: number, token: string): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/favorites/${favoriteId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
+  isFavoriteByTrip(tripId: number, token: string): Observable<any> {
+    return this.http.get(`${environment.apiUrl}/favorites/trip/${tripId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
+  getFavoritesByUser(userId: number, token: string): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/favorites/user/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
   }
 
   async uploadImage(
@@ -112,6 +159,6 @@ export class TripService {
     const token = localStorage.getItem('tt_token') || '';
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
     const params = new HttpParams().set('user_id', String(userId));
-    return this.http.get<any[]>('http://localhost:3000/api/favorites', { headers, params });
+    return this.http.get<any[]>(environment.apiUrl + '/favorites', { headers, params });
   }
 }

@@ -19,7 +19,6 @@ export class Registro {
   submitted = false;
   userForm: FormGroup;
 
-  // Textos por defecto para la página de registro
   @Input() tituloFormulario: string = 'Regístrate y empieza tu aventura';
   @Input() textoBoton: string = 'Aceptar y registrarme';
 
@@ -55,7 +54,6 @@ export class Registro {
       this.userForm.value;
 
     try {
-      // Llamada a la API para registro y guardado de token/usuario
       await this.authService.register({
         username,
         email,
@@ -65,11 +63,10 @@ export class Registro {
         bio: descripcion,
         interests: intereses,
       });
-      toast.success('Registrado correctamente'); // <--- notificación
+      alert('Registrado correctamente');
 
       this.router.navigate(['/home']);
     } catch (err: any) {
-      // Intenta tomar el mensaje específico del backend
       const backendMsg = err?.error?.message;
       if (
         backendMsg?.toLowerCase().includes('existe') ||
