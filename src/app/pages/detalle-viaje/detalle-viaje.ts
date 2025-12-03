@@ -97,7 +97,6 @@ export class DetalleViaje {
         this.itinerarioPorDia = [];
       }
 
-      // Organizador
       if (this.viaje?.creator_id) {
         try {
           this.usuario = await this.authService.getUserById(this.viaje.creator_id);
@@ -106,28 +105,24 @@ export class DetalleViaje {
         }
       }
 
-      // PARTICIPANTES (para card-usuario)
       this.participationService.getParticipantsByTripId(this.viaje.id).subscribe({
         next: (res: any) => {
           const data = Array.isArray(res.data) ? res.data : [];
 
-          // ✅ NUEVO - con imágenes correctas
           if (!this.viaje) return;
           this.participationService.getParticipantsByTripIdWithImages(this.viaje.id).subscribe({
             next: (data: any[]) => {
-              // Array para las cards de usuario
               this.participants = data
                 .filter((p: any) => p.status === 'accepted' && p.user_id !== this.viaje?.creator_id)
                 .map((p: any) => ({
                   id: p.user_id,
                   username: p.username,
                   email: p.email ?? '',
-                  image: p.user_image_url, // ✨ Ahora trae la imagen correcta
+                  image: p.user_image_url,
                   bio: p.bio || '',
                   phone: p.phone || '',
                 })) as Iuser[];
 
-              // Si quieres mantener también participantesConfirmados
               this.participantesConfirmados = data.filter(
                 (p: any) => p.status === 'accepted' && p.user_id !== this.viaje?.creator_id
               );

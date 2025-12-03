@@ -11,7 +11,7 @@
 
     <div class="col-md-8">
       <div class="container my-4">
-        <div class="fw-bold fs-2 mb-2 text-shadow-black">
+        <div class="fw-bold fs-2 mb-2 text-shadow-black" (click)="irDetalleViaje()">
           {{ trip.tripName }}
         </div>
 
@@ -19,13 +19,12 @@
           <span class="badge bg-light text-dark">
             <i class="bi bi-geo-alt"></i> {{ trip.destination }}
           </span>
-          <span class="badge bg-light text-dark">
+          <span class="badge bg-warning text-dark">
             {{ trip.startDate | date : 'd MMM' }} - {{ trip.endDate | date : 'd MMM' }}
           </span>
-          <span class="badge bg-success">{{ trip.cost }}€ /persona</span>
+          <!-- <span class="badge bg-success">{{ trip.cost }}€ /persona</span> -->
         </div>
 
-        <!-- ORGANIZADOR -->
         <div class="fw-semibold mb-2">Organizador:</div>
         <div class="row">
           <div class="col-md-6 mb-3">
@@ -57,7 +56,7 @@
 
                 <div>
                   @if (trip.organizer.userId === currentUserId) {
-                  <!-- Tú -->
+
                   <button
                     class="btn btn-outline-secondary btn-morado btn-sm fw-semibold shadow text-white"
                     disabled
@@ -65,7 +64,7 @@
                     <i class="bi bi-person-check"></i> {{ trip.organizer.username }} (Tú)
                   </button>
                   } @else { @if (isPendingSection) { @if (!trip.organizer.isRated) {
-                  <!-- SOLO aquí se abre modal -->
+
                   <button
                     class="btn btn-success btn-sm fw-semibold shadow"
                     (click)="onRateOrganizer()"
@@ -73,7 +72,7 @@
                     <i class="bi bi-star"></i> Valorar
                   </button>
                   } @if (trip.organizer.isRated) {
-                  <!-- Ya valorado: sin click -->
+
                   <button
                     class="btn btn-outline-secondary btn-morado btn-sm fw-semibold shadow"
                     disabled
@@ -81,7 +80,7 @@
                     <i class="bi bi-check-circle"></i> Ya valorado
                   </button>
                   } } @else {
-                  <!-- Sección 'próximamente' -->
+
                   <button class="btn btn-outline-secondary btn-sm fw-semibold shadow" disabled>
                     Valorar próximamente
                   </button>
@@ -92,7 +91,6 @@
           </div>
         </div>
 
-        <!-- PARTICIPANTES -->
         <div class="fw-semibold mb-3 mt-3">Compañeros de viaje:</div>
         <div class="row">
           @for (companion of trip.companions; track companion.userId) {
@@ -125,11 +123,14 @@
 
                 <div>
                   @if (companion.userId === currentUserId) {
-                  <button class="btn btn-outline-secondary btn-sm fw-semibold shadow" disabled>
-                    Yo
+                  <button
+                    class="btn btn-outline-secondary btn-morado btn-sm fw-semibold shadow text-white"
+                    disabled
+                  >
+                    <i class="bi bi-person-check"></i> {{ companion.username }} (Tú)
                   </button>
                   } @else { @if (isPendingSection) { @if (!companion.isRated) {
-                  <!-- SOLO aquí se abre modal -->
+
                   <button
                     class="btn btn-success btn-sm fw-semibold shadow"
                     (click)="onRateCompanion(companion)"
@@ -137,7 +138,7 @@
                     <i class="bi bi-star"></i> Valorar
                   </button>
                   } @if (companion.isRated) {
-                  <!-- Ya valorado: sin click -->
+
                   <button
                     class="text-white btn btn-outline-secondary btn-morado btn-sm fw-semibold shadow"
                     disabled
@@ -145,7 +146,7 @@
                     <i class="bi bi-check-circle"></i> Ya valorado
                   </button>
                   } } @else {
-                  <!-- Sección 'próximamente' -->
+
                   <button
                     class="text-white btn btn-outline-secondary btn-sm fw-semibold shadow"
                     disabled

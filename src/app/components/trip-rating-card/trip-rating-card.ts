@@ -39,7 +39,7 @@ export class TripRatingCardComponent {
   @Input() isPendingSection: boolean = false;
 
   constructor(private authService: AuthService, private router: Router) {}
-  // Emite datos para abrir el modal en el padre
+
   @Output() rate = new EventEmitter<{
     tripId: number;
     userId: number;
@@ -66,6 +66,10 @@ export class TripRatingCardComponent {
       console.log('Navegando a:', companion.userId);
       this.router.navigate([`perfil/${companion.userId}`]);
     }
+  }
+
+  irDetalleViaje() {
+    this.router.navigate([`viaje/${this.trip.tripId}`]);
   }
 
   onRateCompanion(companion: TripUser) {

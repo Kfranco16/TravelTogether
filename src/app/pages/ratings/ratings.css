@@ -9,7 +9,7 @@
 }
 .rating-dropdown {
   position: absolute;
-  top: 110%; /* Saca el desplegable abajo del botón */
+  top: 110%;
   left: 0;
   width: 320px;
   max-width: 90vw;

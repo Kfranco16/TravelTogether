@@ -1,7 +1,6 @@
 <div class="container my-5">
   <div class="row justify-content-center">
     <div class="col-lg-11">
-      <!-- CABECERA PRINCIPAL (estilo común con otras páginas) -->
       <section class="py-4 mb-4 bg-light rounded-3 px-3 px-md-4">
         <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
           <div
@@ -34,7 +33,6 @@
         </div>
       </section>
 
-      <!-- SECCIÓN 1: Viajes pendientes de valorar -->
       <div class="bg-light border-start border-3 border-primary ps-3 mb-4">
         <h2 class="h5 mb-1 d-flex align-items-center gap-2">
           <i class="bi bi-hourglass-split text-primary"></i>
@@ -66,7 +64,6 @@
       ></app-trip-rating-card>
       }
 
-      <!-- SECCIÓN 2: Viajes para valorar próximamente -->
       <div class="bg-light border-start border-3 border-primary ps-3 mb-4 mt-5">
         <h2 class="h5 mb-1 d-flex align-items-center gap-2">
           <i class="bi bi-calendar2-event text-primary"></i>
@@ -89,7 +86,6 @@
       ></app-trip-rating-card>
       }
 
-      <!-- SECCIÓN 3: Viajes ya valorados -->
       <div class="bg-light border-start border-3 border-primary ps-3 mb-4 mt-5">
         <h2 class="h5 mb-1 d-flex align-items-center gap-2">
           <i class="bi bi-check2-circle text-primary"></i>
@@ -110,7 +106,6 @@
         @for (trip of myTripRatings; track trip.tripId) {
         <div class="col">
           <div class="card border-0 rounded-3 shadow-sm h-100">
-            <!-- Cabecera compacta del viaje -->
             <div class="p-3 border-bottom bg-light d-flex align-items-center gap-2">
               <div
                 class="rounded bg-white d-flex align-items-center justify-content-center flex-shrink-0"
@@ -128,7 +123,6 @@
               </div>
             </div>
 
-            <!-- Lista de valoraciones mías -->
             <div class="p-3">
               @for (r of trip.rated; track r.ratedUserId) {
               <div
@@ -137,12 +131,10 @@
                 <div
                   class="d-flex align-items-center justify-content-center gap-2 mb-1 text-center"
                 >
-                  <!-- Nombre -->
                   <span class="fw-semibold small text-truncate" style="max-width: 120px">
                     {{ r.username }}
                   </span>
 
-                  <!-- Estrellas -->
                   <span class="text-warning d-flex align-items-center small">
                     <span>
                       @for (star of [1,2,3,4,5]; track star) {
@@ -153,7 +145,6 @@
                   </span>
                 </div>
 
-                <!-- Comentario centrado y con margen -->
                 <div
                   class="text-muted small text-center text-truncate"
                   style="max-width: 100%"
@@ -169,7 +160,6 @@
         }
       </div>
 
-      <!-- MODAL DE VALORACIÓN (único) -->
       <div
         class="modal fade"
         id="valoracionModal"

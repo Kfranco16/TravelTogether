@@ -51,11 +51,9 @@ export class ViewRatings implements OnInit {
         Authorization: `Bearer ${token}`,
       });
 
-      // Obtener datos del usuario principal
       const userUrl = `${environment.apiUrl}/users/${this.usuarioId}`;
       this.usuario = await firstValueFrom(this.http.get(userUrl, { headers }));
 
-      // Obtener valoraciones recibidas
       const ratingsUrl = `${environment.apiUrl}/ratings/rated_user/${this.usuarioId}`;
       const ratingsResponse: any = await firstValueFrom(
         this.http.get<any>(ratingsUrl, { headers })
@@ -64,7 +62,6 @@ export class ViewRatings implements OnInit {
         ? ratingsResponse.results.results
         : [];
 
-      // Obtener datos completos de cada autor
       this.valoracionesRecibidas = await Promise.all(
         valoracionesArr.map(async (val) => {
           let author = { id: val.author_id, username: `Usuario ${val.author_id}`, image: '' };

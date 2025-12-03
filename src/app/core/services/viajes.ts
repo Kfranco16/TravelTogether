@@ -63,7 +63,6 @@ export class TripService {
     return this.http.get<any[]>(`${environment.apiUrl}/participations/trip/${tripId}`);
   }
 
-  // Crear favorito para un viaje
   addFavorite(tripId: number, token: string): Observable<any> {
     return this.http.post(
       `${environment.apiUrl}/favorites`,
@@ -77,7 +76,6 @@ export class TripService {
     );
   }
 
-  // Borrar favorito por ID de favorito (DELETE /favorites/:favoriteId)
   removeFavoriteById(favoriteId: number, token: string): Observable<any> {
     return this.http.delete(`${environment.apiUrl}/favorites/${favoriteId}`, {
       headers: {
@@ -87,7 +85,6 @@ export class TripService {
     });
   }
 
-  // Comprobar si un viaje concreto es favorito (GET /favorites/trip/:tripId)
   isFavoriteByTrip(tripId: number, token: string): Observable<any> {
     return this.http.get(`${environment.apiUrl}/favorites/trip/${tripId}`, {
       headers: {

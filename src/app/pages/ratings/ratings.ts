@@ -141,15 +141,12 @@ export class ValoracionesPendientesComponent implements OnInit {
           const joined = joinedResp.data ?? [];
           const myRatings = myRatingsResp as any[];
 
-          // ✨ Mapear createdCards CON imágenes correctas
           const createdCardRequests = created.map((t: any) =>
             this.mapCreatedTripToCardWithImages(t, currentUser, myRatings)
           );
 
-          // ✨ Mapear joinedCards CON imágenes correctas
           const joinedCardRequests = joined.map((t: any) => this.mapJoinedTripToCardWithImages(t));
 
-          // Ejecutar todas las peticiones en paralelo
           return forkJoin({
             createdCards: forkJoin(createdCardRequests).pipe(catchError(() => of([]))),
             joinedCards: forkJoin(joinedCardRequests).pipe(catchError(() => of([]))),
@@ -169,7 +166,6 @@ export class ValoracionesPendientesComponent implements OnInit {
       .subscribe();
   }
 
-  // ✨ NUEVO: Mapear viajes creados CON imágenes correctas
   private mapCreatedTripToCardWithImages(
     trip: any,
     currentUser: any,
@@ -177,17 +173,13 @@ export class ValoracionesPendientesComponent implements OnInit {
   ): Observable<TripRatingCard> {
     const tripId = trip.trip_id;
 
-    // Obtener participantes con imágenes correctas
     return this.participationService.getParticipantsByTripIdWithImages(tripId).pipe(
       map((participants: any[]) => {
-        // Filtrar solo los aceptados y excluir al creador
         const acceptedParticipants = participants.filter(
           (p: any) => p.status === 'accepted' && p.user_id !== trip.creator_id
         );
 
-        // Convertir a TripUser
         const companions: TripUser[] = acceptedParticipants.map((p: any) => {
-          // Verificar si este usuario ha sido valorado por mí
           const isRated = myRatings.some(
             (r: any) => r.trip_id === tripId && r.rated_user_id === p.user_id
           );
@@ -223,7 +215,7 @@ export class ValoracionesPendientesComponent implements OnInit {
       }),
       catchError((err) => {
         console.error('Error obteniendo participantes con imágenes:', err);
-        // Fallback: devolver card sin compañeros
+
         return of({
           tripId: trip.trip_id,
           tripName: trip.title,
@@ -245,14 +237,11 @@ export class ValoracionesPendientesComponent implements OnInit {
     );
   }
 
-  // ✨ NUEVO: Mapear viajes unidos CON imágenes correctas
   private mapJoinedTripToCardWithImages(trip: any): Observable<TripRatingCard> {
     const tripId = trip.trip_id;
 
-    // Obtener organizador con imagen correcta
     return this.participationService.getParticipantsByTripIdWithImages(tripId).pipe(
       map((participants: any[]) => {
-        // Buscar al organizador
         const organizerParticipant = participants.find(
           (p: any) => p.user_id === trip.creator_id && p.status === 'accepted'
         );
@@ -267,6 +256,32 @@ export class ValoracionesPendientesComponent implements OnInit {
             : null,
         };
 
+        const companions: TripUser[] = participants
+          .filter(
+            (p: any) =>
+              p.status === 'accepted' &&
+              p.user_id !== trip.creator_id &&
+              p.user_id !== this.currentUserId
+          )
+          .map((p: any) => ({
+            userId: p.user_id,
+            username: p.username,
+            avatarUrl: p.user_image_url ?? '',
+            isRated: false,
+            rating: parseFloat(p.user_avg_score) || null,
+          }));
+
+        const currentUser = this.authService.getCurrentUser();
+        if (currentUser) {
+          companions.push({
+            userId: currentUser.id,
+            username: currentUser.username ?? 'Yo',
+            avatarUrl: currentUser.image ?? '',
+            isRated: true,
+            rating: null,
+          });
+        }
+
         return {
           tripId: tripId,
           tripName: trip.trip_name,
@@ -276,12 +291,11 @@ export class ValoracionesPendientesComponent implements OnInit {
           cost: 0,
           imageUrl: trip.trip_image_url,
           organizer,
-          companions: [],
+          companions,
         } as TripRatingCard;
       }),
       catchError((err) => {
         console.error('Error obteniendo organizador con imagen:', err);
-        // Fallback
         return of({
           tripId: trip.trip_id,
           tripName: trip.trip_name,
@@ -302,8 +316,6 @@ export class ValoracionesPendientesComponent implements OnInit {
       })
     );
   }
-
-  // ... resto del código igual ...
 
   private recalculateSections(myRatings: any[]) {
     const today = new Date();
