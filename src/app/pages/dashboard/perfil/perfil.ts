@@ -1,68 +1,66 @@
 import { Component, inject } from '@angular/core';
-import { NgIf, NgFor, DatePipe, DecimalPipe } from '@angular/common';
+import { DecimalPipe, DatePipe } from '@angular/common';
 import { AuthService } from '../../../core/services/auth';
 import { Iuser } from '../../../interfaces/iuser';
 
-type Rating = {
+interface Rating {
   id: number;
-  from: string;
-  score: number;
+  score: number; // 1–5
   comment: string;
+  from: string;
   createdAt: string;
-};
+}
 
 @Component({
-  selector: 'app-dashboard-perfil',
+  selector: 'app-perfil',
   standalone: true,
-  imports: [NgIf, NgFor, DatePipe, DecimalPipe],
+  imports: [DecimalPipe, DatePipe],
   templateUrl: './perfil.html',
   styleUrls: ['./perfil.css'],
 })
 export class Perfil {
   private auth = inject(AuthService);
 
-  // 👤 Usuario actual (el mismo que usa la navbar)
-  user: Iuser | null = this.auth.getCurrentUser();
+  // Avatar por defecto
   defaultAvatar = 'https://i.pravatar.cc/120?u=traveltogether';
 
-  // ⭐ Valoraciones de prueba (luego vienen de back)
-  ratings: Rating[] = [
-    {
-      id: 1,
-      from: 'Laura M.',
-      score: 5,
-      comment: 'Una compañera de viaje increíble, muy organizada y positiva.',
-      createdAt: '2025-11-01T10:00:00Z',
-    },
-    {
-      id: 2,
-      from: 'Carlos G.',
-      score: 4,
-      comment: 'Buen ambiente en el grupo y muy puntual.',
-      createdAt: '2025-11-05T18:30:00Z',
-    },
-  ];
+  // Usuario actual
+  user: Iuser | null = null;
 
-  // ¿Hay valoraciones?
-  get hasRatings(): boolean {
-    return this.ratings.length > 0;
+  // Valoraciones del usuario
+  ratings: Rating[] = [];
+  hasRatings = false;
+  averageScore = 0;
+  averageStars = 0;
+
+  constructor() {
+    this.user = this.auth.getCurrentUser();
+
+    // Si el backend viene con ratings dentro del user:
+    if (this.user && (this.user as any).ratings) {
+      this.ratings = (this.user as any).ratings;
+    }
+
+    this.hasRatings = this.ratings.length > 0;
+
+    if (this.hasRatings) {
+      const sum = this.ratings.reduce((acc, r) => acc + r.score, 0);
+      this.averageScore = sum / this.ratings.length;
+      this.averageStars = Math.round(this.averageScore);
+    }
   }
 
-  // Nota media
-  get averageStars(): number {
-    if (!this.hasRatings) return 0;
-    const total = this.ratings.reduce((sum, r) => sum + r.score, 0);
-    return total / this.ratings.length;
+  // Navegar a editar perfil
+  onEditarDatos() {
+    // después lo implementas cuando esté hecha la ruta
+    console.log('Editar datos…');
   }
 
-  // Botón "Modificar foto de perfil"
-  onModificarFoto(): void {
-    // De momento solo mostramos por consola.
-    console.log('Modificar foto de perfil');
+  onModificarFoto() {
+    console.log('Modificar foto… (implementar)');
   }
 
-  // Botón "Guardar cambios"
-  onGuardarCambios(): void {
-    console.log('Guardar cambios de perfil');
+  onGuardarCambios() {
+    console.log('Guardar cambios… (implementar)');
   }
 }

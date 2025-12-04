@@ -1,18 +1,39 @@
+<!-- src/app/pages/dashboard/favoritos/favoritos.html -->
 <section class="tt-panel">
-  <h2 class="tt-title mb-3">Favoritos</h2>
+  <h2 class="tt-title mb-3">Mis favoritos</h2>
 
-  @if (!cargando && favoritos.length) {
-  <ul class="list-group">
-    @for (f of favoritos; track f.id) {
+  @if (loading) {
+  <p class="text-muted">Cargando tus viajes favoritos…</p>
+  } @else if (error) {
+  <p class="text-danger">{{ error }}</p>
+  } @else if (!favoritos.length) {
+  <p class="text-muted">
+    Todavía no tienes viajes en favoritos. Cuando marques un viaje con el corazón, aparecerá aquí.
+  </p>
+  } @else {
+  <ul class="list-group tt-fav-list">
+    @for (fav of favoritos; track fav.id) {
     <li class="list-group-item d-flex justify-content-between align-items-center">
-      <span>{{ f.titulo }}</span>
-      <a [routerLink]="['/detalle-viaje', f.id]" class="btn btn-sm btn-link">Ver</a>
+      <div>
+        <!-- Intentamos mostrar info del viaje si viene anidada -->
+        <strong>
+          {{ fav.trip?.title || 'Viaje #' + fav.trip_id }}
+        </strong>
+        @if (fav.trip?.destination) {
+        <div class="small text-muted">
+          {{ fav.trip.destination }}
+        </div>
+        }
+      </div>
+
+      <a
+        [routerLink]="['/viaje', fav.trip?.id || fav.trip_id]"
+        class="btn btn-sm btn-outline-secondary"
+      >
+        Ver viaje
+      </a>
     </li>
     }
   </ul>
-  } @else if (!cargando) {
-  <p class="text-muted">Aún no has marcado viajes como favoritos.</p>
-  } @else {
-  <p class="text-muted">Cargando…</p>
   }
 </section>

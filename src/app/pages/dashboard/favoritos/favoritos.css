@@ -3,7 +3,58 @@
   margin: 0 auto;
 }
 
+/* Título */
 .tt-title {
   font-size: 1.4rem;
   font-weight: 700;
+}
+
+/* Lista general */
+.tt-favs-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Cada item */
+.tt-fav-item {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  padding: 0.85rem 1rem;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.03);
+}
+
+/* Info principal del viaje favorito */
+.tt-fav-main h5 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.tt-fav-main p {
+  margin: 0;
+}
+
+/* Botón quitar */
+.tt-btn-remove {
+  border-radius: 999px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.85rem;
+}
+
+/* Responsive: en móvil dejamos todo en columna */
+@media (max-width: 575.98px) {
+  .tt-fav-item {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+
+  .tt-btn-remove {
+    align-self: flex-end;
+  }
 }

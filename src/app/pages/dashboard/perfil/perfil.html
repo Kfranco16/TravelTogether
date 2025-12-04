@@ -16,7 +16,6 @@
     <div class="flex-grow-1">
       <h5 class="mb-1">{{ user.username }}</h5>
       <p class="text-muted small mb-1">{{ user.email }}</p>
-
       @if (user.bio) {
       <p class="small mb-0">{{ user.bio }}</p>
       } @else {
@@ -46,7 +45,7 @@
         <span class="tt-ratings-number">
           {{ averageStars | number : '1.1-1' }}
         </span>
-        <span class="tt-ratings-stars">★★★★★</span>
+        <span class="tt-ratings-stars"> ★★★★★ </span>
       </div>
       <p class="text-muted small mb-0">
         Basado en {{ ratings.length }} valoración{{ ratings.length > 1 ? 'es' : '' }}.
