@@ -147,7 +147,7 @@ export class CardViaje {
         next: (favorite) => {
           trip.isFavorite = true;
 
-          trip.favoriteId = favorite.id;
+          trip.favoriteId = favorite.data[0].id;
         },
         error: () => {
           trip.isFavorite = false;
