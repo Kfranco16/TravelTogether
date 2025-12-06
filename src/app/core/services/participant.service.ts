@@ -28,18 +28,6 @@ import { environment } from '../../../environment/environment';
 
 /**
  * Respuesta del backend cuando se crea una solicitud de participación
- * Example response:
- * {
- *   "message": "Solicitud para unirse al viaje creada con éxito. Esperando aprobación.",
- *   "data": {
- *     "id": 21,
- *     "status": "pending",
- *     "request_date": "2025-11-26T16:06:34.000Z",
- *     "response_date": null,
- *     "user_id": 30,
- *     "trip_id": 6
- *   }
- * }
  */
 export interface ParticipationRequest {
   id: number;
@@ -58,24 +46,6 @@ export interface ParticipationRequestResponse {
   data: ParticipationRequest;
 }
 
-/**
- * Una solicitud pendiente con información del participante y del viaje
- * Example response:
- * {
- *   "participation_id": 21,
- *   "status": "pending",
- *   "request_date": "2025-11-26T16:06:34.000Z",
- *   "response_date": "2025-11-29T19:37:14.000Z",
- *   "trip_id": 6,
- *   "trip_name": "Caza de la Aurora Boreal en el Ártico",
- *   "participant_user_id": 30,
- *   "participant_username": "lauragarcia",
- *   "participant_email": "lauragarcia@gmail.com",
- *   "trip_image_url": null,
- *   "participant_image_url": null,
- *   "participant_avg_score": "4.0000"
- * }
- */
 export interface PendingParticipationInfo {
   participation_id: number;
   status: string;
@@ -97,6 +67,52 @@ export interface PendingParticipationInfo {
 export interface PendingParticipationsResponse {
   message: string;
   data: PendingParticipationInfo[];
+}
+
+/**
+ * Respuesta del backend cuando se cambia el estado de una participación
+ */
+export interface UpdateParticipationStatusResponse {
+  message: string;
+  data: ParticipationRequest;
+}
+
+/**
+ * Información de participante aceptado en un viaje
+ */
+export interface AcceptedParticipant {
+  id: number;
+  username: string;
+  email: string;
+  status: 'accepted' | 'pending' | 'rejected';
+  is_creator: number;
+  participant_avg_score: number;
+  participant_image_url: string | null;
+}
+
+/**
+  Información de viaje creado con sus participantes aceptados
+ */
+export interface MyCreatedTrip {
+  trip_id: number;
+  title: string;
+  origin: string;
+  destination: string;
+  description: string;
+  start_date: string;
+  end_date: string;
+  estimated_cost: string;
+  all_related_participants: AcceptedParticipant[];
+  current_participants: number;
+  capacity: number;
+}
+
+/**
+  Respuesta del backend cuando se obtienen viajes creados con participantes
+ */
+export interface MyCreatedTripsResponse {
+  message: string;
+  data: MyCreatedTrip[];
 }
 
 // ============================================================================
@@ -121,6 +137,12 @@ export class ParticipantService {
    * Se usa para actualización reactiva en tiempo real
    */
   pendingParticipations = signal<PendingParticipationInfo[]>([]);
+
+  /**
+   * Signal que almacena los viajes creados con sus participantes aceptados
+   * Se usa para mostrar participantes confirmados en cada viaje
+   */
+  myCreatedTrips = signal<MyCreatedTrip[]>([]);
 
   /**
    * Signal que indica si hay una carga en progreso
@@ -250,8 +272,9 @@ export class ParticipantService {
   /**
    * Aprobar a un participante para unirse a un viaje (solo creador)
    *
-   * Llamada al endpoint: PATCH {apiUrl}/participations/{participationId}/approve
+   * Llamada al endpoint: PUT {apiUrl}/participations/status/{participationId}
    * Header: Authorization: Bearer {token}
+   * Body: { "newStatus": "accepted" }
    *
    * @param participationId - ID de la solicitud de participación a aprobar
    * @returns Observable con la respuesta del backend
@@ -262,16 +285,18 @@ export class ParticipantService {
    *   error: (error) => console.error(error.message)
    * });
    */
-  approveParticipant(participationId: number): Observable<any> {
+  approveParticipant(participationId: number): Observable<UpdateParticipationStatusResponse> {
     const token = localStorage.getItem('tt_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
 
+    const body = { newStatus: 'accepted' };
+
     return this.http
-      .patch<any>(
-        `${environment.apiUrl}/participations/${participationId}/approve`,
-        {},
+      .put<UpdateParticipationStatusResponse>(
+        `${environment.apiUrl}/participations/status/${participationId}`,
+        body,
         {
           headers,
         }
@@ -298,8 +323,9 @@ export class ParticipantService {
   /**
    * Rechazar a un participante (solo creador)
    *
-   * Llamada al endpoint: PATCH {apiUrl}/participations/{participationId}/reject
+   * Llamada al endpoint: PUT {apiUrl}/participations/status/{participationId}
    * Header: Authorization: Bearer {token}
+   * Body: { "newStatus": "rejected" }
    *
    * @param participationId - ID de la solicitud de participación a rechazar
    * @returns Observable con la respuesta del backend
@@ -310,16 +336,18 @@ export class ParticipantService {
    *   error: (error) => console.error(error.message)
    * });
    */
-  rejectParticipant(participationId: number): Observable<any> {
+  rejectParticipant(participationId: number): Observable<UpdateParticipationStatusResponse> {
     const token = localStorage.getItem('tt_token');
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
 
+    const body = { newStatus: 'rejected' };
+
     return this.http
-      .patch<any>(
-        `${environment.apiUrl}/participations/${participationId}/reject`,
-        {},
+      .put<UpdateParticipationStatusResponse>(
+        `${environment.apiUrl}/participations/status/${participationId}`,
+        body,
         {
           headers,
         }
@@ -335,6 +363,55 @@ export class ParticipantService {
           const errorMsg = error?.error?.message || 'Error al rechazar participante';
           console.error('❌ Error en rejectParticipant:', errorMsg);
           this.errorSignal.set(errorMsg);
+          return throwError(() => ({
+            message: errorMsg,
+            error,
+          }));
+        })
+      );
+  }
+
+  /**
+   * Obtener todos los viajes creados por el usuario con sus participantes aceptados
+   *
+   * Llamada al endpoint: GET {apiUrl}/my-created
+   * Header: Authorization: Bearer {token}
+   *
+   * @returns Observable con la respuesta del backend
+   *
+   * @example
+   * this.participantService.getMyCreatedTripsWithParticipants().subscribe({
+   *   next: (response) => {
+   *     console.log(response.message);
+   *     console.log(response.data); // Array de viajes con participantes
+   *   },
+   *   error: (error) => console.error(error.message)
+   * });
+   */
+  getMyCreatedTripsWithParticipants(): Observable<MyCreatedTripsResponse> {
+    const token = localStorage.getItem('tt_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    this.loadingSignal.set(true);
+
+    return this.http
+      .get<MyCreatedTripsResponse>(`${environment.apiUrl}/participations/my-created`, {
+        headers,
+      })
+      .pipe(
+        tap((response) => {
+          console.log('✅ Viajes creados obtenidos:', response);
+          this.myCreatedTrips.set(response.data);
+          this.loadingSignal.set(false);
+          this.errorSignal.set(null);
+        }),
+        catchError((error) => {
+          const errorMsg = error?.error?.message || 'Error al obtener viajes creados';
+          console.error('❌ Error en getMyCreatedTripsWithParticipants:', errorMsg);
+          this.errorSignal.set(errorMsg);
+          this.loadingSignal.set(false);
           return throwError(() => ({
             message: errorMsg,
             error,
@@ -369,6 +446,7 @@ export class ParticipantService {
    */
   reset(): void {
     this.pendingParticipations.set([]);
+    this.myCreatedTrips.set([]);
     this.loadingSignal.set(false);
     this.errorSignal.set(null);
   }

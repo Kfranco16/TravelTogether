@@ -2,7 +2,7 @@ import { Component, inject, Input, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TripService, ImageResponse } from '../../core/services/viajes';
 import { Trip } from '../../interfaces/trip';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { Iuser } from '../../interfaces/iuser';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -16,7 +16,7 @@ import { ParticipationService } from '../../core/services/participations';
 @Component({
   selector: 'app-detalle-viaje',
   standalone: true,
-  imports: [DatePipe, CardUsuario],
+  imports: [DatePipe, CardUsuario, NgClass],
   templateUrl: './detalle-viaje.html',
   styleUrl: './detalle-viaje.css',
 })
@@ -43,6 +43,40 @@ export class DetalleViaje {
 
   // 🎯 Nuevo: Signal para mostrar spinner mientras se procesa la solicitud
   enviandoSolicitud = signal<boolean>(false);
+
+  // ========================================================================
+  // PROPIEDADES DE TOASTS PERSONALIZADOS (Bootstrap)
+  // ========================================================================
+
+  /**
+   * Signal que controla la visibilidad del toast
+   * true = mostrar, false = ocultar
+   */
+  mostrarToast = signal<boolean>(false);
+
+  /**
+   * Signal que almacena el tipo de toast (success, error, warning, info)
+   * Se usa para aplicar estilos de Bootstrap apropiados
+   */
+  tipoToast = signal<'success' | 'error' | 'warning' | 'info'>('info');
+
+  /**
+   * Signal que almacena el mensaje principal del toast
+   * Se muestra como título/encabezado
+   */
+  mensajeToast = signal<string>('');
+
+  /**
+   * Signal que almacena la descripción/detalle del toast
+   * Se muestra debajo del mensaje principal
+   */
+  detalleToast = signal<string>('');
+
+  /**
+   * Signal que controla la animación de salida del toast
+   * Se activa antes de ocultarlo para animación smooth
+   */
+  ocultandoToast = signal<boolean>(false);
 
   services = [
     { control: 'flights', label: 'Transporte (Vuelos, Tren, Bus...)' },
@@ -157,6 +191,102 @@ export class DetalleViaje {
   }
 
   // ========================================================================
+  // MÉTODOS DE CONTROL DE TOASTS
+  // ========================================================================
+
+  /**
+   * Mostrar un toast con animación
+   *
+   * @param tipo - Tipo de toast: 'success', 'error', 'warning', 'info'
+   * @param mensaje - Título/mensaje principal
+   * @param detalle - Descripción adicional (opcional)
+   * @param duracion - Duración en ms antes de ocultarse (default: 4000ms)
+   *
+   * @example
+   * this.mostrarToastPersonalizado('success', 'Éxito', 'Acción completada');
+   * this.mostrarToastPersonalizado('error', 'Error', 'Algo salió mal', 5000);
+   */
+  mostrarToastPersonalizado(
+    tipo: 'success' | 'error' | 'warning' | 'info',
+    mensaje: string,
+    detalle: string = '',
+    duracion: number = 4000
+  ): void {
+    // Actualizar propiedades del toast
+    this.tipoToast.set(tipo);
+    this.mensajeToast.set(mensaje);
+    this.detalleToast.set(detalle);
+    this.ocultandoToast.set(false);
+    this.mostrarToast.set(true);
+
+    // Auto-ocultar después de la duración especificada
+    setTimeout(() => {
+      this.ocultarToast();
+    }, duracion);
+  }
+
+  /**
+   * Ocultar el toast con animación de salida
+   *
+   * Primero activa la animación de salida (ocultandoToast)
+   * Luego oculta el toast después de 300ms (duración de la animación)
+   */
+  ocultarToast(): void {
+    this.ocultandoToast.set(true);
+
+    // Esperar a que termine la animación antes de ocultarlo
+    setTimeout(() => {
+      this.mostrarToast.set(false);
+      this.ocultandoToast.set(false);
+    }, 300);
+  }
+
+  /**
+   * Obtener la clase CSS para el toast según su tipo
+   *
+   * @returns Clase de Bootstrap para el toast (alert-success, alert-danger, etc.)
+   */
+  getToastClass(): string {
+    const tipo = this.tipoToast();
+    const baseClass = 'alert';
+
+    switch (tipo) {
+      case 'success':
+        return `${baseClass} alert-success`;
+      case 'error':
+        return `${baseClass} alert-danger`;
+      case 'warning':
+        return `${baseClass} alert-warning`;
+      case 'info':
+        return `${baseClass} alert-info`;
+      default:
+        return `${baseClass} alert-info`;
+    }
+  }
+
+  /**
+   * Obtener el icono según el tipo de toast
+   *
+   * @returns Icono de Bootstrap Icons
+   */
+  getToastIcon(): string {
+    const tipo = this.tipoToast();
+
+    switch (tipo) {
+      case 'success':
+        return 'bi-check-circle-fill';
+      case 'error':
+        return 'bi-exclamation-circle-fill';
+      case 'warning':
+        return 'bi-exclamation-triangle-fill';
+      case 'info':
+        return 'bi-info-circle-fill';
+      default:
+        return 'bi-info-circle-fill';
+    }
+  }
+
+  // ========================================================================
   // MÉTODOS DE PARTICIPACIÓN
   // ========================================================================
 
@@ -176,26 +306,42 @@ export class DetalleViaje {
   async handleSolicitud() {
     // ✅ Validación 1: Verificar que el usuario esté autenticado
     if (!this.usuarioActual) {
-      toast.error('Debes iniciar sesión para solicitar unirte');
-      this.router.navigate(['/login']);
+      this.mostrarToastPersonalizado(
+        'warning',
+        'Sesión requerida',
+        'Debes iniciar sesión para solicitar unirte a un viaje'
+      );
+      setTimeout(() => this.router.navigate(['/login']), 1500);
       return;
     }
 
     // ✅ Validación 2: Verificar que el viaje exista
     if (!this.viaje?.id) {
-      toast.error('El viaje no existe o no se cargó correctamente');
+      this.mostrarToastPersonalizado(
+        'error',
+        'Viaje no disponible',
+        'El viaje no existe o no se cargó correctamente'
+      );
       return;
     }
 
     // ✅ Validación 3: Verificar que no sea el creador
     if (this.esCreador) {
-      toast.error('No puedes solicitar unirte a tu propio viaje');
+      this.mostrarToastPersonalizado(
+        'warning',
+        'No permitido',
+        'No puedes solicitar unirte a tu propio viaje'
+      );
       return;
     }
 
     // ✅ Validación 4: Prevenir solicitudes duplicadas
     if (this.solicitudEnviada() || this.enviandoSolicitud()) {
-      toast.info('Ya has enviado una solicitud para este viaje');
+      this.mostrarToastPersonalizado(
+        'info',
+        'Solicitud pendiente',
+        'Ya has enviado una solicitud para este viaje'
+      );
       return;
     }
 
@@ -209,10 +355,8 @@ export class DetalleViaje {
       );
 
       // ✅ Si la respuesta es exitosa
-      // Mostrar el mensaje del API en un toast
-      toast.success(response.message, {
-        description: 'Tu solicitud ha sido registrada',
-      });
+      // Mostrar el mensaje del API en un toast personalizado
+      this.mostrarToastPersonalizado('success', 'Solicitud enviada', response.message, 5000);
 
       // 🎯 Marcar que la solicitud fue enviada
       this.solicitudEnviada.set(true);
@@ -225,9 +369,7 @@ export class DetalleViaje {
 
       console.error('❌ Error en handleSolicitud:', error);
 
-      toast.error(errorMsg, {
-        description: 'Por favor, intenta de nuevo más tarde',
-      });
+      this.mostrarToastPersonalizado('error', 'Error en la solicitud', errorMsg, 5000);
     } finally {
       // 🔄 Desactivar estado de carga
       this.enviandoSolicitud.set(false);

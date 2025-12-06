@@ -3,9 +3,11 @@ import { CommonModule } from '@angular/common';
 import {
   ParticipantService,
   PendingParticipationInfo,
+  MyCreatedTrip,
+  MyCreatedTripsResponse,
 } from '../../core/services/participant.service';
 import { toast } from 'ngx-sonner';
-
+import { firstValueFrom } from 'rxjs';
 /**
  * ============================================================================
  * PENDING PARTICIPATIONS COMPONENT (TEMPORAL - PARA DEBUGGING)
@@ -49,6 +51,12 @@ export class PendingParticipationsComponent implements OnInit {
   pendingParticipations: PendingParticipationInfo[] = [];
 
   /**
+   * Array con todos los viajes creados y sus participantes aceptados
+   * Se obtiene del servicio y se actualiza reactivamente
+   */
+  myCreatedTrips: MyCreatedTrip[] = [];
+
+  /**
    * Variable para rastrear si está cargando datos
    * Se usa para mostrar spinner/loader
    */
@@ -72,6 +80,12 @@ export class PendingParticipationsComponent implements OnInit {
    */
   debugResponseData: any = null;
 
+  /**
+   * Pestaña activa: 'pending' o 'accepted'
+   * Controla cuál sección se muestra en el HTML
+   */
+  activeTab: 'pending' | 'accepted' = 'pending';
+
   // ========================================================================
   // CICLO DE VIDA
   // ========================================================================
@@ -81,10 +95,12 @@ export class PendingParticipationsComponent implements OnInit {
    *
    * Responsabilidades:
    * 1. Cargar las solicitudes pendientes
-   * 2. Mostrar datos en la UI
+   * 2. Cargar los viajes creados con participantes aceptados
+   * 3. Mostrar datos en la UI
    */
   ngOnInit(): void {
     this.loadPendingParticipations();
+    this.loadMyCreatedTrips();
   }
 
   // ========================================================================
@@ -101,57 +117,44 @@ export class PendingParticipationsComponent implements OnInit {
    * 4. Si falla: mostrar error al usuario
    * 5. Guardar respuesta completa para debugging
    */
-  loadPendingParticipations(): void {
+  async loadPendingParticipations(): Promise<MyCreatedTripsResponse | void> {
     // 🔄 Activar estado de carga
     this.isLoading = true;
     this.errorMessage = null;
     this.successMessage = null;
 
-    // 📡 Llamar al servicio para obtener solicitudes pendientes
-    this.participantService.getPendingParticipations().subscribe({
-      // ✅ Respuesta exitosa
-      next: (response) => {
-        console.log('📥 Respuesta del API:', response);
+    try {
+      // 📡 Llamar al servicio usando async/await
+      const response = await firstValueFrom(this.participantService.getPendingParticipations());
 
-        // Guardar el mensaje del servidor
-        this.successMessage = response.message;
+      console.log('📥 Respuesta del API:', response);
 
-        // Guardar las solicitudes
-        this.pendingParticipations = response.data;
+      // Guardar el mensaje del servidor
+      this.successMessage = response.message;
+      this.pendingParticipations = response.data;
+      this.debugResponseData = response;
 
-        // 💾 Guardar la respuesta completa para debugging (ver JSON en la UI)
-        this.debugResponseData = response;
+      // 📊 Toast de éxito
+      toast.success(`Se encontraron ${response.data.length} solicitudes pendientes`, {
+        description: this.successMessage,
+      });
 
-        // 📊 Mostrar cantidad de solicitudes
-        toast.success(`Se encontraron ${response.data.length} solicitudes pendientes`, {
-          description: this.successMessage,
-        });
+      console.log(`✅ ${response.data.length} solicitudes cargadas exitosamente`);
+    } catch (error: any) {
+      // ❌ Manejo de error
+      console.error('❌ Error al cargar solicitudes:', error);
 
-        console.log(`✅ ${response.data.length} solicitudes cargadas exitosamente`);
-      },
+      const errorMsg = error?.message || 'Error al obtener solicitudes pendientes';
+      this.errorMessage = errorMsg;
 
-      // ❌ Error
-      error: (error) => {
-        console.error('❌ Error al cargar solicitudes:', error);
-
-        // Mostrar mensaje de error al usuario
-        const errorMsg = error?.message || 'Error al obtener solicitudes pendientes';
-        this.errorMessage = errorMsg;
-
-        // Notificar al usuario
-        toast.error(errorMsg, {
-          description: 'Por favor, intenta de nuevo más tarde',
-        });
-      },
-
-      // 🏁 Completado (siempre se ejecuta)
-      complete: () => {
-        // 🔄 Desactivar estado de carga
-        this.isLoading = false;
-      },
-    });
+      toast.error(errorMsg, {
+        description: 'Por favor, intenta de nuevo más tarde',
+      });
+    } finally {
+      // 🔄 Desactivar estado de carga (SIEMPRE)
+      this.isLoading = false;
+    }
   }
-
   /**
    * Método para recargar las solicitudes
    * Útil para refrescar datos después de aprobar/rechazar
@@ -202,5 +205,133 @@ export class PendingParticipationsComponent implements OnInit {
       default:
         return status;
     }
+  }
+
+  /**
+   * Aprobar a un participante
+   * Llamada al servicio para actualizar el estado de la participación a 'accepted'
+   *
+   * @param participationId - ID de la participación a aprobar
+   */
+  async approveParticipation(participationId: number): Promise<void> {
+    try {
+      const response = await firstValueFrom(
+        this.participantService.approveParticipant(participationId)
+      );
+      console.log('✅ Participante aprobado:', response);
+      toast.success('Participante aprobado correctamente');
+      // La lista se recargará automáticamente gracias a refreshPendingParticipations() en el service
+    } catch (error: any) {
+      const errorMsg = error?.message || 'Error al aprobar participante';
+      console.error('❌ Error:', errorMsg);
+      toast.error(errorMsg);
+    }
+  }
+
+  /**
+   * Rechazar a un participante
+   * Llamada al servicio para actualizar el estado de la participación a 'rejected'
+   *
+   * @param participationId - ID de la participación a rechazar
+   */
+  async rejectParticipation(participationId: number): Promise<void> {
+    try {
+      const response = await firstValueFrom(
+        this.participantService.rejectParticipant(participationId)
+      );
+      console.log('✅ Participante rechazado:', response);
+      toast.success('Participante rechazado correctamente');
+      // La lista se recargará automáticamente gracias a refreshPendingParticipations() en el service
+    } catch (error: any) {
+      const errorMsg = error?.message || 'Error al rechazar participante';
+      console.error('❌ Error:', errorMsg);
+      toast.error(errorMsg);
+    }
+  }
+
+  /**
+   * Cargar todos los viajes creados con sus participantes aceptados
+   *
+   * Flujo:
+   * 1. Activar estado de carga
+   * 2. Llamar al servicio ParticipantService.getMyCreatedTripsWithParticipants()
+   * 3. Si es exitoso: guardar datos y mostrar mensaje
+   * 4. Si falla: mostrar error al usuario
+   * 5. Guardar respuesta completa para debugging
+   */
+  async loadMyCreatedTrips(): Promise<void> {
+    this.isLoading = true;
+    this.errorMessage = null;
+    this.successMessage = null;
+
+    try {
+      const response = await firstValueFrom(
+        this.participantService.getMyCreatedTripsWithParticipants()
+      );
+
+      console.log('📥 Viajes creados obtenidos:', response);
+
+      this.successMessage = response.message;
+      this.myCreatedTrips = response.data;
+      this.debugResponseData = response;
+
+      toast.success(`Se encontraron ${response.data.length} viaje(s) creado(s)`, {
+        description: this.successMessage,
+      });
+
+      console.log(`✅ ${response.data.length} viajes cargados exitosamente`);
+    } catch (error: any) {
+      console.error('❌ Error al cargar viajes:', error);
+
+      const errorMsg = error?.message || 'Error al obtener viajes creados';
+      this.errorMessage = errorMsg;
+
+      toast.error(errorMsg, {
+        description: 'Por favor, intenta de nuevo más tarde',
+      });
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  /**
+   * Cambiar pestaña activa
+   *
+   * @param tab - Nombre de la pestaña: 'pending' o 'accepted'
+   */
+  switchTab(tab: 'pending' | 'accepted'): void {
+    this.activeTab = tab;
+  }
+
+  /**
+   * Obtener los participantes aceptados de un viaje específico
+   *
+   * WORKAROUND: Debido a un bug en la API donde all_related_participants está vacío,
+   * usamos accepted_participants_json como fallback.
+   *
+   * @param trip - Viaje del cual obtener participantes aceptados
+   * @returns Array de participantes con status 'accepted'
+   */
+  getAcceptedParticipants(trip: MyCreatedTrip) {
+    // Primero intentar con all_related_participants (cuando el bug se arregle)
+    if (trip.all_related_participants && trip.all_related_participants.length > 0) {
+      return trip.all_related_participants.filter((p) => p.status === 'accepted');
+    }
+
+    // FALLBACK: Parsear accepted_participants_json si está disponible
+    // TODO: Remover este fallback cuando el backend corrija el endpoint
+    /* if ((trip as any).accepted_participants_json) {
+      try { */
+    // El JSON viene como string separado por comas, necesitamos arreglarlo
+    /* const jsonString = `[${(trip as any).accepted_participants_json}]`;
+        const participants = JSON.parse(jsonString);
+        return participants.filter((p: any) => p.status === 'accepted');
+      } catch (error) {
+        console.error('❌ Error parseando accepted_participants_json:', error);
+        return [];
+      }
+    } */
+
+    return [];
   }
 }
