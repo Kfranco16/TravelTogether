@@ -1,67 +1,408 @@
-/* Contenedor general */
-.tt-panel {
-  max-width: 720px;
+.tt-profile-wrapper {
+  max-width: 1120px;
   margin: 0 auto;
+  padding: 2.5rem 1.5rem 3.5rem;
 }
 
-/* Título principal */
-.tt-title {
-  font-size: 1.4rem;
-  font-weight: 700;
-}
+/* CABECERA: FOTO + DATOS */
 
-/* Tarjeta del perfil */
-.tt-card {
+.tt-profile-header {
   background-color: #ffffff;
-  border-radius: 16px;
-  border: 1px solid #e5e7eb;
-  padding: 1.25rem 1.5rem;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+  border-radius: 28px;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  margin-top: 1.25rem;
 }
 
-/* Avatar */
-.tt-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 999px;
+.tt-profile-main {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+/* Bloque de la foto y botones */
+.tt-profile-photo-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+/* Aro degradado + imagen circular */
+.tt-profile-photo-ring {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  padding: 6px;
+  background-image: linear-gradient(135deg, #a259ff, #6c5ce7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tt-photo-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
   object-fit: cover;
+  background-color: #f3f4f6;
 }
 
-/* Botón edición */
-.btn-morado {
-  background-image: var(--tt-gradient);
-  color: white;
+/* Botones debajo de la foto */
+.tt-profile-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Botón base */
+.tt-btn {
+  border-radius: 999px;
   border: none;
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: filter 0.2s ease, transform 0.15s ease;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.15s ease, background-color 0.15s ease,
+    color 0.15s ease;
 }
 
-.btn-morado:hover,
-.btn-morado:focus {
-  filter: brightness(1.1);
+.tt-btn-sm {
+  padding-inline: 0.9rem;
+}
+
+/* Botón rojo "Eliminar foto" */
+.tt-btn-danger {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.tt-btn-danger:hover {
+  background-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.35);
   transform: translateY(-1px);
 }
 
-/* Contenedor donde aparece el formulario de edición */
-.mt-4 {
-  margin-top: 1.5rem !important;
+/* Botón degradado "Subir foto" */
+.tt-btn-gradient {
+  background-image: linear-gradient(90deg, #a259ff, #6c5ce7);
+  color: #ffffff;
+  box-shadow: 0 12px 32px rgba(94, 92, 246, 0.4);
 }
 
-/* Encabezado del formulario */
-.tt-edit-title {
-  font-size: 1.1rem;
+.tt-btn-gradient:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+/* Bloque de info principal (nombre, frase, rating…) */
+.tt-profile-main-info {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Nombre del usuario */
+.tt-profile-name {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.35rem;
+  color: #111827;
+}
+
+/* Frase pública que ven otros usuarios */
+.tt-profile-tagline {
+  margin: 0 0 0.75rem;
+  font-size: 0.98rem;
+  color: #4b5563;
+}
+
+/* Rating (estrellas + texto) */
+.tt-profile-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.2rem;
+}
+
+.tt-stars {
+  display: flex;
+  gap: 0.15rem;
+  font-size: 1rem;
+}
+
+.tt-star-full {
+  color: #fbbf24;
+}
+
+.tt-star-empty {
+  color: #d1d5db;
+}
+
+.tt-rating-text {
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.tt-rating-score {
   font-weight: 600;
-  margin-bottom: 0.75rem;
+  margin-right: 0.25rem;
 }
 
-/* Estilo extra para cohesión visual del formulario dentro del perfil */
-app-editar-perfil {
-  display: block;
-  background: #fff;
-  padding: 1.25rem 1.5rem;
-  border-radius: 16px;
+.tt-rating-count {
+  color: #6b7280;
+}
+
+/* Etiqueta pequeña encima del input editable */
+.tt-profile-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+  margin: 0 0 0.4rem;
+}
+
+/* Input para la frase pública (solo propio) */
+.tt-tagline-edit {
+  margin-top: 0.25rem;
+}
+
+.tt-profile-input {
+  width: 100%;
+  border-radius: 14px;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+  padding: 0.7rem 0.9rem;
+  font-size: 0.95rem;
+  color: #111827;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tt-profile-input::placeholder {
+  color: #9ca3af;
+}
+
+.tt-profile-input:focus {
+  border-color: #a259ff;
+  box-shadow: 0 0 0 1px rgba(162, 89, 255, 0.2);
+}
+
+/*TARJETA "TU PRÓXIMO VIAJE" (solo perfil propio)*/
+
+.tt-next-trip-card {
+  margin-top: 2rem;
+  border-radius: 26px;
+  padding: 1.8rem 2.2rem;
+  background-image: linear-gradient(115deg, #a259ff, #6c5ce7, #2f80ed);
+  box-shadow: 0 25px 60px rgba(79, 70, 229, 0.5);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2.5rem;
+}
+
+.tt-next-trip-left {
+  max-width: 70%;
+}
+
+.tt-next-trip-label {
+  margin: 0 0 0.4rem;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.tt-next-trip-destination {
+  margin: 0 0 0.35rem;
+  font-size: 2.1rem;
+  font-weight: 700;
+}
+
+.tt-next-trip-date {
+  margin: 0;
+  font-size: 0.98rem;
+  opacity: 0.95;
+}
+
+.tt-next-trip-date--muted {
+  opacity: 0.8;
+}
+
+/* Badge de días restantes */
+.tt-next-trip-right {
+  display: flex;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.tt-next-trip-badge {
+  background-color: rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  padding: 1.1rem 2.1rem;
+  min-width: 170px;
+  text-align: center;
+  backdrop-filter: blur(6px);
+}
+
+.tt-next-trip-days {
+  margin: 0;
+  font-size: 2.4rem;
+  font-weight: 700;
+}
+
+.tt-next-trip-caption {
+  margin: 0.25rem 0 0;
+  font-size: 0.95rem;
+}
+
+/* TARJETAS RESUMEN */
+
+.tt-stats-grid {
+  margin-top: 2.2rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.2rem;
+}
+
+.tt-stat-card {
+  background-color: #ffffff;
+  border-radius: 22px;
+  padding: 1.1rem 1.3rem;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.tt-stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background-color: #eef2ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4f46e5;
+  flex-shrink: 0;
+}
+
+.tt-stat-icon-heart {
+  background-color: #fee2f2;
+  color: #db2777;
+}
+
+.tt-stat-label {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.tt-stat-value {
+  margin: 0.15rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* VIAJES CREADOS POR EL USUARIO */
+
+.tt-user-trips {
+  margin-top: 2.8rem;
+}
+
+.tt-user-trips-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1.2rem;
+}
+
+.tt-subtitle {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.tt-user-trips-empty {
+  margin: 0;
+  font-size: 0.96rem;
+  color: #6b7280;
+}
+
+/* Grid de cards de viaje reutilizando app-card-viaje */
+.tt-user-trips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.8rem;
+}
+
+/* Texto gris reutilizable */
+.tt-text-muted {
+  color: #6b7280;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 960px) {
+  .tt-profile-header {
+    padding: 1.75rem 1.4rem;
+  }
+
+  .tt-profile-main {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .tt-profile-main-info {
+    width: 100%;
+  }
+
+  .tt-profile-rating {
+    justify-content: center;
+  }
+
+  .tt-tagline-edit {
+    text-align: left;
+  }
+}
+
+@media (max-width: 768px) {
+  .tt-next-trip-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.6rem 1.7rem;
+  }
+
+  .tt-next-trip-left {
+    max-width: 100%;
+  }
+
+  .tt-next-trip-right {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .tt-next-trip-badge {
+    margin-top: 0.9rem;
+  }
+
+  .tt-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .tt-profile-wrapper {
+    padding-inline: 1rem;
+  }
+
+  .tt-profile-photo-ring {
+    width: 160px;
+    height: 160px;
+  }
+
+  .tt-user-trips-grid {
+    grid-template-columns: 1fr;
+  }
 }

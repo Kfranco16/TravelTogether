@@ -1,56 +1,68 @@
 <section class="tt-panel">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="tt-title mb-0">Mis viajes</h2>
-    <a routerLink="/crear-viaje" class="btn tt-btn-primary">+ Crear viaje</a>
-  </div>
+  <header class="tt-panel-header">
+    <h2 class="tt-title">Mis viajes</h2>
+  </header>
 
-  @if (error) {
-  <div class="alert alert-danger small mb-3">
-    {{ error }}
-  </div>
-  } @if (cargando) {
-  <p class="text-muted mb-0">Cargando tus viajes…</p>
-  } @else if (!cargando && viajes.length === 0) {
-  <p class="text-muted mb-0">Aún no has creado ningún viaje.</p>
-  } @else {
-  <div class="list-group tt-trip-list">
-    @for (v of viajes; track v.id) {
-    <a
-      class="list-group-item list-group-item-action d-flex justify-content-between align-items-center tt-trip-item"
-      [routerLink]="['/viaje', v.id]"
-    >
-      <div>
-        <!-- título -->
-        <h3 class="h6 mb-1">
-          {{ v.title }}
-        </h3>
+  @if (loading) {
+  <p class="tt-text-muted tt-center">Cargando tus viajes…</p>
+  } @else if (error) {
+  <p class="tt-text-error tt-center">{{ error }}</p>
+  } @else if (hasTrips()) {
 
-        <!-- destino -->
-        @if (v.destination) {
-        <p class="mb-0 text-muted small">
-          {{ v.destination }}
-        </p>
-        }
-      </div>
-
-      <div class="text-end">
-        <!-- fecha inicio -->
-        @if (v.start_date) {
-        <div class="small text-muted">
-          Inicio:
-          {{ v.start_date | date : 'dd/MM/yyyy' }}
+  <!-- LISTA DE VIAJES (ya la tienes implementada arriba, no la toco) -->
+  <div class="tt-trips-wrapper">
+    <ul class="tt-trip-list">
+      @for (viaje of viajes; track viaje.id) {
+      <li class="tt-trip-item" (click)="onOpenTrip(viaje.id)">
+        <div class="tt-trip-main">
+          <p class="tt-trip-title">{{ viaje.title }}</p>
+          <p class="tt-trip-subtitle">{{ viaje.destination }}</p>
         </div>
-        }
 
-        <!-- estado -->
-        @if (v.status) {
-        <span class="badge bg-light text-dark tt-badge-estado">
-          {{ v.status }}
-        </span>
-        }
+        <div class="tt-trip-meta">
+          <p class="tt-trip-date">Inicio: {{ viaje.start_date | date : 'dd/MM/yyyy' }}</p>
+
+          <button
+            type="button"
+            class="tt-btn tt-btn-danger tt-btn-sm"
+            (click)="onAskRemoveTrip(viaje, $event)"
+          >
+            Quitar
+          </button>
+        </div>
+      </li>
+      }
+    </ul>
+  </div>
+
+  } @else {
+
+  <!-- ESTADO SIN VIAJES -->
+  <div class="tt-empty-state">
+    <p class="tt-empty-text">
+      Todavía no has creado ningún viaje.<br />
+      Publica tu primera aventura para verla aquí.
+    </p>
+
+    <button class="tt-btn tt-btn-gradient tt-empty-btn" routerLink="/crear-viaje">
+      + Crear viaje
+    </button>
+  </div>
+
+  }
+
+  <!-- MODAL -->
+  @if (showConfirmModal && tripToDelete) {
+  <div class="tt-modal-backdrop">
+    <div class="tt-modal">
+      <h3 class="tt-modal-title">Eliminar viaje</h3>
+      <p class="tt-modal-text">¿Seguro que quieres eliminar este viaje?</p>
+
+      <div class="tt-modal-actions">
+        <button class="tt-btn tt-btn-secondary" (click)="closeConfirmModal()">Anular</button>
+        <button class="tt-btn tt-btn-danger" (click)="onConfirmRemoveTrip()">Confirmar</button>
       </div>
-    </a>
-    }
+    </div>
   </div>
   }
 </section>
