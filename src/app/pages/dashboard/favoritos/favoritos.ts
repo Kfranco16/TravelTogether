@@ -1,10 +1,13 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Pipe } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 
 import { AuthService } from '../../../core/services/auth';
 import { FavoritesService } from '../../../core/services/favorites';
+import { TripService } from '../../../core/services/viajes';
 import { Iuser as User } from '../../../interfaces/iuser';
 import { CardViaje } from '../../../components/card-viaje/card-viaje';
+import { forkJoin, of, from } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-favoritos',
@@ -16,13 +19,13 @@ import { CardViaje } from '../../../components/card-viaje/card-viaje';
 export class Favoritos {
   private auth = inject(AuthService);
   private favoritesService = inject(FavoritesService);
+  private tripService = inject(TripService);
 
   user: User | null = null;
   favoritos: any[] = [];
   loading = true;
   error: string | null = null;
 
-  // Estado del modal de confirmación
   showModal = false;
   favToRemove: any = null;
 
@@ -38,18 +41,55 @@ export class Favoritos {
 
     this.user = user;
 
-    this.favoritesService.getFavoritesByUser(user.id, token).subscribe({
-      next: (data: any[]) => {
-        this.favoritos = data || [];
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error cargando favoritos', err);
-        this.error = 'No se han podido cargar tus favoritos.';
-        this.loading = false;
-      },
-    });
+    this.favoritesService
+      .getFavoritesByUser(user.id, token)
+      .pipe(
+        switchMap((data: any[]) => {
+          const favoritos = data || [];
+
+          if (!favoritos.length) {
+            return of([]);
+          }
+
+          const requests = favoritos.map((fav) =>
+            from(this.tripService.getTripById(fav.trips_id)).pipe(
+              map((tripCompleto: any) => ({
+                ...fav,
+                trip: {
+                  ...tripCompleto,
+                  favoriteId: fav.id,
+                  isFavorite: true,
+                },
+              })),
+              catchError(() =>
+                of({
+                  ...fav,
+                  trip: {
+                    ...fav.trip,
+                    favoriteId: fav.id,
+                    isFavorite: true,
+                  },
+                })
+              )
+            )
+          );
+
+          return forkJoin(requests);
+        })
+      )
+      .subscribe({
+        next: (favoritosConTrip: any[]) => {
+          this.favoritos = favoritosConTrip;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Error cargando favoritos', err);
+          this.error = 'No se han podido cargar tus favoritos.';
+          this.loading = false;
+        },
+      });
   }
+
   trackByFavId(index: number, fav: any): number {
     return fav.id;
   }
@@ -57,8 +97,6 @@ export class Favoritos {
   hasFavorites(): boolean {
     return !this.loading && this.favoritos.length > 0;
   }
-
-  /* === Modal de confirmación === */
 
   onRemoveFavorite(fav: any): void {
     this.favToRemove = fav;

@@ -6,7 +6,6 @@ import { AuthService } from '../../core/services/auth';
 import { Iuser } from '../../interfaces/iuser';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { TripService } from '../../core/services/viajes';
-import { FavoritesService } from '../../core/services/favorites';
 
 @Pipe({ name: 'capitalizeFirst', standalone: true })
 export class CapitalizeFirstPipe implements PipeTransform {
@@ -18,75 +17,25 @@ export class CapitalizeFirstPipe implements PipeTransform {
 
 @Component({
   selector: 'app-card-viaje',
-  imports: [CardUsuario, Login, DatePipe, DecimalPipe, CapitalizeFirstPipe, RouterLink, Minilogin],
- 
+  imports: [CardUsuario, DatePipe, DecimalPipe, CapitalizeFirstPipe, Minilogin],
   templateUrl: './card-viaje.html',
   styleUrl: './card-viaje.css',
 })
 export class CardViaje {
   @Input() trip!: any;
-
   private tripService = inject(TripService);
-  private authService = inject(AuthService);
-  private favoritesService = inject(FavoritesService);
-  private router = inject(Router);
-
   usuario: Iuser | null = null;
 
-  // Imagen de portada
-  portadaImageUrl: string = 'images/coverDefault.jpg';
-  portadaImageAlt: string = 'Imagen de portada por defecto';
+  constructor(private authService: AuthService, private router: Router) {}
 
-  // ID del registro de favorito en BD (para poder borrarlo luego)
-  favoriteId: number | null = null;
-
-  ngOnInit() {
-    this.cargarImagenes(Number(this.trip?.id));
-
-    // Cargamos el usuario creador del viaje
-    this.authService.user$.subscribe((globalUser) => {
-      if (globalUser && this.trip?.creator_id === globalUser.id) {
-        this.usuario = globalUser;
-      } else if (this.trip?.creator_id) {
-        this.authService.getUserById(this.trip.creator_id).then((user) => {
-          this.usuario = user;
-        });
-      }
-    });
-
-    // Si hay usuario logado, comprobamos si ESTE viaje ya es favorito suyo
-    const token = this.authService.gettoken();
-    const currentUser = this.authService.getCurrentUser();
-
-    if (token && currentUser && this.trip?.id) {
-      this.favoritesService.isFavoriteByTrip(this.trip.id, token).subscribe({
-        next: (data: any) => {
-          // Dependiendo de cómo responda el backend:
-          // - si devuelve un array directamente -> lo usamos
-          // - si devuelve {results: [...]} -> usamos results
-          const list = Array.isArray(data)
-            ? data
-            : Array.isArray(data?.results)
-            ? data.results
-            : [];
-
-          const favDelUsuario = list.find((f: any) => f.user_id === currentUser.id);
-
-          if (favDelUsuario) {
-            this.trip.isFavorite = true;
-            this.favoriteId = favDelUsuario.id;
-          } else {
-            this.trip.isFavorite = false;
-            this.favoriteId = null;
-          }
-        },
-        error: () => {
-          this.trip.isFavorite = false;
-          this.favoriteId = null;
-        },
-      });
+  irADetalleViaje() {
+    if (this.trip && this.trip.id) {
+      this.router.navigate([`viaje/${this.trip.id}`]);
     }
   }
+
+  portadaImageUrl: string = 'images/coverDefault.jpg';
+  portadaImageAlt: string = 'Imagen de portada por defecto';
 
   cargarImagenes(tripId: number) {
     this.tripService.getImagesByTripId(tripId).subscribe({
