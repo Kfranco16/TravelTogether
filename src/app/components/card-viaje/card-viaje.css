@@ -10,6 +10,16 @@
   color: #5223b9;
 }
 
+.btn {
+  border: none;
+}
+
+.fav-icon-hover:hover {
+  color: #dc3545 !important;
+  text-shadow: 0 0 86px #dc3545;
+  transition: color 0.2s, text-shadow 0.2s;
+}
+
 .viaje-card {
   position: relative;
   cursor: pointer;

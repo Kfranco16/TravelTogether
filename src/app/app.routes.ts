@@ -23,6 +23,12 @@ export const routes: Routes = [
 
   // MI ESPACIO (Dashboard con rutas hijas)
   {
+    path: 'mis-valoraciones/:id',
+    component: ValoracionesPendientesComponent,
+    canActivate: [authGuard],
+  },
+  { path: 'valoraciones/:id', component: ViewRatings, canActivate: [authGuard] },
+  {
     path: 'dashboard',
     component: Dashboard,
     canActivate: [authGuard],

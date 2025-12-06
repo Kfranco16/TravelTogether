@@ -1,6 +1,5 @@
 @if (viaje; as trip) {
 <div class="card border-0 rounded-3 overflow-hidden mb-4">
-  <!-- Imagen del viaje/paisaje -->
   <img
     [src]="portadaImageUrl"
     [alt]="portadaImageAlt"
@@ -16,17 +15,18 @@
           <i class="bi bi-trash"></i> Eliminar viaje
         </button>
       </div>
-      } @if (esCreador) {
       <div class="d-flex align-items-start justify-content-start">
         <button class="btn btn-primary"><i class="bi bi-arrow-left-right"></i> Editar viaje</button>
       </div>
-
+      <div class="d-flex align-items-start justify-content-start">
+        <button class="btn btn-warning" (click)="goToValorarPage()">
+          <i class="bi bi-people"></i>Gestionar valoraciones
+        </button>
+      </div>
       }
     </div>
     <div class="row g-4">
-      <!-- Columna principal -->
       <div class="col-lg-8">
-        <!-- Imagen principal -->
         <div class="position-relative rounded overflow-hidden">
           <img
             [src]="mainImageUrl"
@@ -71,13 +71,11 @@
           </button>
         </div>
 
-        <!-- Descripción -->
         <section class="mt-4">
           <div class="fw-semibold fs-5 mb-1">Descripción del Viaje</div>
           <p class="mb-3">{{ trip.description }}</p>
         </section>
 
-        <!-- Itinerario -->
         <section class="mb-4">
           <div class="fw-semibold mb-2"><i class="bi bi-list-ul"></i> Itinerario</div>
           <ul class="list-group">
@@ -90,7 +88,6 @@
         <section class="mb-4">
           <div class="fw-semibold mb-2">¿Qué incluye?</div>
           <div class="row g-2">
-            <!-- Incluye -->
             <div class="col-12 col-md-6">
               <div class="fw-semibold mb-1 text-success">Incluye</div>
               @for (service of services; track service.control) { @if (detalleViaje[service.control]
@@ -98,7 +95,7 @@
               <div class="text-success mb-1">✓ {{ service.label }}</div>
               } }
             </div>
-            <!-- No incluye -->
+
             <div class="col-12 col-md-6">
               <div class="fw-semibold mb-1 text-danger">No incluye</div>
               @for (service of services; track service.control) { @if (detalleViaje[service.control]
@@ -109,23 +106,19 @@
           </div>
         </section>
 
-        <!-- Requisitos -->
         <section>
           <div class="fw-semibold mb-1"><i class="bi bi-exclamation-circle"></i> Requisitos</div>
           <p class="mb-3">{{ trip.requirements }}</p>
         </section>
       </div>
 
-      <!-- /Columna principal -->
-
-      <!-- Columna lateral -->
       <div class="col-lg-4">
         <div class="card shadow-sm mb-0 border-0 rounded-4 overflow-hidden">
           <div
             class="card-body d-flex align-items-center mb-1"
             style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
           >
-            <div class="user-link text-white" (click)="irADetalleUsuario()">
+            <div class="user-link text-white" (click)="irADetalleUsuario(usuario)">
               <app-card-usuario [usuario]="usuario"></app-card-usuario>
             </div>
           </div>
@@ -134,7 +127,10 @@
             style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
             (click)="irAValoraciones()"
           >
-            <h6 class="m-1 fs-4text-center">Ver valoraciones de {{ usuario?.username }}</h6>
+            <p class="m-1 fs-5 fw-semibold text-center text-shadow-black">
+              <i class="bi-stars text-warning"></i> Ver valoraciones de
+              {{ usuario?.username }}
+            </p>
           </div>
         </div>
         <div class="">
@@ -147,6 +143,10 @@
         <div class="card shadow-sm mb-3">
           <div class="card-body">
             <div class="fw-semibold mb-3">Detalles</div>
+            <div>
+              <i class="bi bi-geo-alt"></i> <b> Origen:</b>
+              {{ trip.origin }}
+            </div>
             <div>
               <i class="bi bi-calendar-date"></i> <b> Fecha de inicio:</b>
               {{ trip.start_date | date : 'dd/MM/yyyy' }}
@@ -167,47 +167,27 @@
 
         <div class="card shadow-sm mb-3">
           <div class="card-body">
-            <div class="fw-semibold mb-2">Transporte</div>
+            <div class="fw-semibold mb-2"><i class="bi bi-truck"></i> Transporte:</div>
             <div class="">{{ trip.transport }}</div>
-            <div class="fw-semibold mt-3 mb-2">Alojamiento</div>
+            <div class="fw-semibold mt-3 mb-2"><i class="bi bi-house"></i> Alojamiento:</div>
             <div class="">{{ trip.accommodation }}</div>
           </div>
         </div>
 
-        <!-- Compañeros de viaje -->
         <div class="fw-semibold mb-3 mt-3">Compañeros de viaje:</div>
+        @for (participant of participants; track participant.userId) {
         <div class="card shadow-sm mb-4 border-0 rounded-4 overflow-hidden">
           <div
             class="card-body d-flex align-items-center"
-            style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 85%, #3b82f6 100%)"
+            style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
           >
-            <div class="user-link text-white" (click)="irADetalleUsuario()">
-              <app-card-usuario [usuario]="usuario"></app-card-usuario>
+            <div class="user-link text-white" (click)="irADetalleUsuario(participant)">
+              <app-card-usuario [usuario]="participant"></app-card-usuario>
             </div>
           </div>
         </div>
-        <div class="card shadow-sm mb-4 border-0 rounded-4 overflow-hidden">
-          <div
-            class="card-body d-flex align-items-center"
-            style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 85%, #3b82f6 100%)"
-          >
-            <div class="user-link text-white" (click)="irADetalleUsuario()">
-              <app-card-usuario [usuario]="usuario"></app-card-usuario>
-            </div>
-          </div>
-        </div>
-        <div class="card shadow-sm mb-4 border-0 rounded-4 overflow-hidden">
-          <div
-            class="card-body d-flex align-items-center"
-            style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 85%, #3b82f6 100%)"
-          >
-            <div class="user-link text-white" (click)="irADetalleUsuario()">
-              <app-card-usuario [usuario]="usuario"></app-card-usuario>
-            </div>
-          </div>
-        </div>
+        }
 
-        <!-- Foro del viaje -->
         <div class="card shadow-sm mb-3 rounded-4">
           <div class="card-body">
             <div class="fw-semibold mb-2">Foro del viaje</div>
@@ -215,8 +195,6 @@
           </div>
         </div>
       </div>
-
-      <!-- /Columna lateral -->
     </div>
   </div>
 </div>

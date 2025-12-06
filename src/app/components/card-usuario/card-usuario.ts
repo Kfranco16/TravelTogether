@@ -69,7 +69,7 @@ export class CardUsuario {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
     try {
-      this.trip = await this.tripService.getTripById(Number(id));
+      // this.trip = await this.tripService.getTripById(Number(id));
       console.log('Viaje:', this.trip);
       const userId = this.usuario?.id;
       const token = localStorage.getItem('tt_token') || '';

@@ -1,6 +1,6 @@
 import { Component, inject, Input, Pipe, PipeTransform } from '@angular/core';
 import { CardUsuario } from '../card-usuario/card-usuario';
-import { Login } from '../../pages/login/login';
+import { Minilogin } from '../minilogin/minilogin';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
 import { Iuser } from '../../interfaces/iuser';
@@ -18,7 +18,8 @@ export class CapitalizeFirstPipe implements PipeTransform {
 
 @Component({
   selector: 'app-card-viaje',
-  imports: [CardUsuario, Login, DatePipe, DecimalPipe, CapitalizeFirstPipe, RouterLink],
+  imports: [CardUsuario, Login, DatePipe, DecimalPipe, CapitalizeFirstPipe, RouterLink, Minilogin],
+ 
   templateUrl: './card-viaje.html',
   styleUrl: './card-viaje.css',
 })
@@ -102,10 +103,38 @@ export class CardViaje {
     });
   }
 
-  irADetalleViaje() {
-    if (this.trip && this.trip.id) {
-      this.router.navigate([`viaje/${this.trip.id}`]);
-    }
+  ngOnInit() {
+    this.cargarImagenes(Number(this.trip?.id));
+
+    this.authService.user$.subscribe((globalUser) => {
+      if (globalUser && this.trip?.creator_id === globalUser.id) {
+        this.usuario = globalUser;
+      } else if (this.trip?.creator_id) {
+        this.authService.getUserById(this.trip.creator_id).then((user) => {
+          this.usuario = user;
+        });
+      }
+
+      if (globalUser && this.trip?.id) {
+        const token = this.authService.gettoken();
+        this.tripService.isFavoriteByTrip(this.trip.id, token!).subscribe({
+          next: (favorites) => {
+            if (favorites && favorites.length > 0) {
+              this.trip.isFavorite = true;
+
+              this.trip.favoriteId = favorites[0].id;
+            } else {
+              this.trip.isFavorite = false;
+              this.trip.favoriteId = null;
+            }
+          },
+          error: () => {
+            this.trip.isFavorite = false;
+            this.trip.favoriteId = null;
+          },
+        });
+      }
+    });
   }
 
   irADetalleUsuario() {
@@ -161,52 +190,29 @@ export class CardViaje {
   }
 
   toggleFavorito(trip: any) {
-    if (!this.isLoggedIn()) {
-      // Si quieres, aquí puedes redirigir a login:
-      // this.router.navigate(['/login']);
-      return;
-    }
-
+    if (!this.isLoggedIn()) return;
     const token = this.authService.gettoken();
-    const user = this.authService.getCurrentUser();
 
-    if (!token || !user) return;
-
-    // Si NO es favorito todavía -> creamos el favorito
     if (!trip.isFavorite) {
-      this.favoritesService.addFavorite(trip.id, token).subscribe({
-        next: (fav: any) => {
+      this.tripService.addFavorite(trip.id, token!).subscribe({
+        next: (favorite) => {
           trip.isFavorite = true;
 
-          // Intentamos capturar el id que devuelve el backend
-          this.favoriteId =
-            fav?.id ??
-            fav?.favorite?.id ??
-            (Array.isArray(fav?.results) ? fav.results[0]?.id : null);
-
-          // Por si queremos guardarlo también en el propio trip
-          trip.favoriteId = this.favoriteId;
+          trip.favoriteId = favorite.id;
         },
-        error: (err) => {
-          console.error('Error creando favorito', err);
+        error: () => {
+          trip.isFavorite = false;
         },
       });
     } else {
-      // Ya es favorito -> lo eliminamos si tenemos su id
-      const idToDelete = this.favoriteId ?? trip.favoriteId;
-      if (!idToDelete) {
-        console.warn('No tenemos id de favorito para borrar');
-        return;
-      }
-
-      this.favoritesService.removeFavoriteById(idToDelete, token).subscribe({
+      if (!trip.favoriteId) return;
+      this.tripService.removeFavoriteById(trip.favoriteId, token!).subscribe({
         next: () => {
           trip.isFavorite = false;
-          this.favoriteId = null;
           trip.favoriteId = null;
         },
-        error: (err) => {
-          console.error('Error eliminando favorito', err);
+        error: () => {
+          trip.isFavorite = true;
         },
       });
     }
@@ -214,7 +220,7 @@ export class CardViaje {
 
   toggleSolicitud(trip: any) {
     trip.solicitado = !trip.solicitado;
-    // Futura llamada a la API para la solicitud de unirse al viaje.
+    // Futura llamada a la API para solicitar unirse al viaje
   }
 
   getGoogleMapsUrl(lat: number, lng: number, zoom: number): string {
