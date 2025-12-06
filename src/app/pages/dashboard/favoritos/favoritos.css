@@ -1,177 +1,137 @@
-.tt-panel {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
-}
-
-/* Cabecera y título */
-.tt-panel-header {
-  text-align: center;
-  margin-bottom: 1.5rem;
-}
-
-.tt-title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem;
-
-  /* Gradiente TravelTogether */
-  background: linear-gradient(90deg, #a259ff, #6c5ce7);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
+.tt-title-morado {
+  color: #6f42c1;
+  font-weight: 600;
 }
 
 .tt-subtitle-small {
-  margin: 0;
   font-size: 0.95rem;
-  color: #6b7280;
+  color: #6c757d;
 }
 
-/* Textos de estado */
 .tt-text-muted {
-  text-align: center;
-  color: #6b7280;
-  margin-top: 1rem;
+  color: #6c757d;
 }
 
 .tt-text-error {
-  text-align: center;
-  color: #dc2626;
-  margin-top: 1rem;
-  font-weight: 500;
+  color: #dc3545;
 }
 
-/* Grid de favoritos */
-.tt-favs-grid {
-  margin-top: 1.5rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 2rem;
-  justify-items: center;
-}
-
-/* Tarjeta que envuelve la card de viaje + meta */
-.tt-fav-card {
-  width: 100%;
-  max-width: 340px;
-  border-radius: 24px;
-  background: #ffffff;
-  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Footer de la tarjeta (fecha + botón quitar) */
 .tt-fav-meta {
-  padding: 0.9rem 1.2rem 1.1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  border-top: 1px solid #e5e7eb;
+  font-size: 0.9rem;
+  color: #6c757d;
 }
 
 .tt-fav-date {
-  margin: 0;
-  font-size: 0.85rem;
-  color: #6b7280;
+  margin-bottom: 0.25rem;
 }
-
-/* Botones generales reutilizables */
-.tt-btn {
-  font-size: 0.85rem;
-  font-weight: 600;
-  border-radius: 999px;
-  padding: 0.45rem 1.1rem;
-  cursor: pointer;
-  border: none;
-}
-
-/* Botón "Quitar" en rojo suave */
-.tt-btn-danger {
-  background: #fee2e2;
-  color: #b91c1c;
-  box-shadow: 0 8px 18px rgba(220, 38, 38, 0.18);
-  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
-}
-
-.tt-btn-danger:hover {
-  background: #fecaca;
-  transform: translateY(-1px);
-  box-shadow: 0 10px 22px rgba(220, 38, 38, 0.28);
-}
-
-/* === Modal personalizado === */
 
 .tt-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.55);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 1050;
 }
 
 .tt-modal {
   background: #ffffff;
-  padding: 2rem;
-  border-radius: 24px;
-  width: 380px;
-  max-width: 90%;
-  text-align: center;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.35);
+  border-radius: 0.75rem;
+  padding: 1.5rem 1.75rem;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
 }
 
-.tt-modal h3 {
+.tt-modal-title {
   margin: 0 0 0.75rem;
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #111827;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #6f42c1;
 }
 
-.tt-modal p {
-  margin: 0;
+.tt-modal-text {
+  margin-bottom: 1.25rem;
   font-size: 0.95rem;
-  color: #4b5563;
+  color: #495057;
 }
 
 .tt-modal-buttons {
-  margin-top: 1.5rem;
   display: flex;
-  justify-content: center;
-  gap: 0.75rem;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
-/* Botones del modal */
-.tt-btn-secondary {
-  background: #f3f4f6;
-  color: #111827;
+.tt-btn.tt-btn-secondary.btn {
+  background-color: #ffffff;
+  border: 1px solid #6c757d;
+  color: #6c757d;
 }
 
-.tt-btn-primary {
-  background: linear-gradient(90deg, #a259ff, #6c5ce7);
+.tt-btn.tt-btn-primary.btn {
+  background-color: #6f42c1;
+  border-color: #6f42c1;
   color: #ffffff;
-  box-shadow: 0 10px 25px rgba(129, 140, 248, 0.4);
-  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
 }
 
-.tt-btn-primary:hover {
-  filter: brightness(1.05);
+.tt-btn.tt-btn-secondary.btn:hover {
+  background-color: #f8f9fa;
+}
+
+.tt-btn.tt-btn-primary.btn:hover {
+  background-color: #5a32a3;
+  border-color: #5a32a3;
+}
+
+.tt-btn.tt-btn-danger.btn {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: #ffffff;
+}
+
+.tt-fav-card-wrapper {
+  background: #ffffff;
+  border-radius: 1.5rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.tt-fav-card-wrapper app-card-viaje {
+  display: block;
+}
+
+.tt-fav-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1.2rem;
+  background: #ffffff;
+  border-top: 1px solid #f1f1f1;
+}
+
+.tt-fav-footer-text {
+  font-size: 0.9rem;
+  color: #6c757d;
+  line-height: 1.2;
+}
+
+.tt-fav-footer-btn {
+  border: none;
+  outline: none;
+  border-radius: 999px;
+  padding: 0.4rem 1.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #c0392b;
+  background: #ffe3e3;
+  box-shadow: 0 0 20px rgba(255, 99, 132, 0.35);
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.tt-fav-footer-btn:hover {
+  background: #ffd0d0;
+  box-shadow: 0 0 24px rgba(255, 99, 132, 0.45);
   transform: translateY(-1px);
-  box-shadow: 0 14px 32px rgba(129, 140, 248, 0.55);
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .tt-panel {
-    padding-inline: 1rem;
-  }
-
-  .tt-fav-card {
-    max-width: 100%;
-  }
 }
