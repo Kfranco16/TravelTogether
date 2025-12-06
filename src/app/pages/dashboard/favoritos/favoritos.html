@@ -1,39 +1,59 @@
-<!-- src/app/pages/dashboard/favoritos/favoritos.html -->
 <section class="tt-panel">
-  <h2 class="tt-title mb-3">Mis favoritos</h2>
+  <header class="tt-panel-header">
+    <h2 class="tt-title">Mis favoritos</h2>
 
-  @if (loading) {
-  <p class="text-muted">Cargando tus viajes favoritos…</p>
-  } @else if (error) {
-  <p class="text-danger">{{ error }}</p>
-  } @else if (!favoritos.length) {
-  <p class="text-muted">
-    Todavía no tienes viajes en favoritos. Cuando marques un viaje con el corazón, aparecerá aquí.
+    <p class="tt-subtitle-small" *ngIf="!loading && !error && favoritos.length">
+      Tienes {{ favoritos.length }} viaje{{ favoritos.length > 1 ? 's' : '' }} guardado{{
+        favoritos.length > 1 ? 's' : ''
+      }}
+      en favoritos.
+    </p>
+  </header>
+
+  <!-- Estados de carga / error / vacío -->
+  <p class="tt-text-muted" *ngIf="loading">Cargando tus favoritos...</p>
+
+  <p class="tt-text-error" *ngIf="!loading && error">
+    {{ error }}
   </p>
-  } @else {
-  <ul class="list-group tt-fav-list">
-    @for (fav of favoritos; track fav.id) {
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-      <div>
-        <!-- Intentamos mostrar info del viaje si viene anidada -->
-        <strong>
-          {{ fav.trip?.title || 'Viaje #' + fav.trip_id }}
-        </strong>
-        @if (fav.trip?.destination) {
-        <div class="small text-muted">
-          {{ fav.trip.destination }}
-        </div>
-        }
-      </div>
 
-      <a
-        [routerLink]="['/viaje', fav.trip?.id || fav.trip_id]"
-        class="btn btn-sm btn-outline-secondary"
-      >
-        Ver viaje
-      </a>
-    </li>
-    }
-  </ul>
-  }
+  <p class="tt-text-muted" *ngIf="!loading && !error && !favoritos.length">
+    Aún no tienes viajes en favoritos. Marca con el corazón los viajes que te gusten para verlos
+    aquí.
+  </p>
+
+  <!-- Grid de favoritos -->
+  <div class="tt-favs-grid" *ngIf="hasFavorites()">
+    <article class="tt-fav-card" *ngFor="let fav of favoritos; trackBy: trackByFavId">
+      <!-- Reutilizamos la card de viaje.
+           Si el backend devuelve { trip: {...} } la usamos, si no usamos fav directamente. -->
+      <app-card-viaje [trip]="fav.trip || fav"></app-card-viaje>
+
+      <footer class="tt-fav-meta">
+        <p class="tt-fav-date">
+          Añadido a favoritos
+          <ng-container *ngIf="fav.created_at">
+            el {{ fav.created_at | date : 'dd/MM/yyyy' }}
+          </ng-container>
+        </p>
+
+        <button type="button" class="tt-btn tt-btn-danger" (click)="onRemoveFavorite(fav)">
+          Quitar
+        </button>
+      </footer>
+    </article>
+  </div>
+
+  <!-- Modal personalizado de confirmación -->
+  <div class="tt-modal-overlay" *ngIf="showModal">
+    <div class="tt-modal">
+      <h3>Quitar de favoritos</h3>
+      <p>¿Seguro que quieres eliminar este viaje de tus favoritos?</p>
+
+      <div class="tt-modal-buttons">
+        <button class="tt-btn tt-btn-secondary" (click)="cancelRemove()">Anular</button>
+        <button class="tt-btn tt-btn-primary" (click)="confirmRemove()">Confirmar</button>
+      </div>
+    </div>
+  </div>
 </section>
