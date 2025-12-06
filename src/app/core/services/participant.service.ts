@@ -192,10 +192,8 @@ export class ParticipantService {
         headers,
       })
       .pipe(
-        // Log exitoso para debugging
+        // Limpiar cualquier error anterior
         tap((response) => {
-          console.log('✅ Solicitud de participación creada:', response);
-          // Limpiar cualquier error anterior
           this.errorSignal.set(null);
         }),
         // Manejar errores
@@ -247,9 +245,7 @@ export class ParticipantService {
         headers,
       })
       .pipe(
-        // Si la respuesta es exitosa
         tap((response) => {
-          console.log('✅ Solicitudes pendientes obtenidas:', response);
           // Guardar en el signal para reactividad
           this.pendingParticipations.set(response.data);
           this.loadingSignal.set(false);
@@ -303,10 +299,7 @@ export class ParticipantService {
       )
       .pipe(
         tap((response) => {
-          console.log('✅ Participante aprobado:', response);
           this.errorSignal.set(null);
-          // Recargar solicitudes pendientes después de aprobar
-          this.refreshPendingParticipations();
         }),
         catchError((error) => {
           const errorMsg = error?.error?.message || 'Error al aprobar participante';
@@ -354,10 +347,7 @@ export class ParticipantService {
       )
       .pipe(
         tap((response) => {
-          console.log('✅ Participante rechazado:', response);
           this.errorSignal.set(null);
-          // Recargar solicitudes pendientes después de rechazar
-          this.refreshPendingParticipations();
         }),
         catchError((error) => {
           const errorMsg = error?.error?.message || 'Error al rechazar participante';
@@ -402,7 +392,6 @@ export class ParticipantService {
       })
       .pipe(
         tap((response) => {
-          console.log('✅ Viajes creados obtenidos:', response);
           this.myCreatedTrips.set(response.data);
           this.loadingSignal.set(false);
           this.errorSignal.set(null);
@@ -423,20 +412,6 @@ export class ParticipantService {
   // ========================================================================
   // MÉTODOS PRIVADOS / UTILIDADES
   // ========================================================================
-
-  /**
-   * Método privado para refrescar las solicitudes pendientes
-   * Se utiliza después de aprobar o rechazar un participante
-   * para mantener los datos sincronizados
-   *
-   * @private
-   */
-  private refreshPendingParticipations(): void {
-    // Hacer petición silenciosa para actualizar datos
-    firstValueFrom(this.getPendingParticipations()).catch((error) => {
-      console.warn('No se pudieron refrescar las solicitudes:', error);
-    });
-  }
 
   /**
    * Método para limpiar los signals (útil en logout)

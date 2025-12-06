@@ -127,8 +127,6 @@ export class PendingParticipationsComponent implements OnInit {
       // 📡 Llamar al servicio usando async/await
       const response = await firstValueFrom(this.participantService.getPendingParticipations());
 
-      console.log('📥 Respuesta del API:', response);
-
       // Guardar el mensaje del servidor
       this.successMessage = response.message;
       this.pendingParticipations = response.data;
@@ -138,8 +136,6 @@ export class PendingParticipationsComponent implements OnInit {
       toast.success(`Se encontraron ${response.data.length} solicitudes pendientes`, {
         description: this.successMessage,
       });
-
-      console.log(`✅ ${response.data.length} solicitudes cargadas exitosamente`);
     } catch (error: any) {
       // ❌ Manejo de error
       console.error('❌ Error al cargar solicitudes:', error);
@@ -218,9 +214,11 @@ export class PendingParticipationsComponent implements OnInit {
       const response = await firstValueFrom(
         this.participantService.approveParticipant(participationId)
       );
-      console.log('✅ Participante aprobado:', response);
       toast.success('Participante aprobado correctamente');
-      // La lista se recargará automáticamente gracias a refreshPendingParticipations() en el service
+      // Recargar las solicitudes pendientes
+      await this.loadPendingParticipations();
+      // También actualizar los viajes creados para reflejar el nuevo participante aceptado
+      await this.loadMyCreatedTrips();
     } catch (error: any) {
       const errorMsg = error?.message || 'Error al aprobar participante';
       console.error('❌ Error:', errorMsg);
@@ -239,9 +237,9 @@ export class PendingParticipationsComponent implements OnInit {
       const response = await firstValueFrom(
         this.participantService.rejectParticipant(participationId)
       );
-      console.log('✅ Participante rechazado:', response);
       toast.success('Participante rechazado correctamente');
-      // La lista se recargará automáticamente gracias a refreshPendingParticipations() en el service
+      // Recargar las solicitudes pendientes
+      await this.loadPendingParticipations();
     } catch (error: any) {
       const errorMsg = error?.message || 'Error al rechazar participante';
       console.error('❌ Error:', errorMsg);
@@ -269,8 +267,6 @@ export class PendingParticipationsComponent implements OnInit {
         this.participantService.getMyCreatedTripsWithParticipants()
       );
 
-      console.log('📥 Viajes creados obtenidos:', response);
-
       this.successMessage = response.message;
       this.myCreatedTrips = response.data;
       this.debugResponseData = response;
@@ -278,8 +274,6 @@ export class PendingParticipationsComponent implements OnInit {
       toast.success(`Se encontraron ${response.data.length} viaje(s) creado(s)`, {
         description: this.successMessage,
       });
-
-      console.log(`✅ ${response.data.length} viajes cargados exitosamente`);
     } catch (error: any) {
       console.error('❌ Error al cargar viajes:', error);
 
@@ -306,32 +300,12 @@ export class PendingParticipationsComponent implements OnInit {
   /**
    * Obtener los participantes aceptados de un viaje específico
    *
-   * WORKAROUND: Debido a un bug en la API donde all_related_participants está vacío,
-   * usamos accepted_participants_json como fallback.
+   * Filtra solo los participantes con status 'accepted' del array all_related_participants
    *
    * @param trip - Viaje del cual obtener participantes aceptados
    * @returns Array de participantes con status 'accepted'
    */
   getAcceptedParticipants(trip: MyCreatedTrip) {
-    // Primero intentar con all_related_participants (cuando el bug se arregle)
-    if (trip.all_related_participants && trip.all_related_participants.length > 0) {
-      return trip.all_related_participants.filter((p) => p.status === 'accepted');
-    }
-
-    // FALLBACK: Parsear accepted_participants_json si está disponible
-    // TODO: Remover este fallback cuando el backend corrija el endpoint
-    /* if ((trip as any).accepted_participants_json) {
-      try { */
-    // El JSON viene como string separado por comas, necesitamos arreglarlo
-    /* const jsonString = `[${(trip as any).accepted_participants_json}]`;
-        const participants = JSON.parse(jsonString);
-        return participants.filter((p: any) => p.status === 'accepted');
-      } catch (error) {
-        console.error('❌ Error parseando accepted_participants_json:', error);
-        return [];
-      }
-    } */
-
-    return [];
+    return trip.all_related_participants.filter((p) => p.status === 'accepted');
   }
 }
