@@ -196,7 +196,7 @@ export class ValoracionesPendientesComponent implements OnInit {
         const organizer: TripUser = {
           userId: trip.creator_id,
           username: currentUser.username ?? 'Yo',
-          avatarUrl: currentUser.image_url ?? trip.trip_image_url ?? '',
+          avatarUrl: currentUser.image_url ?? trip.trip_creator_url ?? '',
           isRated: true,
           rating: null,
         };

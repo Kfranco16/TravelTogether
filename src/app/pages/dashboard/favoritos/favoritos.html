@@ -1,59 +1,65 @@
 <section class="tt-panel">
-  <header class="tt-panel-header">
-    <h2 class="tt-title">Mis favoritos</h2>
+  <header class="tt-panel-header text-center">
+    <h2 class="tt-title tt-title-morado">Mis favoritos</h2>
 
-    <p class="tt-subtitle-small" *ngIf="!loading && !error && favoritos.length">
+    @if (!loading && !error && favoritos.length) {
+    <p class="tt-subtitle-small mt-2">
       Tienes {{ favoritos.length }} viaje{{ favoritos.length > 1 ? 's' : '' }} guardado{{
         favoritos.length > 1 ? 's' : ''
       }}
       en favoritos.
     </p>
+    }
   </header>
 
-  <!-- Estados de carga / error / vacío -->
-  <p class="tt-text-muted" *ngIf="loading">Cargando tus favoritos...</p>
-
-  <p class="tt-text-error" *ngIf="!loading && error">
+  @if (loading) {
+  <p class="tt-text-muted text-center mt-3">Cargando tus favoritos...</p>
+  } @if (!loading && error) {
+  <p class="tt-text-error text-center mt-3">
     {{ error }}
   </p>
-
-  <p class="tt-text-muted" *ngIf="!loading && !error && !favoritos.length">
+  } @if (!loading && !error && !favoritos.length) {
+  <p class="tt-text-muted text-center mt-3">
     Aún no tienes viajes en favoritos. Marca con el corazón los viajes que te gusten para verlos
     aquí.
   </p>
+  } @if (hasFavorites()) {
+  <div class="container my-3">
+    <div class="row g-4">
+      @for (fav of favoritos; track trackByFavId($index, fav)) {
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="tt-fav-card-wrapper">
+          <app-card-viaje [trip]="fav.trip"></app-card-viaje>
 
-  <!-- Grid de favoritos -->
-  <div class="tt-favs-grid" *ngIf="hasFavorites()">
-    <article class="tt-fav-card" *ngFor="let fav of favoritos; trackBy: trackByFavId">
-      <!-- Reutilizamos la card de viaje.
-           Si el backend devuelve { trip: {...} } la usamos, si no usamos fav directamente. -->
-      <app-card-viaje [trip]="fav.trip || fav"></app-card-viaje>
+          <footer class="tt-fav-footer">
+            <div class="tt-fav-footer-text">
+              Añadido a favoritos @if (fav.created_at) {
+              <div>{{ fav.created_at | date : 'dd/MM/yyyy' }}</div>
+              }
+            </div>
 
-      <footer class="tt-fav-meta">
-        <p class="tt-fav-date">
-          Añadido a favoritos
-          <ng-container *ngIf="fav.created_at">
-            el {{ fav.created_at | date : 'dd/MM/yyyy' }}
-          </ng-container>
-        </p>
-
-        <button type="button" class="tt-btn tt-btn-danger" (click)="onRemoveFavorite(fav)">
-          Quitar
-        </button>
-      </footer>
-    </article>
+            <button type="button" class="tt-fav-footer-btn" (click)="onRemoveFavorite(fav)">
+              Quitar
+            </button>
+          </footer>
+        </div>
+      </div>
+      }
+    </div>
   </div>
-
-  <!-- Modal personalizado de confirmación -->
-  <div class="tt-modal-overlay" *ngIf="showModal">
+  } @if (showModal) {
+  <div class="tt-modal-overlay">
     <div class="tt-modal">
-      <h3>Quitar de favoritos</h3>
-      <p>¿Seguro que quieres eliminar este viaje de tus favoritos?</p>
+      <h3 class="tt-modal-title">Quitar de favoritos</h3>
+      <p class="tt-modal-text">¿Seguro que quieres eliminar este viaje de tus favoritos?</p>
 
       <div class="tt-modal-buttons">
-        <button class="tt-btn tt-btn-secondary" (click)="cancelRemove()">Anular</button>
-        <button class="tt-btn tt-btn-primary" (click)="confirmRemove()">Confirmar</button>
+        <button class="tt-btn tt-btn-secondary btn btn-sm" (click)="cancelRemove()">Anular</button>
+        <button class="tt-btn tt-btn-primary btn btn-sm" (click)="confirmRemove()">
+          Confirmar
+        </button>
       </div>
     </div>
   </div>
+  }
 </section>
