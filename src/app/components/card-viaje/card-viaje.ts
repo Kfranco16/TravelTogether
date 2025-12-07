@@ -1,7 +1,7 @@
 import { Component, inject, Input, Pipe, PipeTransform } from '@angular/core';
 import { CardUsuario } from '../card-usuario/card-usuario';
 import { Minilogin } from '../minilogin/minilogin';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
 import { Iuser } from '../../interfaces/iuser';
 import { DatePipe, DecimalPipe } from '@angular/common';
@@ -24,7 +24,9 @@ export class CapitalizeFirstPipe implements PipeTransform {
 export class CardViaje {
   @Input() trip!: any;
   private tripService = inject(TripService);
-  usuario: Iuser | null = null;
+
+  usuario: Iuser | null = null; // dueño del viaje (creator)
+  currentUser: Iuser | null = null; // usuario logueado
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -56,6 +58,8 @@ export class CardViaje {
     this.cargarImagenes(Number(this.trip?.id));
 
     this.authService.user$.subscribe((globalUser) => {
+      this.currentUser = globalUser;
+
       if (globalUser && this.trip?.creator_id === globalUser.id) {
         this.usuario = globalUser;
       } else if (this.trip?.creator_id) {
@@ -70,7 +74,6 @@ export class CardViaje {
           next: (favorites) => {
             if (favorites && favorites.length > 0) {
               this.trip.isFavorite = true;
-
               this.trip.favoriteId = favorites[0].id;
             } else {
               this.trip.isFavorite = false;
@@ -140,13 +143,18 @@ export class CardViaje {
 
   toggleFavorito(trip: any) {
     if (!this.isLoggedIn()) return;
+
+    // Bloquear favoritos en viajes propios
+    if (this.currentUser && trip.creator_id === this.currentUser.id) {
+      return;
+    }
+
     const token = this.authService.gettoken();
 
     if (!trip.isFavorite) {
       this.tripService.addFavorite(trip.id, token!).subscribe({
         next: (favorite) => {
           trip.isFavorite = true;
-
           trip.favoriteId = favorite.data[0].id;
         },
         error: () => {

@@ -26,15 +26,17 @@
     <div class="fw-semibold fs-5">
       {{ usuario.username }}
     </div>
-    @if (usuarioValoracion != null) {
+
     <div class="d-flex align-items-center gap-1 text-shadow-black mt-1">
-      @for (estrella of getEstrellas(usuarioValoracion); track estrella.icon + estrella.color +
-      $index) {
+      @if (usuarioValoracion != null) { @for (estrella of getEstrellas(usuarioValoracion); track
+      estrella.icon + estrella.color + $index) {
       <i class="bi {{ estrella.icon }} {{ estrella.color }}"></i>
       }
       <span class="ms-2">{{ usuarioValoracion }}</span>
+      } @else {
+      <span>Aún por valorar</span>
+      }
     </div>
-    }
   </div>
 </div>
 }

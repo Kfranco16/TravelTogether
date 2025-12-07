@@ -31,7 +31,16 @@ export class CardUsuario {
           this.usuarioValoracion = rating;
         },
         error: (error) => {
-          this.usuarioValoracion = null;
+          if (error.status === 404) {
+            // Usuario sin valoración: lo tratamos como caso normal
+            this.usuarioValoracion = null;
+            // Quita este console.error si no quieres ver nada:
+            // console.warn('Usuario sin valoración', this.usuario.id);
+          } else {
+            // Solo loguea errores reales
+            console.error('Error obteniendo valoración:', error);
+            this.usuarioValoracion = null;
+          }
         },
       });
     }

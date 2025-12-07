@@ -4,6 +4,9 @@ import { BehaviorSubject, lastValueFrom, map, Observable, tap } from 'rxjs';
 import { environment } from '../../../environment/environment';
 import { Iuser } from '../../interfaces/iuser';
 import { HttpHeaders } from '@angular/common/http';
+import { catchError } from 'rxjs/operators';
+import { HttpErrorResponse } from '@angular/common/http';
+import { of, throwError } from 'rxjs';
 
 type LoginPayload = { email: string; password: string };
 type LoginResponse = { message: string; token: string; user: Iuser };
@@ -84,11 +87,26 @@ export class AuthService {
     this._user$.next(user);
   }
 
-  getUserById(id: number): Promise<Iuser> {
+  getUserById(id: number): Promise<Iuser | null> {
     const token = this.gettoken();
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    return lastValueFrom(this.http.get<Iuser>(`${environment.apiUrl}/users/${id}`, { headers }));
+
+    return lastValueFrom(
+      this.http.get<Iuser>(`${environment.apiUrl}/users/${id}`, { headers }).pipe(
+        catchError((error: HttpErrorResponse) => {
+          if (error.status === 404) {
+            // Usuario no existe / borrado -> lo tratamos como null y no sacamos error ruidoso
+            // console.warn('Usuario no encontrado', id); // opcional
+            return of(null as any);
+          }
+          // Otros errores sí quieres verlos
+          console.error('Error getUserById', id, error);
+          return throwError(() => error);
+        })
+      )
+    );
   }
+
   getUserRating(userId: number, token: string): Observable<number> {
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     return this.http
