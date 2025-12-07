@@ -1,63 +1,69 @@
-<!-- ============================================================================
-     PENDING PARTICIPATIONS - TEMPLATE
-     ============================================================================
-     Vista temporal para debugging de solicitudes de participación.
-     Muestra toda la información del API en formato legible y JSON.
-     ============================================================================ -->
-
-<div class="container my-5">
-  <!-- Encabezado -->
-  <div class="row mb-4">
-    <div class="col">
-      <h1 class="mb-2">
-        <i class="bi bi-person-check"></i>
-        Gestión de Participantes en Mis Viajes
+<!-- TRAVEL MANAGEMENT - TEMPLATE -->
+<div class="container-fluid py-5">
+  <!-- HEADER -->
+  <div class="mb-5">
+    <div class="travel-header">
+      <h1 class="mb-3">
+        <i class="bi bi-map"></i>
+        Gestión de Viajes
       </h1>
-      <p class="text-muted">
-        Administra solicitudes pendientes y visualiza participantes aceptados
+      <p class="lead text-muted">
+        Administra tus solicitudes, participantes y viajes en un solo lugar
       </p>
     </div>
   </div>
 
-  <!-- Pestañas de navegación -->
-  <div class="mb-4">
-    <div class="btn-group" role="group">
-      <button
-        type="button"
-        class="btn"
-        [ngClass]="{
-          'btn-primary': activeTab === 'pending',
-          'btn-outline-primary': activeTab !== 'pending'
-        }"
-        (click)="switchTab('pending')"
-      >
-        <i class="bi bi-clock-history"></i>
-        Solicitudes Pendientes
-      </button>
-      <button
-        type="button"
-        class="btn"
-        [ngClass]="{
-          'btn-primary': activeTab === 'accepted',
-          'btn-outline-primary': activeTab !== 'accepted'
-        }"
-        (click)="switchTab('accepted')"
-      >
-        <i class="bi bi-check-circle"></i>
-        Participantes Aceptados
-      </button>
-    </div>
+  <!-- NAVIGATION TABS -->
+  <div class="mb-5">
+    <ul class="nav nav-tabs nav-filled gap-2 tab-navigation" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          [class.active]="activeTab === 'pending'"
+          (click)="switchTab('pending')"
+          type="button"
+          role="tab"
+        >
+          <i class="bi bi-clock-history"></i>
+          <span class="d-none d-md-inline ms-2">Solicitudes Pendientes</span>
+          <span class="badge bg-danger rounded-pill ms-2">{{ pendingParticipations.length }}</span>
+        </button>
+      </li>
+
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          [class.active]="activeTab === 'accepted'"
+          (click)="switchTab('accepted')"
+          type="button"
+          role="tab"
+        >
+          <i class="bi bi-check-circle"></i>
+          <span class="d-none d-md-inline ms-2">Participantes Aceptados</span>
+          <!-- <span class="badge bg-success rounded-pill ms-2">{{ myCreatedTrips.length }}</span> -->
+        </button>
+      </li>
+
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          [class.active]="activeTab === 'myTrips'"
+          (click)="switchTab('myTrips')"
+          type="button"
+          role="tab"
+        >
+          <i class="bi bi-suitcase"></i>
+          <span class="d-none d-md-inline ms-2">Mis Viajes</span>
+          <span class="badge bg-info rounded-pill ms-2">{{ userParticipations.length }}</span>
+        </button>
+      </li>
+    </ul>
   </div>
 
-  <!-- ========================================================================
-       PESTAÑA 1: SOLICITUDES PENDIENTES
-       ======================================================================== -->
-  @if (activeTab === 'pending') {
-
-  <!-- ========================================================================
-       ESTADO: CARGANDO
-       ======================================================================== -->
-  @if (isLoading) {
+  <!-- ============================================================================
+       TAB 1: PENDING REQUESTS
+       ============================================================================ -->
+  @if (activeTab === 'pending') { @if (isLoading) {
   <div class="card border-0 shadow-sm">
     <div class="card-body text-center p-5">
       <div class="spinner-border text-primary mb-3" role="status">
@@ -66,46 +72,22 @@
       <p class="text-muted">Cargando solicitudes pendientes...</p>
     </div>
   </div>
-  }
-
-  <!-- ========================================================================
-       ESTADO: ERROR
-       ======================================================================== -->
-  @if (errorMessage && !isLoading) {
+  } @else if (errorMessage && !isLoading) {
   <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
     <i class="bi bi-exclamation-triangle me-2"></i>
     <strong>Error:</strong>
     {{ errorMessage }}
   </div>
-  }
-
-  <!-- ========================================================================
-       ESTADO: ÉXITO - MENSAJE DEL SERVIDOR
-       ======================================================================== -->
-  @if (successMessage && !isLoading) {
-  <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-    <i class="bi bi-check-circle me-2"></i>
-    <strong>Éxito:</strong>
-    {{ successMessage }}
-  </div>
-  }
-
-  <!-- ========================================================================
-       BOTÓN PARA RECARGAR DATOS
-       ======================================================================== -->
+  } @else if (pendingParticipations.length >= 0) {
   <div class="mb-4">
-    <button class="btn btn-primary" (click)="refreshParticipations()" [disabled]="isLoading">
+    <button class="btn btn-gradient" (click)="refreshParticipations()" [disabled]="isLoading">
       <i class="bi bi-arrow-clockwise"></i>
       Recargar Solicitudes
     </button>
   </div>
 
-  <!-- ========================================================================
-       LISTA DE SOLICITUDES PENDIENTES (HTML TABLE)
-       ======================================================================== -->
-  @if (pendingParticipations.length > 0 && !isLoading) {
-  <div class="card border-0 shadow-sm mb-5">
-    <div class="card-header bg-light">
+  <div class="card border-0 shadow-sm">
+    <div class="card-header gradient-header">
       <h5 class="mb-0">
         <i class="bi bi-list-ul"></i>
         Total: {{ pendingParticipations.length }} solicitud(es)
@@ -116,11 +98,10 @@
         <table class="table table-hover mb-0">
           <thead class="table-light">
             <tr>
-              <th>ID Solicitud</th>
               <th>Usuario</th>
               <th>Viaje</th>
               <th>Estado</th>
-              <th>Fecha Solicitud</th>
+              <th>Fecha</th>
               <th>Puntuación</th>
               <th>Acciones</th>
             </tr>
@@ -128,12 +109,6 @@
           <tbody>
             @for (participation of pendingParticipations; track participation.participation_id) {
             <tr>
-              <!-- ID de la solicitud -->
-              <td>
-                <span class="badge bg-secondary">{{ participation.participation_id }}</span>
-              </td>
-
-              <!-- Información del usuario -->
               <td>
                 <div class="d-flex align-items-center gap-2">
                   @if (participation.participant_image_url) {
@@ -157,51 +132,37 @@
                   </div>
                 </div>
               </td>
-
-              <!-- Información del viaje -->
               <td>
-                <small class="text-muted">ID: {{ participation.trip_id }}</small>
-                <br />
                 {{ participation.trip_name }}
               </td>
-
-              <!-- Estado -->
               <td>
                 <span class="badge" [ngClass]="getStatusBadgeClass(participation.status)">
                   {{ translateStatus(participation.status) }}
                 </span>
               </td>
-
-              <!-- Fecha de solicitud -->
               <td>
                 <small class="text-muted">
-                  {{ participation.request_date | date : 'dd/MM/yyyy HH:mm' }}
+                  {{ participation.request_date | date : 'dd/MM/yyyy' }}
                 </small>
               </td>
-
-              <!-- Puntuación del participante -->
               <td>
                 <span class="badge bg-info">⭐ {{ participation.participant_avg_score }}</span>
               </td>
-
-              <!-- Acciones -->
               <td>
-                <div class="btn-group gap-2" role="group">
+                <div class="btn-group gap-1" role="group">
                   <button
                     class="btn btn-sm btn-success"
                     (click)="approveParticipation(participation.participation_id)"
-                    title="Aceptar participante"
+                    title="Aceptar"
                   >
                     <i class="bi bi-check-lg"></i>
-                    Aceptar
                   </button>
                   <button
                     class="btn btn-sm btn-danger"
                     (click)="rejectParticipation(participation.participation_id)"
-                    title="Rechazar participante"
+                    title="Rechazar"
                   >
                     <i class="bi bi-x-lg"></i>
-                    Rechazar
                   </button>
                 </div>
               </td>
@@ -212,53 +173,20 @@
       </div>
     </div>
   </div>
-  }
-
-  <!-- ========================================================================
-       VISTA JSON COMPLETA (DEBUGGING)
-       ======================================================================== -->
-  @if (debugResponseData && !isLoading) {
-  <div class="card border-0 shadow-sm">
-    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-      <h5 class="mb-0">
-        <i class="bi bi-code-square"></i>
-        Respuesta Completa del API (JSON)
-      </h5>
-      <button
-        class="btn btn-sm btn-outline-secondary"
-        (click)="copyToClipboard(debugResponseData)"
-        title="Copiar JSON al portapapeles"
-      >
-        <i class="bi bi-clipboard"></i>
-        Copiar
-      </button>
+  } @else {
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <i class="bi bi-inbox"></i>
     </div>
-    <div class="card-body">
-      <pre
-        class="bg-dark text-light p-3 rounded overflow-auto"
-      ><code>{{ debugResponseData | json }}</code></pre>
-    </div>
+    <h5>No hay solicitudes pendientes</h5>
+    <p class="text-muted">Cuando recibas solicitudes aparecerán aquí</p>
   </div>
-  }
+  } }
 
-  <!-- ========================================================================
-       ESTADO: SIN DATOS
-       ======================================================================== -->
-  @if (pendingParticipations.length === 0 && !isLoading && !errorMessage) {
-  <div class="alert alert-info" role="alert">
-    <i class="bi bi-info-circle me-2"></i>
-    No hay solicitudes pendientes en este momento.
-  </div>
-  } } @else if (activeTab === 'accepted') {
-
-  <!-- ========================================================================
-       PESTAÑA 2: PARTICIPANTES ACEPTADOS
-       ======================================================================== -->
-
-  <!-- ========================================================================
-       ESTADO: CARGANDO
-       ======================================================================== -->
-  @if (isLoading) {
+  <!-- ============================================================================
+       TAB 2: ACCEPTED PARTICIPANTS
+       ============================================================================ -->
+  @else if (activeTab === 'accepted') { @if (isLoading) {
   <div class="card border-0 shadow-sm">
     <div class="card-body text-center p-5">
       <div class="spinner-border text-primary mb-3" role="status">
@@ -267,100 +195,200 @@
       <p class="text-muted">Cargando viajes creados...</p>
     </div>
   </div>
-  }
-
-  <!-- ========================================================================
-       BOTÓN PARA RECARGAR DATOS
-       ======================================================================== -->
+  } @else if (!isLoading) {
   <div class="mb-4">
-    <button class="btn btn-primary" (click)="loadMyCreatedTrips()" [disabled]="isLoading">
+    <button class="btn btn-gradient" (click)="loadMyCreatedTrips()" [disabled]="isLoading">
       <i class="bi bi-arrow-clockwise"></i>
       Recargar Viajes
     </button>
   </div>
 
-  <!-- ========================================================================
-       LISTA DE VIAJES CON PARTICIPANTES ACEPTADOS
-       ======================================================================== -->
-  @if (myCreatedTrips.length > 0 && !isLoading) { @for (trip of myCreatedTrips; track trip.trip_id)
-  {
-  <div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-light">
-      <h5 class="mb-0">
-        <i class="bi bi-map"></i>
-        {{ trip.title }}
-        <span class="badge bg-info ms-2"
-          >{{ getAcceptedParticipants(trip).length }}/{{ trip.capacity }}</span
-        >
-      </h5>
-      <small class="text-muted">
-        <i class="bi bi-geo-alt"></i>
-        {{ trip.origin }} → {{ trip.destination }}
-      </small>
-    </div>
-    <div class="card-body p-0">
-      <!-- Si hay participantes aceptados -->
-      @if (getAcceptedParticipants(trip).length > 0) {
-      <div class="table-responsive">
-        <table class="table table-hover mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Usuario</th>
-              <th>Email</th>
-              <th>Puntuación</th>
-            </tr>
-          </thead>
-          <tbody>
+  @if (myCreatedTrips.length > 0) {
+  <div class="row g-4">
+    @for (trip of myCreatedTrips; track trip.trip_id) {
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card trip-card border-0 shadow-sm h-100">
+        <div class="card-header gradient-header">
+          <h6 class="mb-2">{{ trip.title }}</h6>
+          <span class="badge bg-info">
+            {{ getAcceptedParticipants(trip).length }}/{{ trip.capacity }}
+          </span>
+        </div>
+        <div class="card-body">
+          <p class="mb-3">
+            <i class="bi bi-geo-alt"></i>
+            <strong>{{ trip.origin }}</strong> → <strong>{{ trip.destination }}</strong>
+          </p>
+          <p class="small text-muted mb-3">{{ trip.description }}</p>
+          <div class="d-flex justify-content-between text-muted small mb-3">
+            <span>
+              <i class="bi bi-calendar"></i>
+              {{ trip.start_date | date : 'dd/MM/yyyy' }}
+            </span>
+            <span>
+              <i class="bi bi-cash"></i>
+              ${{ trip.estimated_cost }}
+            </span>
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <h6 class="mb-3">Participantes Aceptados:</h6>
+          @if (getAcceptedParticipants(trip).length > 0) {
+          <div class="participants-list">
             @for (participant of getAcceptedParticipants(trip); track participant.id) {
-            <tr>
-              <!-- Información del usuario -->
-              <td>
-                <div class="d-flex align-items-center gap-2">
-                  @if (participant.participant_image_url) {
-                  <img
-                    [src]="participant.participant_image_url"
-                    alt="Avatar"
-                    class="rounded-circle"
-                    style="width: 32px; height: 32px; object-fit: cover"
-                  />
-                  } @else {
-                  <div
-                    class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white"
-                    style="width: 32px; height: 32px"
-                  >
-                    <i class="bi bi-person"></i>
-                  </div>
-                  }
-                  <div class="fw-bold">{{ participant.username }}</div>
+            <div class="participant-item mb-2">
+              <div class="d-flex align-items-center gap-2">
+                @if (participant.participant_image_url) {
+                <img
+                  [src]="participant.participant_image_url"
+                  alt="Avatar"
+                  class="rounded-circle"
+                  style="width: 28px; height: 28px; object-fit: cover"
+                />
+                } @else {
+                <div
+                  class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white"
+                  style="width: 28px; height: 28px; font-size: 12px"
+                >
+                  <i class="bi bi-person"></i>
                 </div>
-              </td>
-
-              <!-- Email -->
-              <td>
-                <small>{{ participant.email }}</small>
-              </td>
-
-              <!-- Puntuación -->
-              <td>
-                <span class="badge bg-warning">⭐ {{ participant.participant_avg_score }}</span>
-              </td>
-            </tr>
+                }
+                <div class="flex-grow-1">
+                  <div class="small fw-bold">{{ participant.username }}</div>
+                  <small class="text-muted">⭐ {{ participant.participant_avg_score }}</small>
+                </div>
+              </div>
+            </div>
             }
-          </tbody>
-        </table>
+          </div>
+          } @else {
+          <small class="text-muted">Sin participantes aceptados aún</small>
+          }
+        </div>
       </div>
-      } @else {
-      <div class="alert alert-info mb-0">
-        <i class="bi bi-info-circle me-2"></i>
-        No hay participantes aceptados en este viaje.
+    </div>
+    }
+  </div>
+  } @else {
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <i class="bi bi-map"></i>
+    </div>
+    <h5>No has creado viajes aún</h5>
+    <p class="text-muted">Crea tu primer viaje para comenzar a recibir solicitudes</p>
+    <a href="/crear-viaje" class="btn btn-gradient mt-3">
+      <i class="bi bi-plus"></i>
+      Crear Viaje
+    </a>
+  </div>
+  } } }
+
+  <!-- ============================================================================
+       TAB 3: MY TRIPS (CREATED + JOINED)
+       ============================================================================ -->
+  @else if (activeTab === 'myTrips') { @if (isLoading) {
+  <div class="card border-0 shadow-sm">
+    <div class="card-body text-center p-5">
+      <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Cargando...</span>
       </div>
-      }
+      <p class="text-muted">Cargando tus viajes...</p>
     </div>
   </div>
-  } } @else if (myCreatedTrips.length === 0 && !isLoading) {
-  <div class="alert alert-info" role="alert">
-    <i class="bi bi-info-circle me-2"></i>
-    No hay viajes creados en este momento.
+  } @else if (!isLoading) {
+  <div class="mb-4">
+    <button class="btn btn-gradient" (click)="loadMyParticipations()" [disabled]="isLoading">
+      <i class="bi bi-arrow-clockwise"></i>
+      Recargar Viajes
+    </button>
   </div>
-  } }
+
+  @if (userParticipations.length > 0) {
+  <div class="row g-4">
+    @for (participation of userParticipations; track participation.participation_id) {
+    <div class="col-12 col-md-6 col-lg-4">
+      <div
+        class="card trip-card border-0 shadow-sm h-100"
+        [class.opacity-75]="participation.status !== 'accepted'"
+      >
+        <div class="card-header gradient-header">
+          <h6 class="mb-2">{{ participation.trip_name }}</h6>
+          <span class="badge" [ngClass]="getTripTypeBadge(participation).color">
+            <i [class]="'bi ' + getTripTypeBadge(participation).icon"></i>
+            {{ getTripTypeBadge(participation).text }}
+          </span>
+        </div>
+        <div class="card-body">
+          <p class="mb-3">
+            <i class="bi bi-geo-alt"></i>
+            <strong>{{ participation.origin }}</strong> →
+            <strong>{{ participation.destination }}</strong>
+          </p>
+          <div class="d-flex justify-content-between text-muted small mb-3">
+            <span>
+              <i class="bi bi-calendar"></i>
+              {{ participation.start_date | date : 'dd/MM/yyyy' }}
+            </span>
+          </div>
+          <div class="mb-3">
+            <span
+              class="badge"
+              [ngClass]="
+                participation.status === 'accepted'
+                  ? 'bg-success'
+                  : participation.status === 'pending'
+                  ? 'bg-warning text-dark'
+                  : 'bg-danger'
+              "
+            >
+              {{
+                participation.status === 'accepted'
+                  ? 'Aceptado'
+                  : participation.status === 'pending'
+                  ? 'Pendiente'
+                  : 'Rechazado'
+              }}
+            </span>
+          </div>
+          <small class="text-muted d-block">
+            <i class="bi bi-person"></i>
+            Creador: {{ participation.creator_username }}
+          </small>
+        </div>
+        <div class="card-footer bg-light">
+          @if (participation.status === 'accepted' || isMyTrip(participation)) {
+          <button class="btn btn-sm btn-gradient w-100">
+            <i class="bi bi-chat-dots"></i>
+            Acceder al Foro
+          </button>
+          } @else {
+          <button class="btn btn-sm btn-outline-secondary w-100" disabled>
+            <i class="bi bi-lock"></i>
+            Foro no disponible
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+  } @else {
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <i class="bi bi-suitcase"></i>
+    </div>
+    <h5>Aún no tienes viajes</h5>
+    <p class="text-muted">Crea un viaje o únete a uno para comenzar</p>
+    <div class="btn-group mt-3" role="group">
+      <a href="/crear-viaje" class="btn btn-gradient">
+        <i class="bi bi-plus"></i>
+        Crear Viaje
+      </a>
+      <a href="/buscador" class="btn btn-outline-primary">
+        <i class="bi bi-search"></i>
+        Explorar Viajes
+      </a>
+    </div>
+  </div>
+  } } }
 </div>

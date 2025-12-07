@@ -115,6 +115,37 @@ export interface MyCreatedTripsResponse {
   data: MyCreatedTrip[];
 }
 
+/**
+ * Información de participación del usuario en un viaje
+ * Incluye información del viaje y del creador
+ */
+export interface UserParticipation {
+  participation_id: number;
+  status: 'pending' | 'accepted' | 'rejected';
+  request_date: string;
+  response_date: string | null;
+  trip_id: number;
+  trip_name: string;
+  origin: string;
+  destination: string;
+  start_date: string;
+  end_date: string;
+  creator_id: number;
+  creator_username: string;
+  creator_email: string;
+  creator_image_url: string | null;
+  trip_image_url: string | null;
+  creator_avg_score: string;
+}
+
+/**
+ * Respuesta del backend cuando se obtienen participaciones del usuario
+ */
+export interface UserParticipationsResponse {
+  message: string;
+  data: UserParticipation[];
+}
+
 // ============================================================================
 // INJECTABLE SERVICE
 // ============================================================================
@@ -143,6 +174,12 @@ export class ParticipantService {
    * Se usa para mostrar participantes confirmados en cada viaje
    */
   myCreatedTrips = signal<MyCreatedTrip[]>([]);
+
+  /**
+   * Signal que almacena todas las participaciones del usuario (creadas + unidos)
+   * Se usa para mostrar "Mis Viajes" en el componente
+   */
+  userParticipations = signal<UserParticipation[]>([]);
 
   /**
    * Signal que indica si hay una carga en progreso
@@ -409,6 +446,61 @@ export class ParticipantService {
       );
   }
 
+  /**
+   * Obtener todas las participaciones del usuario (viajes creados + viajes unidos)
+   *
+   * Llamada al endpoint: GET {apiUrl}/participations/my-participations
+   * Header: Authorization: Bearer {token}
+   *
+   * Respuesta incluye:
+   * - Viajes creados por el usuario (creator_id === userId logeado)
+   * - Viajes a los que se unió (creator_id !== userId logeado)
+   * - Estados: pending, accepted, rejected
+   *
+   * @returns Observable con la respuesta del backend
+   *
+   * @example
+   * this.participantService.getMyParticipations().subscribe({
+   *   next: (response) => {
+   *     console.log(response.message);
+   *     console.log(response.data); // Array de participaciones
+   *   },
+   *   error: (error) => console.error(error.message)
+   * });
+   */
+  getMyParticipations(): Observable<UserParticipationsResponse> {
+    const token = localStorage.getItem('tt_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    this.loadingSignal.set(true);
+
+    return this.http
+      .get<UserParticipationsResponse>(`${environment.apiUrl}/participations/my-participations`, {
+        headers,
+      })
+      .pipe(
+        tap((response) => {
+          // Guardar en el signal para reactividad
+          this.userParticipations.set(response.data);
+          this.loadingSignal.set(false);
+          this.errorSignal.set(null);
+        }),
+        // Manejar errores
+        catchError((error) => {
+          const errorMsg = error?.error?.message || 'Error al obtener tus participaciones';
+          console.error('❌ Error en getMyParticipations:', errorMsg);
+          this.errorSignal.set(errorMsg);
+          this.loadingSignal.set(false);
+          return throwError(() => ({
+            message: errorMsg,
+            error,
+          }));
+        })
+      );
+  }
+
   // ========================================================================
   // MÉTODOS PRIVADOS / UTILIDADES
   // ========================================================================
@@ -422,6 +514,7 @@ export class ParticipantService {
   reset(): void {
     this.pendingParticipations.set([]);
     this.myCreatedTrips.set([]);
+    this.userParticipations.set([]);
     this.loadingSignal.set(false);
     this.errorSignal.set(null);
   }

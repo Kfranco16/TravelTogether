@@ -5,6 +5,7 @@ import {
   PendingParticipationInfo,
   MyCreatedTrip,
   MyCreatedTripsResponse,
+  UserParticipation,
 } from '../../core/services/participant.service';
 import { toast } from 'ngx-sonner';
 import { firstValueFrom } from 'rxjs';
@@ -57,6 +58,18 @@ export class PendingParticipationsComponent implements OnInit {
   myCreatedTrips: MyCreatedTrip[] = [];
 
   /**
+   * Array con todas las participaciones del usuario (viajes creados + viajes unidos)
+   * Se obtiene del servicio y se usa para mostrar "Mis Viajes"
+   */
+  userParticipations: UserParticipation[] = [];
+
+  /**
+   * ID del usuario logeado obtenido de localStorage
+   * Se usa para filtrar viajes creados (creator_id === userId)
+   */
+  userId: number | null = null;
+
+  /**
    * Variable para rastrear si está cargando datos
    * Se usa para mostrar spinner/loader
    */
@@ -81,10 +94,10 @@ export class PendingParticipationsComponent implements OnInit {
   debugResponseData: any = null;
 
   /**
-   * Pestaña activa: 'pending' o 'accepted'
+   * Pestaña activa: 'pending', 'accepted' o 'myTrips'
    * Controla cuál sección se muestra en el HTML
    */
-  activeTab: 'pending' | 'accepted' = 'pending';
+  activeTab: 'pending' | 'accepted' | 'myTrips' = 'pending';
 
   // ========================================================================
   // CICLO DE VIDA
@@ -94,13 +107,23 @@ export class PendingParticipationsComponent implements OnInit {
    * ngOnInit - Se ejecuta cuando el componente se inicializa
    *
    * Responsabilidades:
-   * 1. Cargar las solicitudes pendientes
-   * 2. Cargar los viajes creados con participantes aceptados
-   * 3. Mostrar datos en la UI
+   * 1. Obtener el userId del usuario logeado (localStorage)
+   * 2. Cargar las solicitudes pendientes
+   * 3. Cargar los viajes creados con participantes aceptados
+   * 4. Cargar participaciones del usuario (viajes creados + unidos)
    */
   ngOnInit(): void {
+    // Obtener userId del usuario logeado
+    const usuarioStr = localStorage.getItem('usuario');
+    if (usuarioStr) {
+      const usuario = JSON.parse(usuarioStr);
+      this.userId = usuario.id || null;
+    }
+
+    // Cargar datos
     this.loadPendingParticipations();
     this.loadMyCreatedTrips();
+    this.loadMyParticipations();
   }
 
   // ========================================================================
@@ -157,18 +180,6 @@ export class PendingParticipationsComponent implements OnInit {
    */
   refreshParticipations(): void {
     this.loadPendingParticipations();
-  }
-
-  /**
-   * Método para copiar JSON al portapapeles (útil para debugging)
-   *
-   * @param data - Datos a copiar
-   */
-  copyToClipboard(data: any): void {
-    const jsonString = JSON.stringify(data, null, 2);
-    navigator.clipboard.writeText(jsonString).then(() => {
-      toast.success('JSON copiado al portapapeles');
-    });
   }
 
   /**
@@ -289,11 +300,49 @@ export class PendingParticipationsComponent implements OnInit {
   }
 
   /**
+   * Cargar todas las participaciones del usuario (viajes creados + viajes unidos)
+   *
+   * Flujo:
+   * 1. Activar estado de carga
+   * 2. Llamar al servicio ParticipantService.getMyParticipations()
+   * 3. Si es exitoso: guardar datos
+   * 4. Si falla: mostrar error al usuario
+   */
+  async loadMyParticipations(): Promise<void> {
+    this.isLoading = true;
+    this.errorMessage = null;
+    this.successMessage = null;
+
+    try {
+      const response = await firstValueFrom(this.participantService.getMyParticipations());
+
+      this.successMessage = response.message;
+      this.userParticipations = response.data;
+      this.debugResponseData = response;
+
+      toast.success(`Se encontraron ${response.data.length} viaje(s)`, {
+        description: this.successMessage,
+      });
+    } catch (error: any) {
+      console.error('❌ Error al cargar participaciones:', error);
+
+      const errorMsg = error?.message || 'Error al obtener tus viajes';
+      this.errorMessage = errorMsg;
+
+      toast.error(errorMsg, {
+        description: 'Por favor, intenta de nuevo más tarde',
+      });
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  /**
    * Cambiar pestaña activa
    *
-   * @param tab - Nombre de la pestaña: 'pending' o 'accepted'
+   * @param tab - Nombre de la pestaña: 'pending', 'accepted' o 'myTrips'
    */
-  switchTab(tab: 'pending' | 'accepted'): void {
+  switchTab(tab: 'pending' | 'accepted' | 'myTrips'): void {
     this.activeTab = tab;
   }
 
@@ -307,5 +356,38 @@ export class PendingParticipationsComponent implements OnInit {
    */
   getAcceptedParticipants(trip: MyCreatedTrip) {
     return trip.all_related_participants.filter((p) => p.status === 'accepted');
+  }
+
+  /**
+   * Verificar si una participación fue creada por el usuario logeado
+   *
+   * @param participation - Participación a verificar
+   * @returns true si el creator_id es igual al userId logeado
+   */
+  isMyTrip(participation: UserParticipation): boolean {
+    return participation.creator_id === this.userId;
+  }
+
+  /**
+   * Obtener el badge de tipo para una participación
+   * Indica si el viaje fue creado por el usuario o si se unió
+   *
+   * @param participation - Participación a verificar
+   * @returns Objeto con color y texto del badge
+   */
+  getTripTypeBadge(participation: UserParticipation) {
+    if (this.isMyTrip(participation)) {
+      return {
+        color: 'bg-success',
+        icon: 'bi-star',
+        text: 'Creado por ti',
+      };
+    } else {
+      return {
+        color: 'bg-info',
+        icon: 'bi-person-check',
+        text: 'Te uniste',
+      };
+    }
   }
 }

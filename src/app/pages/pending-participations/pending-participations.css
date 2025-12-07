@@ -1,51 +1,424 @@
 /* ============================================================================
-   PENDING PARTICIPATIONS - STYLES
-   ============================================================================
-   Estilos para el componente temporal de debugging de participaciones.
+   TRAVEL MANAGEMENT COMPONENT - STYLES
    ============================================================================ */
 
-/* Contenedor principal */
-.container {
-  max-width: 1200px;
+/* Color Scheme */
+:root {
+  --gradient-primary: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+  --gradient-hover: linear-gradient(90deg, #9370db 0%, #7c3aed 50%, #2563eb 100%);
+  --color-primary: #7c3aed;
+  --color-accent: #a78bfa;
 }
 
-/* Encabezado */
-h1 {
-  color: #333;
+/* ============================================================================
+   HEADER SECTION
+   ============================================================================ */
+
+.travel-header {
+  margin-bottom: 2rem;
+}
+
+.travel-header h1 {
+  background: linear-gradient(90deg, #664fa9 0%, #8b5cf6 50%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.travel-header .lead {
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
+/* ============================================================================
+   TAB NAVIGATION
+   ============================================================================ */
+
+.tab-navigation {
+  border: none;
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.tab-navigation .nav-link {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-bottom: none;
+  color: #6b7280;
+  font-weight: 600;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-navigation .nav-link:hover {
+  background: #f3f4f6;
+  color: var(--color-primary);
+  border-color: #d1d5db;
+}
+
+.tab-navigation .nav-link.active {
+  background: white;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  border-bottom-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.tab-navigation .nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient-primary);
+}
+
+.tab-navigation .badge {
+  font-size: 0.7rem;
   font-weight: 600;
 }
 
-/* Tabla responsiva */
+/* ============================================================================
+   GRADIENT ELEMENTS
+   ============================================================================ */
+
+.gradient-header {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: 1.25rem;
+}
+
+.gradient-header h5,
+.gradient-header h6 {
+  margin-bottom: 0;
+  font-weight: 600;
+  color: white;
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  padding: 0.625rem 1.25rem;
+  transition: all 0.3s ease;
+  /* box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3); */
+}
+
+.btn-gradient:hover {
+  /* background: var(--gradient-hover); */
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
+  transform: translateY(-2px);
+  color: white;
+}
+
+.btn-gradient:disabled {
+  opacity: 0.65;
+  box-shadow: none;
+  transform: none;
+}
+
+/* ============================================================================
+   TRIP CARDS
+   ============================================================================ */
+
+.trip-card {
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border-radius: 0.75rem;
+}
+
+.trip-card:hover {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-4px);
+}
+
+.trip-card .card-header {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.trip-card .card-body {
+  padding: 1.5rem;
+}
+
+.trip-card .card-footer {
+  background: #f9fafb !important;
+  border-top: 1px solid #e5e7eb;
+}
+
+.trip-card .card-footer h6 {
+  color: #111827;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+/* ============================================================================
+   PARTICIPANTS LIST
+   ============================================================================ */
+
+.participants-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.participant-item {
+  padding: 0.75rem;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.participant-item:hover {
+  background: #f3f4f6;
+  padding-left: 1rem;
+}
+
+.participant-item img {
+  border: 2px solid #e5e7eb;
+}
+
+/* ============================================================================
+   EMPTY STATE
+   ============================================================================ */
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-radius: 1rem;
+  border: 1px dashed #e5e7eb;
+}
+
+.empty-state-icon {
+  font-size: 4rem;
+  color: var(--color-accent);
+  opacity: 0.5;
+  margin-bottom: 1rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.empty-state h5 {
+  color: #111827;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ============================================================================
+   TABLE STYLES
+   ============================================================================ */
+
 .table {
   margin-bottom: 0;
 }
 
-.table-hover tbody tr:hover {
-  background-color: #f8f9fa;
-}
-
-.table td {
-  vertical-align: middle;
+.table thead th {
+  background: #f9fafb;
+  color: #6b7280;
+  font-weight: 600;
+  border-color: #e5e7eb;
   padding: 1rem;
 }
 
-/* Badges */
+.table tbody td {
+  vertical-align: middle;
+  padding: 1rem;
+  border-color: #e5e7eb;
+}
+
+.table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.table-responsive {
+  border-radius: 0;
+}
+
+/* ============================================================================
+   BADGES & LABELS
+   ============================================================================ */
+
 .badge {
   padding: 0.5rem 0.75rem;
-  font-weight: 500;
-  font-size: 0.85rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
 }
 
-/* JSON Code Block */
-pre {
-  max-height: 500px;
-  font-size: 0.85rem;
-  line-height: 1.5;
+.badge.bg-info {
+  background: linear-gradient(135deg, #06b6d4, #0891b2) !important;
+  color: white;
 }
 
-pre code {
-  color: #d4d4d4;
-  font-family: 'Courier New', monospace;
+.badge.bg-success {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  color: white;
+}
+
+.badge.bg-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  color: white;
+}
+
+.badge.bg-warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+}
+
+/* ============================================================================
+   CARD STYLES
+   ============================================================================ */
+
+.card {
+  border-radius: 0.75rem;
+}
+
+.card.border-0 {
+  border: 1px solid #e5e7eb !important;
+}
+
+/* ============================================================================
+   RESPONSIVE ADJUSTMENTS
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  .travel-header h1 {
+    font-size: 2rem;
+  }
+
+  .tab-navigation .nav-link {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .tab-navigation .badge {
+    font-size: 0.65rem;
+  }
+
+  .trip-card .card-body {
+    padding: 1rem;
+  }
+
+  .empty-state {
+    padding: 2rem 1rem;
+  }
+
+  .empty-state-icon {
+    font-size: 3rem;
+  }
+
+  .btn-group {
+    gap: 0.5rem;
+  }
+
+  .btn-group .btn {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .travel-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .tab-navigation {
+    gap: 0.5rem;
+  }
+
+  .tab-navigation .nav-link {
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.375rem;
+  }
+
+  .tab-navigation .d-none.d-md-inline {
+    display: none !important;
+  }
+
+  .container-fluid {
+    padding: 1rem;
+  }
+
+  .row {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+  }
+
+  .col-12 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .btn-gradient {
+    width: 100%;
+  }
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+.opacity-75 {
+  opacity: 0.75;
+}
+
+/* Scrollbar personalizado */
+.participants-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.participants-list::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.participants-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.participants-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Transiciones suaves */
+* {
+  transition-property: background-color, border-color, color, box-shadow;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-in-out;
+}
+
+button,
+.btn,
+a {
+  transition-property: all;
 }
 
 /* Cards */

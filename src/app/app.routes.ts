@@ -43,7 +43,7 @@ export const routes: Routes = [
   { path: 'valoraciones/:id', component: ViewRatings, canActivate: [authGuard] },
   // 🎯 RUTA TEMPORAL: Para debugging de solicitudes de participación
   {
-    path: 'debug/pending-participations',
+    path: 'gestion-viajes',
     component: PendingParticipationsComponent,
     canActivate: [authGuard],
   },

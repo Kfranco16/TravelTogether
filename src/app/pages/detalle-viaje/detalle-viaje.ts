@@ -30,7 +30,7 @@ export class DetalleViaje {
   private tripService = inject(TripService);
   // 🎯 Nuevo: Inyectar el servicio de participantes para manejar solicitudes
   private participantService = inject(ParticipantService);
-
+  private participationService = inject(ParticipationService);
   // ========================================================================
   // PROPIEDADES DEL COMPONENTE
   // ========================================================================
