@@ -15,6 +15,27 @@
 }
 
 .tt-profile-main {
+  position: relative;
+}
+
+.tt-profile-edit-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  border: none;
+  background: white;
+  border-radius: 999px;
+  padding: 0.35rem 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  color: #6c63ff; /* o tu color principal */
+}
+
+.tt-profile-edit-btn i {
+  font-size: 1.1rem;
+}
+
+.tt-profile-main {
   display: flex;
   align-items: center;
   gap: 2.5rem;

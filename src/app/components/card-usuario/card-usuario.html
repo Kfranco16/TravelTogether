@@ -1,4 +1,4 @@
-@if (!usuario) {
+@if (!isLoggedIn) {
 <div class="d-flex align-items-center text-shadow-black gap-2">
   <img
     src="https://img.freepik.com/psd-gratis/ilustracion-3d-avatar-o-perfil-humano_23-2150671142.jpg?semt=ais_hybrid&w=740&q=80"
@@ -14,17 +14,17 @@
 <div class="d-flex align-items-center text-shadow-black gap-2">
   <img
     [src]="
-      usuario.image ||
+      usuario?.image ||
       'https://img.freepik.com/psd-gratis/ilustracion-3d-avatar-o-perfil-humano_23-2150671142.jpg?semt=ais_hybrid&w=740&q=80'
     "
-    [alt]="usuario.username ? 'Avatar de ' + usuario.username : 'Avatar genérico'"
+    [alt]="usuario?.username ? 'Avatar de ' + usuario?.username : 'Avatar genérico'"
     class="rounded-1"
     style="width: 35px; height: 55px; object-fit: cover"
   />
 
   <div class="d-flex flex-column">
     <div class="fw-semibold fs-5">
-      {{ usuario.username }}
+      {{ usuario?.username }}
     </div>
 
     <div class="d-flex align-items-center gap-1 text-shadow-black mt-1">

@@ -1,18 +1,28 @@
 <section class="tt-profile-wrapper">
   <!-- Encabezado -->
   <header class="tt-profile-header">
-    <div class="tt-profile-main">
+    <div class="tt-profile-main position-relative">
+      <!-- Botón editar perfil (solo tiene sentido si es tu propio perfil) -->
+      <button
+        type="button"
+        class="tt-profile-edit-btn"
+        (click)="goToEditProfile()"
+        aria-label="Editar perfil"
+      >
+        <i class="bi bi-pencil-square"></i>
+        <span class="visually-hidden">Editar perfil</span>
+      </button>
+
+      <!-- Bloque foto y acciones -->
       <div class="tt-profile-photo-block">
         <div class="tt-profile-photo-ring">
           <img
             class="tt-photo-img"
             [src]="user?.image || defaultAvatar"
-            alt="{{ user?.username || 'Foto de perfil' }}"
+            [alt]="user?.username || 'Foto de perfil'"
           />
         </div>
 
-        <!-- Botones solo si es tu propio perfil -->
-        @if (isOwnProfile) {
         <div class="tt-profile-actions">
           <button type="button" class="tt-btn tt-btn-sm tt-btn-danger" (click)="onDeletePhoto()">
             Eliminar foto
@@ -23,7 +33,6 @@
             <input type="file" accept="image/*" (change)="onUploadPhoto($event)" hidden />
           </label>
         </div>
-        }
       </div>
 
       <!-- Bloque info principal -->
@@ -32,68 +41,114 @@
           {{ user?.username || 'Tu nombre' }}
         </h1>
 
-        <!-- Frase pública -->
-        <p class="tt-profile-tagline">
-          @if (isOwnProfile) {
-          <input
-            type="text"
-            class="tt-tagline-input"
-            [(ngModel)]="publicTagline"
-            placeholder="Escribe una frase corta sobre ti"
-          />
-          } @else {
-          {{ publicTagline || 'Este viajero aún no ha escrito una presentación.' }}
-          }
-        </p>
-
         <!-- Rating -->
         <div class="tt-profile-rating">
-          <div class="tt-stars">
-            @for (star of stars; track star) {
-            <i
-              class="bi"
-              [ngClass]="
-                averageStars >= star ? 'bi-star-fill tt-star-full' : 'bi-star tt-star-empty'
-              "
-            ></i>
+          <div class="d-flex align-items-center gap-1 text-shadow-black mt-1">
+            @if (usuarioValoracion != null) { @for (estrella of getEstrellas(usuarioValoracion);
+            track estrella.icon + estrella.color + $index) {
+            <i class="bi {{ estrella.icon }} {{ estrella.color }}"></i>
             }
-          </div>
-
-          <div class="tt-rating-text">
-            <span class="tt-rating-score"> {{ averageScore | number : '1.1-1' }} / 5</span>
-            <span class="tt-rating-count"> ({{ ratingCount || 0 }} valoraciones) </span>
+            <span class="ms-2">{{ usuarioValoracion }}</span>
+            } @else {
+            <span>Aún por valorar</span>
+            }
           </div>
         </div>
 
-        <!-- Texto pequeño -->
         <p class="tt-profile-label">Lo que ven tus seguidores</p>
 
-        <!-- Bio -->
+        <h4>Mi biografía</h4>
         <p class="tt-profile-bio">
-          {{ user?.bio || 'Soy un viajero apasionado por descubrir el mundo.' }}
+          {{ user?.bio || 'Mi biografía' }}
+        </p>
+
+        <h4>Mis intereses</h4>
+        <p class="tt-profile-bio">
+          {{ user?.interests || 'Mis intereses' }}
         </p>
       </div>
     </div>
   </header>
 
-  <!-- Tarjeta: próximo viaje -->
-  <section class="tt-next-trip-card">
-    <div class="tt-next-trip-left">
-      <p class="tt-next-trip-label">Tu próximo viaje</p>
-
-      <h2 class="tt-next-trip-destination">
-        {{ nextTripDestination || 'Aún no tienes un viaje reservado' }}
-      </h2>
-
-      @if (nextTripDate) {
-      <p class="tt-next-trip-date">
-        {{ nextTripDate | date : "d 'de' MMMM, y" : 'es' }}
+  <!-- Stats -->
+  <section class="tt-stats-grid">
+    <article class="tt-stat-card">
+      <div class="tt-stat-icon">
+        <i class="bi bi-calendar-event"></i>
+      </div>
+      <p class="tt-stat-label">Miembro desde</p>
+      <p class="tt-stat-value">
+        {{ memberSince | date : 'dd-MM-yyyy' : 'es' }}
       </p>
-      } @else {
+    </article>
+
+    <article class="tt-stat-card">
+      <div class="tt-stat-icon">
+        <i class="bi bi-geo-alt"></i>
+      </div>
+      <p class="tt-stat-label">Viajes realizados</p>
+      <p class="tt-stat-value">{{ tripsCount ?? 0 }}</p>
+    </article>
+
+    <article class="tt-stat-card">
+      <div class="tt-stat-icon tt-stat-icon-heart">
+        <i class="bi bi-heart"></i>
+      </div>
+      <p class="tt-stat-label" (click)="goToFavoritesPage()">Viajes en favoritos</p>
+      <p class="tt-stat-value">{{ favoritesCount ?? 0 }}</p>
+    </article>
+  </section>
+
+  <!-- CTA valoraciones -->
+  <section class="tt-next-trip-card mb-3">
+    <div class="tt-next-trip-left" (click)="goToValorarPage()">
+      <h2 class="tt-next-trip-destination">Gestiona tus valoraciones</h2>
+
       <p class="tt-next-trip-date tt-next-trip-date--muted">
-        Cuando reserves tu próximo viaje aparecerá aquí.
+        Revisa qué viajes tienes pendientes de valorar, cuáles están en marcha y en cuáles ya has
+        dejado tu opinión a tus compañeros.
       </p>
-      }
+    </div>
+
+    <div class="tt-next-trip-right d-flex align-items-center justify-content-end">
+      <!-- Este div interno está vacío; puedes borrarlo si no lo necesitas para layout -->
+      <!-- <div class="d-flex flex-column align-items-end gap-2"></div> -->
+    </div>
+  </section>
+
+  <!-- Próximo viaje -->
+  <section class="tt-next-trip-card">
+    <div class="tt-next-trip-left d-flex gap-3">
+      <div
+        class="tt-next-trip-thumb"
+        (click)="nextTrip && irADetalleViaje()"
+        style="flex-shrink: 0"
+      >
+        <img
+          class="tt-next-trip-thumb-img"
+          [src]="nextTrip?.image || nextTrip?.portada || 'images/coverDefault.jpg'"
+          [alt]="nextTripDestination || 'Próximo viaje'"
+          style="width: 200px; height: 120px; object-fit: cover; border-radius: 8px"
+        />
+      </div>
+
+      <div>
+        <p class="tt-next-trip-label">Mi próximo viaje</p>
+
+        <h2 class="tt-next-trip-destination" (click)="nextTrip && irADetalleViaje()">
+          {{ nextTripDestination || 'Aún no tienes un viaje reservado' }}
+        </h2>
+
+        @if (nextTripDate) {
+        <p class="tt-next-trip-date">
+          {{ nextTripDate | date : "d 'de' MMMM, y" : 'es' }}
+        </p>
+        } @else {
+        <p class="tt-next-trip-date tt-next-trip-date--muted">
+          Cuando reserves tu próximo viaje aparecerá aquí.
+        </p>
+        }
+      </div>
     </div>
 
     <div class="tt-next-trip-right">
@@ -106,30 +161,5 @@
         </p>
       </div>
     </div>
-  </section>
-
-  <!-- Tarjetas resumen -->
-  <section class="tt-stats-grid">
-    <article class="tt-stat-card">
-      <div class="tt-stat-icon"><i class="bi bi-calendar-event"></i></div>
-      <p class="tt-stat-label">Miembro desde</p>
-      <p class="tt-stat-value">
-        {{ memberSince ? (memberSince | date : "d 'de' MMMM, y" : 'es') : '—' }}
-      </p>
-    </article>
-
-    <article class="tt-stat-card">
-      <div class="tt-stat-icon"><i class="bi bi-geo-alt"></i></div>
-      <p class="tt-stat-label">Viajes realizados</p>
-      <p class="tt-stat-value">{{ tripsCount ?? 0 }}</p>
-    </article>
-
-    <article class="tt-stat-card">
-      <div class="tt-stat-icon tt-stat-icon-heart">
-        <i class="bi bi-heart"></i>
-      </div>
-      <p class="tt-stat-label">Viajes en favoritos</p>
-      <p class="tt-stat-value">{{ favoritesCount ?? 0 }}</p>
-    </article>
   </section>
 </section>

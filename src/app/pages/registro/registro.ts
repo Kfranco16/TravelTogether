@@ -95,7 +95,7 @@ export class Registro implements OnInit {
           interests: intereses,
         });
         alert('Registrado correctamente');
-        this.router.navigate(['/home']);
+        this.router.navigate(['/dashboard/perfil']);
       } catch (err: any) {
         const backendMsg = err?.error?.message;
         if (

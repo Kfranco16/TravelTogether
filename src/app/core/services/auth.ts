@@ -66,8 +66,6 @@ export class AuthService {
     return response;
   }
 
-  // --- API ---
-  /** Login */
   async login(payload: LoginPayload): Promise<LoginResponse> {
     const response = await lastValueFrom(
       this.http.post<LoginResponse>(`${environment.apiUrl}/users/login`, payload)
@@ -95,11 +93,9 @@ export class AuthService {
       this.http.get<Iuser>(`${environment.apiUrl}/users/${id}`, { headers }).pipe(
         catchError((error: HttpErrorResponse) => {
           if (error.status === 404) {
-            // Usuario no existe / borrado -> lo tratamos como null y no sacamos error ruidoso
-            // console.warn('Usuario no encontrado', id); // opcional
             return of(null as any);
           }
-          // Otros errores sí quieres verlos
+
           console.error('Error getUserById', id, error);
           return throwError(() => error);
         })
@@ -114,14 +110,16 @@ export class AuthService {
       .pipe(map((resp) => resp.score));
   }
 
-  // actualizar datos del usuario y refrescar el guardado
   async updateUser(id: number, data: Partial<Iuser>): Promise<Iuser> {
-    const updated = await lastValueFrom(
-      this.http.put<Iuser>(`${environment.apiUrl}/users/${id}`, data)
+    const res = await lastValueFrom(
+      this.http.put<{ message: string; user: Iuser }>(`${environment.apiUrl}/users/${id}`, data)
     );
+
+    const updated = res.user;
+
     const token = this.gettoken();
-    // guardamos de nuevo para que la app vea el nombre/foto actualizados en navbar/dashboard
     if (token) this.writeAuth(token, updated);
+
     return updated;
   }
 

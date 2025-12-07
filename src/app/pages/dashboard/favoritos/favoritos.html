@@ -1,18 +1,44 @@
-<section class="tt-panel">
-  <header class="tt-panel-header text-center">
-    <h2 class="tt-title tt-title-morado">Mis favoritos</h2>
+<div class="container my-5">
+  <section class="py-4 py-md-4 mb-4 bg-light rounded-3 px-3 px-md-4">
+    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+      <div
+        class="rounded-circle bg-white shadow-sm d-flex align-items-center justify-content-center flex-shrink-0"
+        style="width: 56px; height: 56px"
+      >
+        <i class="bi bi-heart-fill text-danger fs-3"></i>
+      </div>
 
-    @if (!loading && !error && favoritos.length) {
-    <p class="tt-subtitle-small mt-2">
-      Tienes {{ favoritos.length }} viaje{{ favoritos.length > 1 ? 's' : '' }} guardado{{
-        favoritos.length > 1 ? 's' : ''
-      }}
-      en favoritos.
-    </p>
-    }
-  </header>
+      <div>
+        <p
+          class="text-uppercase text-secondary fw-semibold mb-1 small d-flex align-items-center gap-2"
+        >
+          <i class="bi bi-stars"></i>
+          Mis favoritos
+        </p>
 
-  @if (loading) {
+        <h1 class="h3 mb-2 color-principal">Tus viajes guardados</h1>
+
+        <p class="mb-2 text-muted">
+          Reúne en un solo lugar los viajes que más te interesan para poder revisarlos con calma y
+          decidir cuándo unirte.
+        </p>
+
+        <p class="mb-0 text-muted small">
+          Mantén tus favoritos organizados, vuelve a sus detalles cuando quieras y no pierdas de
+          vista las aventuras que más te inspiran.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  @if (!loading && !error && favoritos.length) {
+  <p class="tt-subtitle-small mt-2">
+    Tienes {{ favoritos.length }} viaje{{ favoritos.length > 1 ? 's' : '' }} guardado{{
+      favoritos.length > 1 ? 's' : ''
+    }}
+    en favoritos.
+  </p>
+  } @if (loading) {
   <p class="tt-text-muted text-center mt-3">Cargando tus favoritos...</p>
   } @if (!loading && error) {
   <p class="tt-text-error text-center mt-3">
@@ -62,4 +88,4 @@
     </div>
   </div>
   }
-</section>
+</div>
