@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, ViewChild, ElementRef } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TripService } from '../../core/services/viajes';
 import { AuthService } from '../../core/services/auth';
 import { Trip } from '../../interfaces/trip';
@@ -16,8 +17,11 @@ export class CrearEditarViaje implements AfterViewInit {
   @ViewChild('destinationInput') destinationInput!: ElementRef;
 
   trip?: Trip;
-
   tripForm!: FormGroup;
+
+  modoEdicion = false;
+  tripId?: number;
+
   includesList = [
     'flights',
     'tickets',
@@ -38,7 +42,9 @@ export class CrearEditarViaje implements AfterViewInit {
     private fb: FormBuilder,
     private tripService: TripService,
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -61,6 +67,7 @@ export class CrearEditarViaje implements AfterViewInit {
       breakfast: [false],
       visas: [false],
       assistance24: [false],
+
       min_participants: ['', [Validators.required, Validators.min(1)]],
       estimated_cost: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
       transport: ['', Validators.required],
@@ -71,6 +78,48 @@ export class CrearEditarViaje implements AfterViewInit {
       gallery_photos: [null],
       latitude: [''],
       longitude: [''],
+    });
+
+    this.route.paramMap.subscribe((params) => {
+      const id = params.get('id');
+      if (id) {
+        this.modoEdicion = true;
+        this.tripId = +id;
+        this.cargarViaje(+id);
+      }
+    });
+  }
+
+  cargarViaje(id: number) {
+    this.tripService.getTripById(id).then((trip: Trip) => {
+      this.trip = trip;
+
+      this.tripForm.patchValue({
+        title: trip.title,
+        origin: trip.origin,
+        destination: trip.destination,
+        start_date: trip.start_date?.slice(0, 10),
+        end_date: trip.end_date?.slice(0, 10),
+        description: trip.description,
+        itinerary: trip.itinerary,
+        requirements: trip.requirements,
+        min_participants: trip.min_participants,
+        estimated_cost: trip.estimated_cost,
+        transport: trip.transport,
+        accommodation: trip.accommodation,
+        flights: !!trip.flights,
+        tickets: !!trip.tickets,
+        visits: !!trip.visits,
+        full_board: !!trip.full_board,
+        travel_insurance: !!trip.travel_insurance,
+        tour_guide: !!trip.tour_guide,
+        informative_material: !!trip.informative_material,
+        breakfast: !!trip.breakfast,
+        visas: !!trip.visas,
+        assistance24: !!trip.assistance24,
+        latitude: trip.latitude,
+        longitude: trip.longitude,
+      });
     });
   }
 
@@ -87,7 +136,7 @@ export class CrearEditarViaje implements AfterViewInit {
         script.onload = resolve;
       });
     }
-    // 2.  API Places Autocomplete
+    // 2. API Places Autocomplete
     const { Autocomplete } = await (window as any).google.maps.importLibrary('places');
     const autocomplete = new Autocomplete(this.destinationInput.nativeElement, {
       types: ['(cities)'],
@@ -105,10 +154,6 @@ export class CrearEditarViaje implements AfterViewInit {
         });
       }
     });
-  }
-
-  get includesFormArray() {
-    return this.tripForm.get('includes') as FormArray;
   }
 
   onPhotoChange(event: any, controlName: string, multiple = false) {
@@ -133,7 +178,7 @@ export class CrearEditarViaje implements AfterViewInit {
       const user = JSON.parse(localStorage.getItem('usuario') || 'null');
       const userId = user ? user.id : null;
 
-      const tripData = {
+      const baseTripData = {
         origin: this.tripForm.value.origin || '',
         destination: this.tripForm.value.destination,
         title: this.tripForm.value.title,
@@ -160,49 +205,61 @@ export class CrearEditarViaje implements AfterViewInit {
         status: 'open',
         latitude: this.tripForm.value.latitude,
         longitude: this.tripForm.value.longitude,
-        created_at: new Date().toISOString().slice(0, 19).replace('T', ' '),
         updated_at: new Date().toISOString().slice(0, 19).replace('T', ' '),
-      };
+      } as any;
 
       this.includesList.forEach((campo) => {
-        (tripData as any)[campo] = this.tripForm.value[campo] ? 1 : 0;
+        baseTripData[campo] = this.tripForm.value[campo] ? 1 : 0;
       });
 
-      const tripResponse = await this.tripService.createTrip(tripData);
-      const tripId = tripResponse.trip.id;
+      let tripResponse;
 
-      try {
-        if (this.selectedCoverPhoto) {
-          await this.tripService.uploadImage(
-            this.selectedCoverPhoto,
-            'Foto de portada',
-            tripResponse.trip.id,
-            tripResponse.trip.creator_id,
-            false
-          );
+      if (this.modoEdicion && this.tripId) {
+        // EDICIÓN
+        tripResponse = await this.tripService.updateTrip(this.tripId, baseTripData);
+        alert('Viaje actualizado con éxito');
+      } else {
+        // CREAR NUEVO
+        baseTripData.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+        tripResponse = await this.tripService.createTrip(baseTripData);
+        const tripId = tripResponse.trip.id;
+
+        try {
+          if (this.selectedCoverPhoto) {
+            await this.tripService.uploadImage(
+              this.selectedCoverPhoto,
+              'Foto de portada',
+              tripId,
+              tripResponse.trip.creator_id,
+              false
+            );
+          }
+        } catch (e) {
+          console.error('Error subiendo portada:', e);
         }
-      } catch (e) {
-        console.error('Error subiendo portada:', e);
-      }
-      await new Promise((res) => setTimeout(res, 2000));
 
-      try {
-        if (this.selectedMainPhoto) {
-          await this.tripService.uploadImage(
-            this.selectedMainPhoto,
-            'Foto principal',
-            tripResponse.trip.id,
-            tripResponse.trip.creator_id,
-            true
-          );
+        await new Promise((res) => setTimeout(res, 2000));
+
+        try {
+          if (this.selectedMainPhoto) {
+            await this.tripService.uploadImage(
+              this.selectedMainPhoto,
+              'Foto principal',
+              tripId,
+              tripResponse.trip.creator_id,
+              true
+            );
+          }
+        } catch (e) {
+          console.error('Error subiendo principal:', e);
         }
-      } catch (e) {
-        console.error('Error subiendo principal:', e);
+
+        alert('Viaje creado con éxito');
       }
 
-      alert('Viaje creado con éxito');
+      // this.router.navigate(['/viaje', tripResponse.trip.id]);
     } catch (err) {
-      console.error('Error al crear viaje o subir imágenes', err);
+      console.error('Error al crear/actualizar viaje o subir imágenes', err);
       if (err instanceof HttpErrorResponse) {
         console.error('Status:', err.status);
         console.error('StatusText:', err.statusText);

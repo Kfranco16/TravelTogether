@@ -18,10 +18,12 @@
             class="text-uppercase text-secondary fw-semibold mb-1 small d-flex align-items-center gap-2"
           >
             <i class="bi bi-stars"></i>
-            Registro de viaje
+            {{ modoEdicion ? 'Edición de viaje' : 'Registro de viaje' }}
           </p>
 
-          <h1 class="h3 mb-2 color-principal">Crea un nuevo viaje</h1>
+          <h1 class="h3 mb-2 color-principal">
+            {{ modoEdicion ? 'Edita tu viaje' : 'Crea un nuevo viaje' }}
+          </h1>
 
           <p class="mb-2 text-muted">
             Crea un título que atrape, elige fotos que muestren la mejor cara de tu aventura y
@@ -490,7 +492,7 @@
         [disabled]="tripForm.invalid"
       >
         <i class="bi bi-send-fill"></i>
-        Aceptar y publicar viaje
+        {{ modoEdicion ? 'Actualizar y guardar' : 'Aceptar y publicar viaje' }}
       </button>
     </div>
   </form>

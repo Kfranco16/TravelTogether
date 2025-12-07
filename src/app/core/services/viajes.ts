@@ -53,6 +53,14 @@ export class TripService {
     return this.http.get<any[]>(`${environment.apiUrl}/trips/`);
   }
 
+  //Actualizar viaje
+  updateTrip(id: number, tripData: any): Observable<any> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    const url = `${environment.apiUrl}/trips/${id}`;
+    return this.http.put<any>(url, tripData, { headers });
+  }
+
   // Eliminar viaje
   deleteTripById(id: number, token?: string) {
     const auth = token || localStorage.getItem('authToken') || '';

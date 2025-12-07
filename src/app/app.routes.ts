@@ -21,6 +21,7 @@ export const routes: Routes = [
   // RUTAS PRIVADAS (requieren login)
   { path: 'viaje/:id', component: DetalleViaje, canActivate: [authGuard] },
   { path: 'crear-viaje', component: CrearEditarViaje, canActivate: [authGuard] },
+  { path: 'viaje/editar/:id', component: CrearEditarViaje, canActivate: [authGuard] },
   { path: 'perfil/:id', component: Perfil, canActivate: [authGuard] },
 
   // MI ESPACIO (Dashboard con rutas hijas)

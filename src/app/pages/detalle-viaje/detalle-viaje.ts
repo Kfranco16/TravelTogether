@@ -14,7 +14,7 @@ import { ParticipationService } from '../../core/services/participations';
 @Component({
   selector: 'app-detalle-viaje',
   standalone: true,
-  imports: [DatePipe, CardUsuario],
+  imports: [DatePipe, CardUsuario, RouterLink],
   templateUrl: './detalle-viaje.html',
   styleUrl: './detalle-viaje.css',
 })
