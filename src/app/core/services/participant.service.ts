@@ -146,6 +146,42 @@ export interface UserParticipationsResponse {
   data: UserParticipation[];
 }
 
+/**
+ * Información de participante en un viaje específico
+ * Usada para obtener participation_id y eliminar participantes
+ */
+export interface TripParticipation {
+  participation_id: number;
+  status: 'pending' | 'accepted' | 'rejected';
+  request_date: string;
+  response_date: string | null;
+  user_id: number;
+  username: string;
+  email: string;
+  user_image_url: string | null;
+  user_avg_score: string;
+}
+
+/**
+ * Respuesta del backend cuando se obtienen participaciones de un viaje
+ */
+export interface TripParticipationsResponse {
+  message: string;
+  data: TripParticipation[];
+}
+
+/**
+ * Respuesta del backend cuando se elimina un participante
+ */
+export interface DeleteParticipantResponse {
+  message: string;
+  data: {
+    userId: number;
+    tripId: number;
+    participationId: string | number;
+  };
+}
+
 // ============================================================================
 // INJECTABLE SERVICE
 // ============================================================================
@@ -192,6 +228,13 @@ export class ParticipantService {
    * Se puede usar para mostrar notificaciones de error
    */
   errorSignal = signal<string | null>(null);
+
+  /**
+   * Map que almacena las participaciones de cada viaje
+   * Clave: trip_id, Valor: array de participaciones
+   * Se usa para acceso rápido sin necesidad de múltiples peticiones
+   */
+  private tripParticipationsMap = new Map<number, TripParticipation[]>();
 
   // ========================================================================
   // MÉTODOS PÚBLICOS
@@ -501,12 +544,123 @@ export class ParticipantService {
       );
   }
 
+  /**
+   * Obtener todas las participaciones de un viaje específico
+   *
+   * Llamada al endpoint: GET {apiUrl}/participations/trip/{tripId}
+   * Header: Authorization: Bearer {token}
+   *
+   * IMPORTANTE: Se usa para obtener el participation_id necesario para eliminar participantes
+   *
+   * @param tripId - ID del viaje
+   * @returns Observable con la respuesta del backend
+   *
+   * @example
+   * this.participantService.getTripParticipations(5).subscribe({
+   *   next: (response) => {
+   *     console.log(response.data); // Array con participation_id
+   *   },
+   *   error: (error) => console.error(error.message)
+   * });
+   */
+  getTripParticipations(tripId: number): Observable<TripParticipationsResponse> {
+    const token = localStorage.getItem('tt_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    this.loadingSignal.set(true);
+
+    return this.http
+      .get<TripParticipationsResponse>(`${environment.apiUrl}/participations/trip/${tripId}`, {
+        headers,
+      })
+      .pipe(
+        tap((response) => {
+          // Guardar en el Map para acceso rápido
+          this.tripParticipationsMap.set(tripId, response.data);
+          this.loadingSignal.set(false);
+          this.errorSignal.set(null);
+        }),
+        catchError((error) => {
+          const errorMsg = error?.error?.message || 'Error al obtener participantes del viaje';
+          console.error('❌ Error en getTripParticipations:', errorMsg);
+          this.errorSignal.set(errorMsg);
+          this.loadingSignal.set(false);
+          return throwError(() => ({
+            message: errorMsg,
+            error,
+          }));
+        })
+      );
+  }
+
+  /**
+   * Obtener participaciones cacheadas de un viaje
+   * Retorna los datos del Map sin hacer petición HTTP
+   *
+   * @param tripId - ID del viaje
+   * @returns Array de participaciones o undefined si no está en cache
+   */
+  getCachedTripParticipations(tripId: number): TripParticipation[] | undefined {
+    return this.tripParticipationsMap.get(tripId);
+  }
+
+  /**
+   * Eliminar un participante de un viaje (solo creador)
+   *
+   * Llamada al endpoint: DELETE {apiUrl}/participations/{participationId}
+   * Header: Authorization: Bearer {token}
+   * Content-Type: application/json
+   *
+   * @param participationId - ID de la participación a eliminar
+   * @returns Observable con la respuesta del backend
+   *
+   * @example
+   * this.participantService.deleteParticipant(21).subscribe({
+   *   next: (response) => console.log(response.message),
+   *   error: (error) => console.error(error.message)
+   * });
+   */
+  deleteParticipant(participationId: number): Observable<DeleteParticipantResponse> {
+    const token = localStorage.getItem('tt_token');
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    });
+
+    return this.http
+      .delete<DeleteParticipantResponse>(
+        `${environment.apiUrl}/participations/${participationId}`,
+        {
+          headers,
+        }
+      )
+      .pipe(
+        tap((response) => {
+          // Invalidar cache del viaje para refrescarlo en siguiente carga
+          const tripId = response.data.tripId;
+          this.tripParticipationsMap.delete(tripId);
+          this.errorSignal.set(null);
+        }),
+        catchError((error) => {
+          const errorMsg = error?.error?.message || 'Error al eliminar participante';
+          console.error('❌ Error en deleteParticipant:', errorMsg);
+          this.errorSignal.set(errorMsg);
+          return throwError(() => ({
+            message: errorMsg,
+            error,
+          }));
+        })
+      );
+  }
+
   // ========================================================================
   // MÉTODOS PRIVADOS / UTILIDADES
   // ========================================================================
 
   /**
-   * Método para limpiar los signals (útil en logout)
+   * Método para limpiar los signals y cache (útil en logout)
    *
    * @example
    * this.participantService.reset();
@@ -517,5 +671,6 @@ export class ParticipantService {
     this.userParticipations.set([]);
     this.loadingSignal.set(false);
     this.errorSignal.set(null);
+    this.tripParticipationsMap.clear();
   }
 }

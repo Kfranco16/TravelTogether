@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ParticipantService,
@@ -6,6 +6,7 @@ import {
   MyCreatedTrip,
   MyCreatedTripsResponse,
   UserParticipation,
+  TripParticipation,
 } from '../../core/services/participant.service';
 import { toast } from 'ngx-sonner';
 import { firstValueFrom } from 'rxjs';
@@ -98,6 +99,40 @@ export class PendingParticipationsComponent implements OnInit {
    * Controla cuál sección se muestra en el HTML
    */
   activeTab: 'pending' | 'accepted' | 'myTrips' = 'pending';
+
+  /**
+   * Map que almacena las participaciones cargadas para cada viaje
+   * Clave: trip_id, Valor: array de participaciones de ese viaje
+   * Se usa para mostrar participantes con su participation_id para eliminar
+   */
+  tripParticipationsMap = new Map<number, TripParticipation[]>();
+
+  /**
+   * Signal que controla la visibilidad del toast de confirmación
+   * Se usa para mostrar/ocultar el modal de confirmación de borrado
+   */
+  mostrarToastConfirmacion = signal<boolean>(false);
+
+  /**
+   * Signal que almacena el mensaje del toast de confirmación
+   */
+  mensajeConfirmacion = signal<string>('');
+
+  /**
+   * Signal que almacena el ID de participación a eliminar
+   * Se usa cuando el user confirma la eliminación
+   */
+  participationIdPendiente = signal<number | null>(null);
+
+  /**
+   * Signal que almacena el ID del viaje para la participación pendiente
+   */
+  tripIdPendiente = signal<number | null>(null);
+
+  /**
+   * Signal que controla si se está animando el toast de salida
+   */
+  ocultandoToastConfirmacion = signal<boolean>(false);
 
   // ========================================================================
   // CICLO DE VIDA
@@ -344,6 +379,211 @@ export class PendingParticipationsComponent implements OnInit {
    */
   switchTab(tab: 'pending' | 'accepted' | 'myTrips'): void {
     this.activeTab = tab;
+
+    // Cuando se abre la pestaña 'accepted', cargar participaciones de los viajes
+    if (tab === 'accepted' && this.myCreatedTrips.length > 0) {
+      this.loadAllTripParticipations();
+    }
+  }
+
+  /**
+   * Cargar las participaciones de todos los viajes creados
+   * Se llama cuando se abre la pestaña 'accepted'
+   * Una única petición GET por viaje para obtener participation_id
+   */
+  async loadAllTripParticipations(): Promise<void> {
+    this.isLoading = true;
+
+    try {
+      // Cargar participaciones para cada viaje en paralelo
+      const tripIds = this.myCreatedTrips.map((trip) => trip.trip_id);
+      const requests = tripIds.map((tripId) =>
+        firstValueFrom(this.participantService.getTripParticipations(tripId))
+      );
+
+      const responses = await Promise.all(requests);
+
+      // Guardar en el Map local
+      responses.forEach((response) => {
+        if (response.data.length > 0) {
+          const tripId = response.data[0].participation_id; // Obtener tripId de la respuesta
+          console.log('viajes capturados', tripId);
+
+          // Mapear usando el trip_id del array myCreatedTrips
+          const trip = this.myCreatedTrips.find((t) => {
+            // Buscar coincidencia por estructura de datos
+            return response.data.some((p: any) => p.user_id !== this.userId);
+          });
+
+          if (trip) {
+            this.tripParticipationsMap.set(trip.trip_id, response.data);
+          }
+        }
+      });
+
+      toast.success('Participantes cargados correctamente');
+    } catch (error: any) {
+      console.error('❌ Error al cargar participaciones:', error);
+      const errorMsg = error?.message || 'Error al cargar participantes';
+      this.errorMessage = errorMsg;
+      toast.error(errorMsg);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  /**
+   * Obtener las participaciones de un viaje específico
+   * Busca en el Map local primero, si no está cargado usa caché del servicio
+   *
+   * @param tripId - ID del viaje
+   * @returns Array de participaciones del viaje
+   */
+  getTripParticipations(tripId: number): TripParticipation[] {
+    // Primero buscar en el Map local
+    if (this.tripParticipationsMap.has(tripId)) {
+      return this.tripParticipationsMap.get(tripId) || [];
+    }
+
+    // Si no, intentar obtener del caché del servicio
+    const cached = this.participantService.getCachedTripParticipations(tripId);
+    if (cached) {
+      this.tripParticipationsMap.set(tripId, cached);
+      return cached;
+    }
+
+    return [];
+  }
+
+  /**
+   * Obtener el participation_id de un usuario específico en un viaje
+   * Se usa para encontrar el participation_id necesario para eliminar
+   *
+   * @param tripId - ID del viaje
+   * @param userId - ID del usuario (participante)
+   * @returns participation_id o null si no se encuentra
+   */
+  getParticipationId(tripId: number, userId: number): number | null {
+    const participations = this.getTripParticipations(tripId);
+    const participation = participations.find((p) => p.user_id === userId);
+    return participation ? participation.participation_id : null;
+  }
+
+  /**
+   * Mostrar confirmación antes de eliminar participante
+   * Usa un toast modal para pedir confirmación al user
+   *
+   * @param participationId - ID de la participación a eliminar
+   * @param tripId - ID del viaje
+   * @param participantName - Nombre del participante (para el mensaje)
+   */
+  mostrarConfirmacionEliminar(
+    participationId: number,
+    tripId: number,
+    participantName: string
+  ): void {
+    this.participationIdPendiente.set(participationId);
+    this.tripIdPendiente.set(tripId);
+    this.mensajeConfirmacion.set(
+      `¿Eliminar a ${participantName} de este viaje? Esta acción no se puede deshacer.`
+    );
+    this.ocultandoToastConfirmacion.set(false);
+    this.mostrarToastConfirmacion.set(true);
+  }
+
+  /**
+   * Confirmar y ejecutar la eliminación del participante
+   * Se llama cuando el user hace click en "Confirmar" en el toast
+   */
+  confirmarEliminacion(): void {
+    const participationId = this.participationIdPendiente();
+    const tripId = this.tripIdPendiente();
+
+    if (participationId && tripId) {
+      this.ocultarToastConfirmacion();
+      // Esperar a que se anule la animación antes de eliminar
+      setTimeout(() => {
+        this.deleteParticipant(participationId, tripId);
+      }, 300);
+    }
+  }
+
+  /**
+   * Cancelar la eliminación
+   * Oculta el toast de confirmación
+   */
+  cancelarEliminacion(): void {
+    this.ocultarToastConfirmacion();
+  }
+
+  /**
+   * Ocultar el toast de confirmación con animación de salida
+   */
+  ocultarToastConfirmacion(): void {
+    this.ocultandoToastConfirmacion.set(true);
+
+    setTimeout(() => {
+      this.mostrarToastConfirmacion.set(false);
+      this.ocultandoToastConfirmacion.set(false);
+      this.participationIdPendiente.set(null);
+      this.tripIdPendiente.set(null);
+    }, 300);
+  }
+
+  /**
+   * Eliminar un participante de un viaje (optimistic update)
+   * 1. Actualiza la UI inmediatamente (optimistic update)
+   * 2. Hace la petición DELETE
+   * 3. Si falla, revierte los cambios
+   *
+   * @param participationId - ID de la participación a eliminar
+   * @param tripId - ID del viaje (para actualizar el Map)
+   */
+  async deleteParticipant(participationId: number, tripId: number): Promise<void> {
+    // Obtener la participación antes de eliminar (para revertir si falla)
+    const participations = this.tripParticipationsMap.get(tripId) || [];
+    const deletedParticipation = participations.find((p) => p.participation_id === participationId);
+
+    if (!deletedParticipation) {
+      toast.error('No se encontró el participante');
+      return;
+    }
+
+    try {
+      // Optimistic update: eliminar de la UI inmediatamente
+      const updatedParticipations = participations.filter(
+        (p) => p.participation_id !== participationId
+      );
+      this.tripParticipationsMap.set(tripId, updatedParticipations);
+
+      // Hacer la petición DELETE
+      const response = await firstValueFrom(
+        this.participantService.deleteParticipant(participationId)
+      );
+
+      // Actualizar también en myCreatedTrips (reducir current_participants)
+      const trip = this.myCreatedTrips.find((t) => t.trip_id === tripId);
+      if (trip) {
+        trip.current_participants = Math.max(0, trip.current_participants - 1);
+      }
+
+      toast.success('Participante eliminado correctamente', {
+        description: response.message,
+      });
+
+      console.log('✅ Participante eliminado:', response.data);
+    } catch (error: any) {
+      // Revertir cambios en caso de error
+      this.tripParticipationsMap.set(tripId, participations);
+
+      console.error('❌ Error al eliminar participante:', error);
+      const errorMsg = error?.message || 'Error al eliminar participante';
+      this.errorMessage = errorMsg;
+
+      toast.error(errorMsg, {
+        description: 'Por favor, intenta de nuevo más tarde',
+      });
+    }
   }
 
   /**

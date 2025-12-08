@@ -257,6 +257,36 @@
                   <div class="small fw-bold">{{ participant.username }}</div>
                   <small class="text-muted">⭐ {{ participant.participant_avg_score }}</small>
                 </div>
+                <!-- Botón eliminar: Responsive design con mayor espaciado -->
+                <button
+                  class="btn btn-sm btn-outline-danger d-none d-md-block"
+                  (click)="
+                    mostrarConfirmacionEliminar(
+                      getParticipationId(trip.trip_id, participant.id)!,
+                      trip.trip_id,
+                      participant.username
+                    )
+                  "
+                  [disabled]="userId === participant.id"
+                  title="Eliminar participante"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+                <!-- Versión compacta para móvil -->
+                <button
+                  class="btn btn-sm btn-outline-danger d-md-none"
+                  (click)="
+                    mostrarConfirmacionEliminar(
+                      getParticipationId(trip.trip_id, participant.id)!,
+                      trip.trip_id,
+                      participant.username
+                    )
+                  "
+                  [disabled]="userId === participant.id"
+                  title="Eliminar"
+                >
+                  <i class="bi bi-x-circle"></i>
+                </button>
               </div>
             </div>
             }
@@ -391,4 +421,35 @@
     </div>
   </div>
   } } }
+
+  <!-- ============================================================================
+     TOAST DE CONFIRMACIÓN - ELIMINAR PARTICIPANTE
+     ============================================================================ -->
+  @if (mostrarToastConfirmacion()) {
+  <div
+    class="toast-confirmation"
+    [class.toast-confirming]="!ocultandoToastConfirmacion()"
+    [class.toast-hiding]="ocultandoToastConfirmacion()"
+  >
+    <div class="toast-body">
+      <div class="toast-icon">
+        <i class="bi bi-exclamation-triangle"></i>
+      </div>
+      <div class="toast-content">
+        <h6 class="toast-title">Confirmar eliminación</h6>
+        <p class="toast-message">{{ mensajeConfirmacion() }}</p>
+      </div>
+      <div class="toast-actions">
+        <button class="btn btn-sm btn-outline-secondary" (click)="cancelarEliminacion()">
+          <i class="bi bi-x-lg"></i>
+          Cancelar
+        </button>
+        <button class="btn btn-sm btn-danger" (click)="confirmarEliminacion()">
+          <i class="bi bi-trash"></i>
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+  }
 </div>

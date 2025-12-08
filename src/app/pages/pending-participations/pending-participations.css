@@ -176,6 +176,10 @@
   background: #f9fafb;
   border-radius: 0.5rem;
   transition: all 0.2s ease;
+
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem; /* Mayor espaciado entre nombre y botón */
 }
 
 .participant-item:hover {
@@ -185,6 +189,56 @@
 
 .participant-item img {
   border: 2px solid #e5e7eb;
+}
+
+.participant-item .btn-outline-danger {
+  opacity: 0.6;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.participant-item:hover .btn-outline-danger {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.participant-item .btn-outline-danger:disabled {
+  opacity: 0;
+  cursor: not-allowed;
+}
+
+@media (max-width: 767.98px) {
+  .participant-item .btn-outline-danger.d-md-none {
+    opacity: 0.8;
+  }
+
+  .participant-item .btn-outline-danger.d-md-none:hover {
+    opacity: 1;
+  }
+}
+
+/* Botones de acción en participantes */
+.participant-item .btn-outline-danger {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  margin-left: 0.5rem;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.participant-item:hover .btn-outline-danger {
+  opacity: 1;
+}
+
+/* Móvil: mostrar botón siempre */
+@media (max-width: 767.98px) {
+  .participant-item .btn-outline-danger.d-md-none {
+    opacity: 1;
+    margin-left: 0.25rem;
+    padding: 0.25rem 0.35rem;
+    font-size: 0.75rem;
+  }
 }
 
 /* ============================================================================
@@ -445,6 +499,121 @@ a {
 .alert-danger {
   background-color: #f8d7da;
   color: #721c24;
+}
+
+/* ============================================================================
+   TOAST DE CONFIRMACIÓN
+   ============================================================================ */
+
+.toast-confirmation {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+
+  transform: translateX(-50%);
+  z-index: 9999;
+  max-width: 500px;
+  width: 90vw;
+  animation: slideUp 0.3s ease-out;
+}
+
+.toast-confirmation.toast-hiding {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+}
+
+.toast-body {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.toast-icon {
+  font-size: 1.5rem;
+  color: #f59e0b;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.toast-content {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.toast-title {
+  margin: 0 0 0.25rem 0;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+.toast-message {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.toast-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+}
+
+.toast-actions .btn {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+  .toast-confirmation {
+    width: 95vw;
+    bottom: 1rem;
+  }
+
+  .toast-body {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .toast-actions {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .toast-actions .btn {
+    flex: 1;
+    text-align: center;
+  }
 }
 
 .alert-info {
