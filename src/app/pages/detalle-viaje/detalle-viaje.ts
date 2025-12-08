@@ -10,6 +10,7 @@ import { firstValueFrom } from 'rxjs';
 import { CardUsuario } from '../../components/card-usuario/card-usuario';
 import { AuthService } from '../../core/services/auth';
 import { ParticipationService } from '../../core/services/participations';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-detalle-viaje',
@@ -148,17 +149,40 @@ export class DetalleViaje {
 
   async eliminarViaje() {
     if (!this.viaje?.id) {
-      alert('El viaje no tiene un ID válido.');
+      toast.warning('El viaje no tiene un ID válido.');
       return;
     }
-    if (confirm('¿Seguro que quieres eliminar este viaje?')) {
-      try {
-        await firstValueFrom(this.tripService.deleteTripById(this.viaje.id));
-        this.router.navigate(['/home']);
-      } catch (error) {
-        alert('No se pudo eliminar el viaje.');
-      }
+
+    const toastId = toast.loading('Eliminando viaje...');
+
+    try {
+      await firstValueFrom(this.tripService.deleteTripById(this.viaje.id));
+      toast.success('Viaje eliminado correctamente', {
+        id: toastId,
+        duration: 5000,
+      });
+      this.router.navigate(['/home']);
+    } catch (error) {
+      toast.error('No se pudo eliminar el viaje.', {
+        id: toastId,
+        duration: 5000,
+      });
     }
+  }
+
+  showDeleteModal = false;
+
+  openDeleteModal() {
+    this.showDeleteModal = true;
+  }
+
+  cancelDelete() {
+    this.showDeleteModal = false;
+  }
+
+  async confirmDelete() {
+    this.showDeleteModal = false;
+    await this.eliminarViaje();
   }
 
   irADetalleUsuario(usuario: Iuser | null) {

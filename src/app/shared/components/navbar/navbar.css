@@ -3,21 +3,72 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-/* Contenedor principal: logo + menú alineados */
+.tt-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+  padding: 0.3rem 1rem 0.4rem;
+  z-index: 1030;
+}
+
+.tt-bottom-nav-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tt-bottom-item {
+  flex: 1;
+  text-align: center;
+  text-decoration: none;
+  color: #6b7280;
+  font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+
+.tt-bottom-item i {
+  font-size: 1.2rem;
+}
+
+.tt-bottom-item.active {
+  color: #4f46e5;
+}
+
+.tt-fab {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(-18%);
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  border: 0;
+  background-image: var(--tt-gradient);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 24px rgba(79, 70, 229, 0.45);
+  font-size: 1.4rem;
+}
+
 .tt-mobile-wrap {
   display: flex;
   align-items: center;
 }
 
-/* Lista de navegación alineada a la derecha y centrada verticalmente */
 .tt-navlist {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-left: auto; /* Empuja la navlist a la derecha en desktop */
+  margin-left: auto;
 }
 
-/* Quita pseudo-elementos que no necesitamos */
 .tt-navlist::before,
 .tt-navlist::after {
   content: none;
@@ -28,7 +79,6 @@
   text-decoration: none;
 }
 
-/* Links normales */
 .navbar .tt-link {
   color: #374151;
   font-weight: 700;
@@ -37,7 +87,6 @@
   line-height: 1;
 }
 
-/* Hover degradado en textos */
 .navbar .tt-link:hover,
 .navbar .tt-link:focus {
   background-image: var(--tt-gradient);
@@ -47,7 +96,6 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* Botón + Crear viaje */
 .navbar .tt-btn-primary {
   background-image: var(--tt-gradient);
   color: #fff;
@@ -71,7 +119,6 @@
   box-shadow: 0 12px 28px rgba(139, 92, 246, 0.3), 0 6px 16px rgba(59, 130, 246, 0.18);
 }
 
-/* Botón hamburguesa */
 .navbar-toggler {
   border: 0;
   box-shadow: none;
@@ -88,7 +135,6 @@
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.12));
 }
 
-/* Wrapper para posicionar hamburguesa y campana */
 .tt-toggler-with-bell {
   position: relative;
 }
@@ -104,7 +150,6 @@
   box-shadow: 0 6px 16px rgba(139, 92, 246, 0.25);
 }
 
-/* X fija en móvil cuando el menú está abierto */
 .tt-close-x-fixed {
   position: fixed;
   top: 1rem;
@@ -121,7 +166,6 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* Dropdown general */
 .tt-dropdown {
   background: #fff;
   border: 1px solid #e8e8ef;
@@ -165,7 +209,6 @@
   color: #b02a37;
 }
 
-/* Layout móvil del dropdown */
 @media (max-width: 767.98px) {
   .navbar .dropdown-menu {
     position: static;
@@ -181,13 +224,10 @@
     margin: 0.25rem 0;
   }
 
-  /* En móvil no necesitamos alinear la navlist a la derecha */
   .tt-navlist {
     margin-left: 0;
   }
 }
-
-/* AVATAR + NOTIFICACIONES */
 
 .tt-user-menu {
   display: inline-flex;
@@ -195,7 +235,6 @@
   gap: 0.5rem;
 }
 
-/* Wrapper general */
 .tt-avatar-wrapper {
   position: relative;
   display: inline-flex;
@@ -203,7 +242,6 @@
   justify-content: center;
 }
 
-/* Aro del avatar */
 .tt-avatar-ring {
   width: 44px;
   height: 44px;
@@ -215,20 +253,17 @@
   transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
 }
 
-/* Sin notificaciones: aro gris */
 .tt-avatar-ring--idle {
   background: linear-gradient(135deg, #d4d4d8, #e5e7eb);
   box-shadow: none;
 }
 
-/* Con notificaciones: degradado + glow */
 .tt-avatar-ring--active {
   background: linear-gradient(135deg, #a855f7, #3b82f6);
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.95), 0 0 16px rgba(129, 140, 248, 0.75);
   transform: translateY(-1px);
 }
 
-/* Imagen del avatar */
 .tt-avatar-img {
   width: 100%;
   height: 100%;
@@ -240,7 +275,6 @@
   justify-content: center;
 }
 
-/* Placeholder (si no hay foto) */
 .tt-avatar-placeholder {
   color: #6b7280;
   font-weight: 700;
@@ -248,7 +282,6 @@
   -webkit-text-fill-color: currentColor;
 }
 
-/* Campanita sobre el avatar */
 .tt-avatar-bell {
   position: absolute;
   bottom: -2px;
@@ -275,7 +308,6 @@
   font-size: 0.8rem;
 }
 
-/* Campanita sobre el botón hamburguesa (solo móvil) */
 .tt-bell-mobile {
   position: absolute;
   top: -6px;
@@ -302,14 +334,12 @@
   color: #fff;
 }
 
-/* Solo visible en móvil */
 @media (min-width: 768px) {
   .tt-bell-mobile {
     display: none;
   }
 }
 
-/* Puntos del menú (notificaciones por sección) */
 .tt-dot {
   width: 10px;
   height: 10px;

@@ -23,7 +23,6 @@ export class Registro implements OnInit {
   @Input() tituloFormulario: string = 'Regístrate y empieza tu aventura';
   @Input() textoBoton: string = 'Aceptar y registrarme';
 
-  // Nuevo: modo edición + datos iniciales
   @Input() isEditMode: boolean = false;
   @Input() userData: Partial<Iuser> | null = null;
 
@@ -48,7 +47,6 @@ export class Registro implements OnInit {
 
   ngOnInit(): void {
     if (this.isEditMode && this.userData) {
-      // Rellenar campos con los datos del usuario
       this.userForm.patchValue({
         username: this.userData.username,
         email: this.userData.email,
@@ -58,13 +56,11 @@ export class Registro implements OnInit {
         intereses: this.userData.interests,
       });
 
-      // En edición, puedes hacer que password no sea obligatoria
       this.userForm.get('password')?.clearValidators();
       this.userForm.get('password')?.updateValueAndValidity();
       this.userForm.get('repeatPassword')?.clearValidators();
       this.userForm.get('repeatPassword')?.updateValueAndValidity();
 
-      // Textos personalizados
       this.tituloFormulario = this.tituloFormulario || 'Actualiza tus datos';
       this.textoBoton = this.textoBoton || 'Guardar cambios';
     }
@@ -85,7 +81,6 @@ export class Registro implements OnInit {
     const { username, email, password, image, telefono, descripcion, intereses } =
       this.userForm.value;
 
-    // REGISTRO (modo creación)
     if (!this.isEditMode) {
       try {
         await this.authService.register({
@@ -97,7 +92,8 @@ export class Registro implements OnInit {
           bio: descripcion,
           interests: intereses,
         });
-        alert('Registrado correctamente');
+
+        toast.success('Registrado correctamente');
         this.router.navigate(['/dashboard/perfil']);
       } catch (err: any) {
         const backendMsg = err?.error?.message;
@@ -111,7 +107,6 @@ export class Registro implements OnInit {
         }
       }
     } else {
-      // EDICIÓN (actualizar datos)
       try {
         const current = this.authService.getCurrentUser();
         if (!current) {
@@ -126,12 +121,12 @@ export class Registro implements OnInit {
           phone: telefono,
           bio: descripcion,
           interests: intereses,
-          // Si quieres permitir cambiar password aquí, la añades:
+
           ...(password ? { password } : {}),
         });
 
         toast.success('Datos actualizados correctamente.');
-        // Opcional: navegar o solo mostrar mensaje
+        this.router.navigate(['/dashboard/perfil']);
       } catch (err) {
         toast.error('No se pudieron actualizar los datos.');
       }

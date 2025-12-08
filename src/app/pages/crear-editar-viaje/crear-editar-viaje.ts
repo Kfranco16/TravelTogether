@@ -6,6 +6,7 @@ import { TripService } from '../../core/services/viajes';
 import { AuthService } from '../../core/services/auth';
 import { Trip } from '../../interfaces/trip';
 import { File } from 'lucide-angular';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-crear-editar-viaje',
@@ -174,99 +175,108 @@ export class CrearEditarViaje implements AfterViewInit {
       return;
     }
 
+    const user = JSON.parse(localStorage.getItem('usuario') || 'null');
+    const userId = user ? user.id : null;
+
+    const baseTripData: any = {
+      origin: this.tripForm.value.origin || '',
+      destination: this.tripForm.value.destination,
+      title: this.tripForm.value.title,
+      description: this.tripForm.value.description,
+      creator_id: userId,
+      start_date: this.tripForm.value.start_date + ' 00:00:00',
+      end_date: this.tripForm.value.end_date + ' 00:00:00',
+      estimated_cost: this.tripForm.value.estimated_cost,
+      min_participants: this.tripForm.value.min_participants,
+      transport: this.tripForm.value.transport,
+      accommodation: this.tripForm.value.accommodation,
+      itinerary: this.tripForm.value.itinerary,
+      requirements: this.tripForm.value.requirements,
+      flights: this.tripForm.value.flights,
+      tickets: this.tripForm.value.tickets,
+      visits: this.tripForm.value.visits,
+      full_board: this.tripForm.value.full_board,
+      travel_insurance: this.tripForm.value.travel_insurance,
+      tour_guide: this.tripForm.value.tour_guide,
+      informative_material: this.tripForm.value.informative_material,
+      breakfast: this.tripForm.value.breakfast,
+      visas: this.tripForm.value.visas,
+      assistance24: this.tripForm.value.assistance24,
+      status: 'open',
+      latitude: this.tripForm.value.latitude,
+      longitude: this.tripForm.value.longitude,
+      updated_at: new Date().toISOString().slice(0, 19).replace('T', ' '),
+    };
+
+    this.includesList.forEach((campo) => {
+      baseTripData[campo] = this.tripForm.value[campo] ? 1 : 0;
+    });
+
     try {
-      const user = JSON.parse(localStorage.getItem('usuario') || 'null');
-      const userId = user ? user.id : null;
+      const tripResponse = await toast.promise(
+        (async () => {
+          let tripResp: any;
 
-      const baseTripData = {
-        origin: this.tripForm.value.origin || '',
-        destination: this.tripForm.value.destination,
-        title: this.tripForm.value.title,
-        description: this.tripForm.value.description,
-        creator_id: userId,
-        start_date: this.tripForm.value.start_date + ' 00:00:00',
-        end_date: this.tripForm.value.end_date + ' 00:00:00',
-        estimated_cost: this.tripForm.value.estimated_cost,
-        min_participants: this.tripForm.value.min_participants,
-        transport: this.tripForm.value.transport,
-        accommodation: this.tripForm.value.accommodation,
-        itinerary: this.tripForm.value.itinerary,
-        requirements: this.tripForm.value.requirements,
-        flights: this.tripForm.value.flights,
-        tickets: this.tripForm.value.tickets,
-        visits: this.tripForm.value.visits,
-        full_board: this.tripForm.value.full_board,
-        travel_insurance: this.tripForm.value.travel_insurance,
-        tour_guide: this.tripForm.value.tour_guide,
-        informative_material: this.tripForm.value.informative_material,
-        breakfast: this.tripForm.value.breakfast,
-        visas: this.tripForm.value.visas,
-        assistance24: this.tripForm.value.assistance24,
-        status: 'open',
-        latitude: this.tripForm.value.latitude,
-        longitude: this.tripForm.value.longitude,
-        updated_at: new Date().toISOString().slice(0, 19).replace('T', ' '),
-      } as any;
+          if (this.modoEdicion && this.tripId) {
+            // EDICIÓN
+            tripResp = await this.tripService.updateTrip(this.tripId, baseTripData);
+          } else {
+            // CREAR NUEVO
+            baseTripData.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            tripResp = await this.tripService.createTrip(baseTripData);
+            const tripId = tripResp.trip.id;
 
-      this.includesList.forEach((campo) => {
-        baseTripData[campo] = this.tripForm.value[campo] ? 1 : 0;
-      });
+            // Subir portada
+            if (this.selectedCoverPhoto) {
+              try {
+                await this.tripService.uploadImage(
+                  this.selectedCoverPhoto,
+                  'Foto de portada',
+                  tripId,
+                  tripResp.trip.creator_id,
+                  false
+                );
+              } catch (e) {
+                console.error('Error subiendo portada:', e);
+              }
+            }
 
-      let tripResponse;
+            // Subir principal
+            if (this.selectedMainPhoto) {
+              try {
+                await this.tripService.uploadImage(
+                  this.selectedMainPhoto,
+                  'Foto principal',
+                  tripId,
+                  tripResp.trip.creator_id,
+                  true
+                );
+              } catch (e) {
+                console.error('Error subiendo principal:', e);
+              }
+            }
 
-      if (this.modoEdicion && this.tripId) {
-        // EDICIÓN
-        tripResponse = await this.tripService.updateTrip(this.tripId, baseTripData);
-        alert('Viaje actualizado con éxito');
-      } else {
-        // CREAR NUEVO
-        baseTripData.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
-        tripResponse = await this.tripService.createTrip(baseTripData);
-        const tripId = tripResponse.trip.id;
-
-        try {
-          if (this.selectedCoverPhoto) {
-            await this.tripService.uploadImage(
-              this.selectedCoverPhoto,
-              'Foto de portada',
-              tripId,
-              tripResponse.trip.creator_id,
-              false
-            );
+            // notificacion??
+            // await firstValueFrom(this.notificationsService.create(notiBody, token!));
           }
-        } catch (e) {
-          console.error('Error subiendo portada:', e);
+
+          return tripResp;
+        })(),
+        {
+          loading: this.modoEdicion ? 'Actualizando viaje...' : 'Creando viaje...',
+          success: this.modoEdicion ? 'Viaje actualizado con éxito' : 'Viaje creado con éxito',
+          error: 'Ha ocurrido un error al guardar el viaje',
         }
+      );
 
-        await new Promise((res) => setTimeout(res, 2000));
-
-        try {
-          if (this.selectedMainPhoto) {
-            await this.tripService.uploadImage(
-              this.selectedMainPhoto,
-              'Foto principal',
-              tripId,
-              tripResponse.trip.creator_id,
-              true
-            );
-          }
-        } catch (e) {
-          console.error('Error subiendo principal:', e);
-        }
-
-        alert('Viaje creado con éxito');
-      }
-
-      // this.router.navigate(['/viaje', tripResponse.trip.id]);
+      this.router.navigate(['/home']);
     } catch (err) {
-      console.error('Error al crear/actualizar viaje o subir imágenes', err);
+      toast.warning('Error al crear/actualizar viaje o subir imágenes');
       if (err instanceof HttpErrorResponse) {
         console.error('Status:', err.status);
         console.error('StatusText:', err.statusText);
         console.error('URL:', err.url);
         console.error('Backend error:', err.error);
-
-        alert('Error: ' + (err.error?.message || JSON.stringify(err.error)));
       }
     }
   }

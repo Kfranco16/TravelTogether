@@ -10,4 +10,8 @@ export class Logo {
   @Input() showText: boolean = true;
 
   @Input() size: number = 40;
+
+  onLogoClick(): void {
+    window.location.href = '/';
+  }
 }

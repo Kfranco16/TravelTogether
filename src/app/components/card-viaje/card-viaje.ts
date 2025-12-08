@@ -6,6 +6,9 @@ import { AuthService } from '../../core/services/auth';
 import { Iuser } from '../../interfaces/iuser';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { TripService } from '../../core/services/viajes';
+import { NotificationsService } from '../../core/services/notifications';
+import { toast, NgxSonnerToaster } from 'ngx-sonner';
+import { firstValueFrom, timeInterval } from 'rxjs';
 
 @Pipe({ name: 'capitalizeFirst', standalone: true })
 export class CapitalizeFirstPipe implements PipeTransform {
@@ -24,6 +27,7 @@ export class CapitalizeFirstPipe implements PipeTransform {
 export class CardViaje {
   @Input() trip!: any;
   private tripService = inject(TripService);
+  private notificationsService = inject(NotificationsService);
 
   usuario: Iuser | null = null; // dueño del viaje (creator)
   currentUser: Iuser | null = null; // usuario logueado
@@ -176,8 +180,24 @@ export class CardViaje {
   }
 
   toggleSolicitud(trip: any) {
+    if (!this.currentUser?.id) return;
+
     trip.solicitado = !trip.solicitado;
-    // Futura llamada a la API para solicitar unirse al viaje
+    const token = this.authService.gettoken();
+    const notiBody = {
+      title: 'Nueva solicitud de viaje',
+      message: `${this.currentUser.username} ha solicitado unirse a tu viaje "${this.trip.title}".`,
+      type: 'trip',
+      is_read: 0, // <- obligatorio para que no sea null
+      sender_id: this.currentUser.id,
+      receiver_id: this.trip.creator_id,
+    };
+
+    toast.promise(firstValueFrom(this.notificationsService.create(notiBody, token!)), {
+      loading: 'Cargando...',
+      success: 'Solicitud enviada',
+      error: 'Error al enviar',
+    });
   }
 
   getGoogleMapsUrl(lat: number, lng: number, zoom: number): string {
