@@ -133,6 +133,7 @@
             </p>
           </div>
 
+          @if (!isLoggedIn) {
           <div class="alert alert-info py-2 small d-flex align-items-start gap-2 mt-2 mb-3">
             <i class="bi bi-person-circle mt-1"></i>
             <span>
@@ -140,6 +141,7 @@
               dato cuando quieras.
             </span>
           </div>
+          }
 
           <div class="mb-3">
             <label class="form-label fw-semibold">Teléfono</label>

@@ -36,6 +36,8 @@ interface TripRatingCard {
 })
 export class ValoracionesPendientesComponent implements OnInit {
   pendingRatings: TripRatingCard[] = [];
+  pendingRatingsCount = 0;
+
   upcomingRatings: TripRatingCard[] = [];
   ratedTrips: {
     tripId: number;
@@ -339,6 +341,8 @@ export class ValoracionesPendientesComponent implements OnInit {
       const myRatedCount = myRatedUsers.size;
 
       return myRatedCount < usersToRate;
+
+      this.pendingRatingsCount = this.pendingRatings.length;
     });
 
     this.ratedTrips = cardsWithCompanions

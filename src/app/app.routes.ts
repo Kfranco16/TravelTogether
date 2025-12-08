@@ -40,7 +40,8 @@ export const routes: Routes = [
 
       {
         path: 'perfil',
-        loadComponent: () => import('./pages/dashboard/perfil/perfil').then((m) => m.Perfil),
+        loadComponent: () =>
+          import('./pages/dashboard/perfil-privado/perfil').then((m) => m.Perfil),
       },
       {
         path: 'datos',

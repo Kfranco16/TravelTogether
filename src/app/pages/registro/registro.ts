@@ -27,6 +27,9 @@ export class Registro implements OnInit {
   @Input() isEditMode: boolean = false;
   @Input() userData: Partial<Iuser> | null = null;
 
+  get isLoggedIn(): boolean {
+    return this.authService.isAuth();
+  }
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.userForm = this.fb.group(
       {
