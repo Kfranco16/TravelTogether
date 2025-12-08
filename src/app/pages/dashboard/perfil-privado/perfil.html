@@ -10,7 +10,7 @@
         aria-label="Editar perfil"
       >
         <i class="bi bi-pencil-square"></i>
-        <span class="visually-hidden">Editar perfil</span>
+        <span> Editar perfil</span>
       </button>
 
       <!-- Bloque foto y acciones -->
@@ -110,9 +110,12 @@
       </p>
     </div>
 
-    <div class="tt-next-trip-right d-flex align-items-center justify-content-end">
-      <!-- Este div interno está vacío; puedes borrarlo si no lo necesitas para layout -->
-      <!-- <div class="d-flex flex-column align-items-end gap-2"></div> -->
+    <div class="tt-next-trip-right justify-content-end">
+      <div class="tt-next-trip-badge">
+        <p class="tt-next-trip-caption">
+          {{ pendingRatingsCount !== null ? 'viajes por valorar' : 'sin valoraciones pendientes' }}
+        </p>
+      </div>
     </div>
   </section>
 

@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { FavoritesService } from '../../../core/services/favorites';
 import { AuthService } from '../../../core/services/auth';
 import { TripService } from '../../../core/services/viajes';
+import { RatingsService } from '../../../core/services/ratings'; // <-- NUEVO
 import { Iuser } from '../../../interfaces/iuser';
 
 interface Rating {
@@ -29,6 +30,7 @@ export class Perfil {
   private tripsService = inject(TripService);
   private route = inject(ActivatedRoute);
   private favorites = inject(FavoritesService);
+  private ratingsService = inject(RatingsService); // <-- NUEVO
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -65,8 +67,16 @@ export class Perfil {
   publicTagline = '';
   createdTrips: any[] = [];
 
+  // Nº de valoraciones pendientes (venidas del servicio compartido)
+  pendingRatingsCount = 0;
+
   // Ciclo de vida
   async ngOnInit(): Promise<void> {
+    // Suscribirse al contador global de valoraciones pendientes
+    this.ratingsService.pendingCount$.subscribe((count) => {
+      this.pendingRatingsCount = count;
+    });
+
     const current: any = this.auth.getCurrentUser();
     const paramId = this.route.snapshot.paramMap.get('id');
 
