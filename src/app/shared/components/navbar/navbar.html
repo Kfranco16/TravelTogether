@@ -1,137 +1,6 @@
 <nav class="navbar navbar-expand-md bg-white">
   <div class="container align-items-center tt-mobile-wrap">
-    <!-- VERSIÓN MÓVIL: sólo avatar + aro + campana -->
-    @if (isAuthenticated) {
-    <div class="d-flex d-md-none align-items-center justify-content-between w-100">
-      <div class="tt-avatar-wrapper">
-        <!-- Trigger del dropdown: solo el círculo -->
-        <button
-          class="btn p-0 border-0 bg-transparent"
-          id="espacioMenuMobile"
-          type="button"
-          data-bs-toggle="dropdown"
-          data-bs-display="static"
-          aria-expanded="false"
-        >
-          @if (hasNotifications) {
-          <div class="tt-avatar-ring tt-avatar-ring--active">
-            @if (currentUser?.image) {
-            <img
-              [src]="currentUser?.image || ''"
-              class="tt-avatar-img"
-              [alt]="currentUser?.username || 'Usuario'"
-            />
-            } @else {
-            <div class="tt-avatar-img tt-avatar-placeholder">
-              <span>
-                {{ currentUser?.username?.charAt(0)?.toUpperCase() || '👤' }}
-              </span>
-            </div>
-            }
-          </div>
-          <div class="tt-avatar-bell">
-            <div class="tt-avatar-bell-inner">
-              <i class="bi bi-bell-fill"></i>
-            </div>
-          </div>
-          } @else {
-          <div class="tt-avatar-ring tt-avatar-ring--idle">
-            @if (currentUser?.image) {
-            <img
-              [src]="currentUser?.image || ''"
-              class="tt-avatar-img"
-              [alt]="currentUser?.username || 'Usuario'"
-            />
-            } @else {
-            <div class="tt-avatar-img tt-avatar-placeholder">
-              <span>
-                {{ currentUser?.username?.charAt(0)?.toUpperCase() || '👤' }}
-              </span>
-            </div>
-            }
-          </div>
-          }
-        </button>
-
-        <!-- Dropdown Mi espacio (mismo contenido que antes) -->
-        <ul class="dropdown-menu tt-dropdown" aria-labelledby="espacioMenuMobile">
-          <li>
-            <a
-              class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
-              routerLink="/dashboard/perfil"
-              (click)="onSectionOpen('perfil')"
-            >
-              <span>Mi perfil</span>
-              @if (notif.perfil) { <span class="tt-dot"></span> }
-            </a>
-          </li>
-
-          <li>
-            <a
-              class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
-              routerLink="/dashboard/reservas"
-              (click)="onSectionOpen('reservas')"
-            >
-              <span>Mis reservas</span>
-              @if (notif.reservas) { <span class="tt-dot"></span> }
-            </a>
-          </li>
-
-          <li>
-            <a
-              class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
-              routerLink="/dashboard/mis-viajes"
-              (click)="onSectionOpen('misViajes')"
-            >
-              <span>Mis viajes</span>
-              @if (notif.misViajes) { <span class="tt-dot"></span> }
-            </a>
-          </li>
-
-          <li>
-            <a
-              class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
-              routerLink="/dashboard/favoritos"
-              (click)="onSectionOpen('favoritos')"
-            >
-              <span>Favoritos</span>
-              @if (notif.favoritos) { <span class="tt-dot"></span> }
-            </a>
-          </li>
-
-          <li>
-            <a
-              class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
-              routerLink="/dashboard/foros"
-              (click)="onSectionOpen('foros')"
-            >
-              <span>Foros</span>
-              @if (notif.foros) { <span class="tt-dot"></span> }
-            </a>
-          </li>
-
-          <li><hr class="dropdown-divider" /></li>
-
-          <li>
-            <button class="dropdown-item tt-dd-danger" (click)="onLogout()">Cerrar sesión</button>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- Botón Crear viaje centrado solo en móvil -->
-    <!-- <div class="d-flex d-md-none justify-content-center mt-2 w-100">
-      <a class="btn tt-btn-primary" routerLink="/crear-viaje"> + Crear viaje </a>
-    </div> -->
-    } @else {
-    <!-- Móvil no autenticado: login / registro centrados -->
-    <div class="d-flex d-md-none justify-content-end w-100 gap-2">
-      <a class="nav-link tt-link" routerLink="/login" routerLinkActive="active"> Login </a>
-      <a class="nav-link tt-link" routerLink="/registro" routerLinkActive="active"> Registro </a>
-    </div>
-    }
-
-    <!-- VERSIÓN ESCRITORIO: nav clásica -->
+    <!-- ============ NAV ESCRITORIO (>= md) ============ -->
     <div id="ttNav" class="collapse navbar-collapse justify-content-end d-none d-md-flex">
       <ul class="navbar-nav align-items-md-center gap-md-3 tt-navlist">
         @if (!isAuthenticated) {
@@ -144,10 +13,12 @@
           </a>
         </li>
         } @else {
+        <!-- Botón Crear viaje -->
         <li class="nav-item d-md-inline-flex">
-          <a class="btn tt-btn-primary" routerLink="/crear-viaje">+ Crear viaje</a>
+          <a class="btn tt-btn-primary" routerLink="/crear-viaje"> + Crear viaje </a>
         </li>
 
+        <!-- Avatar + campana + dropdown -->
         <li class="nav-item dropdown">
           <a
             class="nav-link tt-link dropdown-toggle d-flex align-items-center gap-2 tt-user-menu"
@@ -265,6 +136,88 @@
         </li>
         }
       </ul>
+    </div>
+    <!-- /NAV ESCRITORIO -->
+  </div>
+
+  <!-- ============ BOTTOM NAV MÓVIL (<= md) ============ -->
+  <!-- ============ BOTTOM NAV MÓVIL (<= md) ============ -->
+  <div class="tt-bottom-nav d-md-none">
+    <div class="tt-bottom-nav-inner">
+      <!-- Inicio -->
+      <a
+        routerLink="/home"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="tt-bottom-item"
+      >
+        <i class="bi bi-house"></i>
+        <span>Inicio</span>
+      </a>
+
+      <!-- Mis viajes -->
+      <a routerLink="/dashboard/mis-viajes" routerLinkActive="active" class="tt-bottom-item">
+        <i class="bi bi-geo-alt"></i>
+        <span>Mis viajes</span>
+      </a>
+
+      <!-- Crear viaje -->
+      <a routerLink="/crear-viaje" routerLinkActive="active" class="tt-bottom-item">
+        <i class="bi bi-plus-circle"></i>
+        <span>Crear viaje</span>
+      </a>
+
+      <!-- Perfil con círculo + campana -->
+      <a
+        routerLink="/dashboard/perfil"
+        routerLinkActive="active"
+        class="tt-bottom-item tt-bottom-item-profile"
+      >
+        <span class="tt-bottom-avatar">
+          <div class="tt-avatar-wrapper">
+            @if (hasNotifications) {
+            <div class="tt-avatar-ring tt-avatar-ring--active">
+              @if (currentUser?.image) {
+              <img
+                [src]="currentUser?.image || ''"
+                class="tt-avatar-img"
+                [alt]="currentUser?.username || 'Usuario'"
+              />
+              } @else {
+              <div class="tt-avatar-img tt-avatar-placeholder">
+                <span>
+                  {{ currentUser?.username?.charAt(0)?.toUpperCase() || '👤' }}
+                </span>
+              </div>
+              }
+            </div>
+            <div class="tt-avatar-bell">
+              <div class="tt-avatar-bell-inner">
+                <i class="bi bi-bell-fill"></i>
+              </div>
+            </div>
+            } @else {
+            <div class="tt-avatar-ring tt-avatar-ring--idle">
+              @if (currentUser?.image) {
+              <img
+                [src]="currentUser?.image || ''"
+                class="tt-avatar-img"
+                [alt]="currentUser?.username || 'Usuario'"
+              />
+              } @else {
+              <div class="tt-avatar-img tt-avatar-placeholder">
+                <span>
+                  {{ currentUser?.username?.charAt(0)?.toUpperCase() || '👤' }}
+                </span>
+              </div>
+              }
+            </div>
+            }
+          </div>
+        </span>
+
+        <span>Perfil</span>
+      </a>
     </div>
   </div>
 </nav>
