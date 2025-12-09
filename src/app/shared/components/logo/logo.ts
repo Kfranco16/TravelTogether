@@ -12,6 +12,6 @@ export class Logo {
   @Input() size: number = 40;
 
   onLogoClick(): void {
-    window.location.href = '/';
+    window.location.href = '/home';
   }
 }

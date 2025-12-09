@@ -6,8 +6,9 @@ import { FormsModule } from '@angular/forms';
 import { FavoritesService } from '../../../core/services/favorites';
 import { AuthService } from '../../../core/services/auth';
 import { TripService } from '../../../core/services/viajes';
-import { RatingsService } from '../../../core/services/ratings'; // <-- NUEVO
+import { RatingsService } from '../../../core/services/ratings';
 import { Iuser } from '../../../interfaces/iuser';
+import { NotificationsService, NotificationDto } from '../../../core/services/notifications';
 
 interface Rating {
   id: number;
@@ -25,23 +26,19 @@ interface Rating {
   styleUrls: ['./perfil.css'],
 })
 export class Perfil {
-  // Servicios
   private auth = inject(AuthService);
   private tripsService = inject(TripService);
   private route = inject(ActivatedRoute);
   private favorites = inject(FavoritesService);
-  private ratingsService = inject(RatingsService); // <-- NUEVO
+  private ratingsService = inject(RatingsService);
+  private notificationsService = inject(NotificationsService);
+  private router = inject(Router);
 
-  constructor(private authService: AuthService, private router: Router) {}
-
-  // Flags
   isOwnProfile = true;
 
-  // Datos de usuario
   defaultAvatar = '/images/defaultUserImage.png';
   user: Iuser | null = null;
 
-  // Valoraciones del usuario
   ratings: Rating[] = [];
   hasRatings = false;
   averageScore = 0;
@@ -49,30 +46,38 @@ export class Perfil {
   ratingCount = 0;
   usuarioValoracion: number | null = null;
 
-  // Estrellas para bucle
   stars = [1, 2, 3, 4, 5];
 
-  // Stats
   memberSince: string | null = null;
   tripsCount: number | null = null;
   favoritesCount: number | null = null;
 
-  // Próximo viaje
   nextTrip: any | null = null;
   nextTripDestination: string | null = null;
   nextTripDate: string | null = null;
   daysToNextTrip: number | null = null;
 
-  // Otros datos
   publicTagline = '';
   createdTrips: any[] = [];
 
-  // Nº de valoraciones pendientes (venidas del servicio compartido)
   pendingRatingsCount = 0;
 
-  // Ciclo de vida
+  hasNotifications = false;
+  notificaciones: NotificationDto[] = [];
+
+  notif = {
+    perfil: false,
+    datos: false,
+    reservas: false,
+    misViajes: false,
+    favoritos: false,
+    notificaciones: false,
+    foros: false,
+  };
+
   async ngOnInit(): Promise<void> {
-    // Suscribirse al contador global de valoraciones pendientes
+    this.cargarNotificaciones();
+
     this.ratingsService.pendingCount$.subscribe((count) => {
       this.pendingRatingsCount = count;
     });
@@ -81,7 +86,6 @@ export class Perfil {
     const paramId = this.route.snapshot.paramMap.get('id');
 
     if (!paramId) {
-      // Perfil propio sin id en la URL
       if (current) {
         this.isOwnProfile = true;
         this.setupFromUser(current);
@@ -90,7 +94,6 @@ export class Perfil {
         this.setupFromUser(null);
       }
     } else {
-      // Perfil con id en la URL
       const viewedId = Number(paramId);
 
       if (current && current.id === viewedId) {
@@ -108,17 +111,122 @@ export class Perfil {
       }
     }
 
-    // Nota: loadCreatedTrips también se llama en setupFromUser cuando hay user.id
     if (this.user?.id) {
       this.loadCreatedTrips(this.user.id);
     }
   }
 
-  // Navegación
+  public goToSection(section: keyof typeof this.notif, path: string): void {
+    this.onSectionOpen(section);
+    this.router.navigate([path]);
+  }
+
+  private resetFlags(): void {
+    this.notif = {
+      perfil: false,
+      datos: false,
+      reservas: false,
+      misViajes: false,
+      favoritos: false,
+      notificaciones: false,
+      foros: false,
+    };
+    this.hasNotifications = false;
+  }
+
+  private actualizarFlagsDesdeNotifications(): void {
+    this.resetFlags();
+
+    if (this.notificaciones.length === 0) {
+      return;
+    }
+
+    for (const n of this.notificaciones) {
+      switch (n.type) {
+        case 'message':
+          this.notif.foros = true;
+          break;
+        case 'trip':
+          this.notif.misViajes = true;
+          break;
+        case 'favorites':
+          this.notif.favoritos = true;
+          break;
+        case 'group':
+          this.notif.reservas = true;
+          break;
+      }
+    }
+
+    this.notif.notificaciones = true;
+    this.hasNotifications = Object.values(this.notif).some((v) => v);
+  }
+
+  private cargarNotificaciones(): void {
+    const token = this.auth.gettoken() || '';
+    const currentUser = this.auth.getCurrentUser();
+    if (!token || !currentUser) {
+      this.resetFlags();
+      return;
+    }
+
+    this.notificationsService.getAll(token).subscribe({
+      next: (list) => {
+        this.notificaciones = list.filter(
+          (n) => n.receiver_id === currentUser.id && n.is_read === 0
+        );
+        this.actualizarFlagsDesdeNotifications();
+      },
+      error: (err) => {
+        console.error('Error cargando notificaciones', err);
+        this.notificaciones = [];
+        this.resetFlags();
+      },
+    });
+  }
+
+  onSectionOpen(section: keyof typeof this.notif): void {
+    const token = this.auth.gettoken() || '';
+    if (!token) {
+      this.notif[section] = false;
+      this.hasNotifications = Object.values(this.notif).some((v) => v);
+      return;
+    }
+
+    if (section === 'misViajes' && this.notificaciones.length > 0) {
+      const toDelete = this.notificaciones.filter((n) => n.type === 'trip');
+      if (toDelete.length === 0) {
+        this.notif[section] = false;
+        this.hasNotifications = Object.values(this.notif).some((v) => v);
+        return;
+      }
+
+      toDelete.forEach((n) => {
+        this.notificationsService.delete(n.id, token).subscribe({
+          next: () => {
+            this.notificaciones = this.notificaciones.filter((x) => x.id !== n.id);
+            this.actualizarFlagsDesdeNotifications();
+          },
+          error: (err) => console.error('Error eliminando notificación de tipo trip', err),
+        });
+      });
+    } else {
+      if (this.notif[section]) {
+        this.notif[section] = false;
+        this.hasNotifications = Object.values(this.notif).some((v) => v);
+      }
+    }
+  }
+
   goToValorarPage(): void {
     if (this.user && this.user.id) {
       this.router.navigate([`mis-valoraciones/${this.user.id}`]);
     }
+  }
+
+  onLogout(): void {
+    this.auth.logout();
+    this.router.navigate(['/home']);
   }
 
   goToEditProfile(): void {
@@ -138,7 +246,6 @@ export class Perfil {
     }
   }
 
-  // Estrellas según valoración
   getEstrellas(valoracion: number): { icon: string; color: string }[] {
     if (valoracion <= 2) {
       return [
@@ -167,7 +274,6 @@ export class Perfil {
     }
   }
 
-  // Cargar número de favoritos
   private loadFavoritesCount(userId: number): void {
     const token = this.auth.gettoken() || '';
     this.favorites.getFavoritesByUser(userId, token).subscribe({
@@ -180,7 +286,6 @@ export class Perfil {
     });
   }
 
-  // Inicializar desde usuario (propio o visto)
   private setupFromUser(raw: any | null | undefined): void {
     if (!raw) {
       this.user = null;
@@ -207,7 +312,6 @@ export class Perfil {
       this.loadFavoritesCount(this.user.id);
     }
 
-    // Valoración agregada del usuario
     const token = localStorage.getItem('tt_token') || '';
     this.auth.getUserRating(this.user.id, token).subscribe({
       next: (rating: number) => {
@@ -223,7 +327,6 @@ export class Perfil {
       },
     });
 
-    // Valoraciones detalle (si vienen embebidas)
     if (raw.ratings && Array.isArray(raw.ratings)) {
       this.ratings = raw.ratings;
     } else {
@@ -243,21 +346,17 @@ export class Perfil {
       this.ratingCount = 0;
     }
 
-    // Stats básicas
     this.memberSince = raw.memberSince || raw.created_at || null;
     this.tripsCount = raw.tripsCount || raw.trips_count || null;
     this.favoritesCount = raw.favoritesCount || raw.favorites_count || null;
 
-    // Próximo viaje (si el back lo manda precalculado)
     this.nextTripDestination = raw.nextTripDestination || null;
     this.nextTripDate = raw.nextTripDate || null;
     this.daysToNextTrip = typeof raw.daysToNextTrip === 'number' ? raw.daysToNextTrip : null;
 
-    // Frase pública
     this.publicTagline = raw.public_tagline || raw.bio || '';
   }
 
-  // Viajes creados por el usuario y cálculo de próximo viaje
   private loadCreatedTrips(userId: number): void {
     this.tripsService.getTripsByCreator(userId).subscribe({
       next: (res: any) => {
@@ -313,13 +412,11 @@ export class Perfil {
     this.daysToNextTrip = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
   }
 
-  // Tagline (actualmente solo actualiza estado local)
   onTaglineInput(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.publicTagline = input.value;
   }
 
-  // Foto de perfil
   onDeletePhoto(): void {
     if (!this.isOwnProfile || !this.user) return;
 

@@ -1,8 +1,64 @@
 <section class="tt-profile-wrapper">
-  <!-- Encabezado -->
+  <div class="tt-profile-logout-mobile d-block d-md-none mb-3">
+    <button
+      type="button"
+      class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2"
+      (click)="onLogout()"
+    >
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Cerrar sesión</span>
+    </button>
+  </div>
+
+  @if (notif.notificaciones) {
+  <div class="tt-mobile-notifications d-block d-md-none mb-3">
+    <div class="tt-mobile-notifications-card">
+      <p class="tt-mobile-notifications-title mb-2">Mis notificaciones nuevas.</p>
+
+      @if (notif.misViajes) {
+      <button
+        type="button"
+        class="tt-mobile-notif-row"
+        (click)="goToSection('misViajes', '/dashboard/mis-viajes')"
+      >
+        <span><i class="bi bi-bell"></i> Tienes una notificación en tus viajes</span>
+
+        <span class="tt-dot"></span>
+      </button>
+      } @if (notif.favoritos) {
+      <button
+        type="button"
+        class="tt-mobile-notif-row"
+        (click)="goToSection('favoritos', '/dashboard/favoritos')"
+      >
+        <span><i class="bi bi-bell"></i> Tienes una notificación en tus favoritos</span>
+        <span class="tt-dot"></span>
+      </button>
+      } @if (notif.reservas) {
+      <button
+        type="button"
+        class="tt-mobile-notif-row"
+        (click)="goToSection('reservas', '/dashboard/reservas')"
+      >
+        <span><i class="bi bi-bell"></i> Tienes una notificación en tus reservas</span>
+        <span class="tt-dot"></span>
+      </button>
+      } @if (notif.foros) {
+      <button
+        type="button"
+        class="tt-mobile-notif-row"
+        (click)="goToSection('foros', '/dashboard/foros')"
+      >
+        <span><i class="bi bi-bell"></i> Tienes mensajes nuevos</span>
+        <span class="tt-dot"></span>
+      </button>
+      }
+    </div>
+  </div>
+  }
+
   <header class="tt-profile-header">
     <div class="tt-profile-main position-relative">
-      <!-- Botón editar perfil (solo tiene sentido si es tu propio perfil) -->
       <button
         type="button"
         class="tt-profile-edit-btn"
@@ -13,7 +69,6 @@
         <span> Editar perfil</span>
       </button>
 
-      <!-- Bloque foto y acciones -->
       <div class="tt-profile-photo-block">
         <div class="tt-profile-photo-ring">
           <img
@@ -35,7 +90,6 @@
         </div>
       </div>
 
-      <!-- Bloque info principal -->
       <div class="tt-profile-main-info">
         <h1 class="tt-profile-name">
           {{ user?.username || 'Tu nombre' }}
@@ -70,7 +124,6 @@
     </div>
   </header>
 
-  <!-- Stats -->
   <section class="tt-stats-grid">
     <article class="tt-stat-card">
       <div class="tt-stat-icon">
@@ -99,8 +152,7 @@
     </article>
   </section>
 
-  <!-- CTA valoraciones -->
-  <section class="tt-next-trip-card mb-3">
+  <section class="tt-next-trip-card mb-3 tt-rate-card">
     <div class="tt-next-trip-left" (click)="goToValorarPage()">
       <h2 class="tt-next-trip-destination">Gestiona tus valoraciones</h2>
 
@@ -110,7 +162,7 @@
       </p>
     </div>
 
-    <div class="tt-next-trip-right justify-content-end">
+    <div class="tt-next-trip-right tt-rate-card-right">
       <div class="tt-next-trip-badge">
         <p class="tt-next-trip-caption">
           {{ pendingRatingsCount !== null ? 'viajes por valorar' : 'sin valoraciones pendientes' }}
@@ -119,9 +171,8 @@
     </div>
   </section>
 
-  <!-- Próximo viaje -->
-  <section class="tt-next-trip-card">
-    <div class="tt-next-trip-left d-flex gap-3">
+  <section class="tt-next-trip-card tt-next-trip-card-main">
+    <div class="tt-next-trip-left d-flex gap-3 tt-next-trip-main-left">
       <div
         class="tt-next-trip-thumb"
         (click)="nextTrip && irADetalleViaje()"
@@ -131,11 +182,10 @@
           class="tt-next-trip-thumb-img"
           [src]="nextTrip?.image || nextTrip?.portada || 'images/coverDefault.jpg'"
           [alt]="nextTripDestination || 'Próximo viaje'"
-          style="width: 200px; height: 120px; object-fit: cover; border-radius: 8px"
         />
       </div>
 
-      <div>
+      <div class="tt-next-trip-text">
         <p class="tt-next-trip-label">Mi próximo viaje</p>
 
         <h2 class="tt-next-trip-destination" (click)="nextTrip && irADetalleViaje()">

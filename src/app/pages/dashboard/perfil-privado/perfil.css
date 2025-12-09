@@ -4,7 +4,9 @@
   padding: 2.5rem 1.5rem 3.5rem;
 }
 
-/* CABECERA: FOTO + DATOS */
+.tt-profile-logout-mobile {
+  margin-bottom: 1rem;
+}
 
 .tt-profile-header {
   background-color: #ffffff;
@@ -16,6 +18,27 @@
 
 .tt-profile-main {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.tt-mobile-notifications-card {
+  background: #eff6ff;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  border: 1px solid #bfdbfe;
+}
+
+.tt-mobile-notifications-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1d4ed8;
+}
+
+.tt-mobile-notifications-text {
+  font-size: 0.85rem;
+  color: #374151;
 }
 
 .tt-profile-edit-btn {
@@ -23,25 +46,18 @@
   top: 0.5rem;
   right: 0.5rem;
   border: none;
-  background: white;
+  background: #ffffff;
   border-radius: 999px;
   padding: 0.35rem 0.5rem;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   cursor: pointer;
-  color: #6c63ff; /* o tu color principal */
+  color: #6c63ff;
 }
 
 .tt-profile-edit-btn i {
   font-size: 1.1rem;
 }
 
-.tt-profile-main {
-  display: flex;
-  align-items: center;
-  gap: 2.5rem;
-}
-
-/* Bloque de la foto y botones */
 .tt-profile-photo-block {
   display: flex;
   flex-direction: column;
@@ -49,7 +65,18 @@
   gap: 1.25rem;
 }
 
-/* Aro degradado + imagen circular */
+.tt-mobile-notif-row {
+  width: 100%;
+  border: none;
+  background: transparent;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 0;
+  font-size: 0.9rem;
+  color: #111827;
+}
+
 .tt-profile-photo-ring {
   width: 190px;
   height: 190px;
@@ -69,13 +96,11 @@
   background-color: #f3f4f6;
 }
 
-/* Botones debajo de la foto */
 .tt-profile-actions {
   display: flex;
   gap: 0.75rem;
 }
 
-/* Botón base */
 .tt-btn {
   border-radius: 999px;
   border: none;
@@ -91,7 +116,6 @@
   padding-inline: 0.9rem;
 }
 
-/* Botón rojo "Eliminar foto" */
 .tt-btn-danger {
   background-color: #fee2e2;
   color: #b91c1c;
@@ -104,7 +128,6 @@
   transform: translateY(-1px);
 }
 
-/* Botón degradado "Subir foto" */
 .tt-btn-gradient {
   background-image: linear-gradient(90deg, #a259ff, #6c5ce7);
   color: #ffffff;
@@ -116,13 +139,11 @@
   transform: translateY(-1px);
 }
 
-/* Bloque de info principal (nombre, frase, rating…) */
 .tt-profile-main-info {
   flex: 1;
   min-width: 0;
 }
 
-/* Nombre del usuario */
 .tt-profile-name {
   font-size: 2rem;
   font-weight: 700;
@@ -130,14 +151,6 @@
   color: #111827;
 }
 
-/* Frase pública que ven otros usuarios */
-.tt-profile-tagline {
-  margin: 0 0 0.75rem;
-  font-size: 0.98rem;
-  color: #4b5563;
-}
-
-/* Rating (estrellas + texto) */
 .tt-profile-rating {
   display: flex;
   align-items: center;
@@ -145,35 +158,6 @@
   margin-bottom: 1.2rem;
 }
 
-.tt-stars {
-  display: flex;
-  gap: 0.15rem;
-  font-size: 1rem;
-}
-
-.tt-star-full {
-  color: #fbbf24;
-}
-
-.tt-star-empty {
-  color: #d1d5db;
-}
-
-.tt-rating-text {
-  font-size: 0.9rem;
-  color: #4b5563;
-}
-
-.tt-rating-score {
-  font-weight: 600;
-  margin-right: 0.25rem;
-}
-
-.tt-rating-count {
-  color: #6b7280;
-}
-
-/* Etiqueta pequeña encima del input editable */
 .tt-profile-label {
   font-size: 0.8rem;
   text-transform: uppercase;
@@ -181,33 +165,6 @@
   color: #9ca3af;
   margin: 0 0 0.4rem;
 }
-
-/* Input para la frase pública (solo propio) */
-.tt-tagline-edit {
-  margin-top: 0.25rem;
-}
-
-.tt-profile-input {
-  width: 100%;
-  border-radius: 14px;
-  border: 1px solid #e5e7eb;
-  padding: 0.7rem 0.9rem;
-  font-size: 0.95rem;
-  color: #111827;
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.tt-profile-input::placeholder {
-  color: #9ca3af;
-}
-
-.tt-profile-input:focus {
-  border-color: #a259ff;
-  box-shadow: 0 0 0 1px rgba(162, 89, 255, 0.2);
-}
-
-/*TARJETA "TU PRÓXIMO VIAJE" (solo perfil propio)*/
 
 .tt-next-trip-card {
   margin-top: 2rem;
@@ -248,7 +205,6 @@
   opacity: 0.8;
 }
 
-/* Badge de días restantes */
 .tt-next-trip-right {
   display: flex;
   justify-content: flex-end;
@@ -274,8 +230,6 @@
   margin: 0.25rem 0 0;
   font-size: 0.95rem;
 }
-
-/* TARJETAS RESUMEN */
 
 .tt-stats-grid {
   margin-top: 2.2rem;
@@ -324,45 +278,12 @@
   color: #111827;
 }
 
-/* VIAJES CREADOS POR EL USUARIO */
-
-.tt-user-trips {
-  margin-top: 2.8rem;
+.tt-next-trip-thumb-img {
+  width: 200px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
 }
-
-.tt-user-trips-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: 1.2rem;
-}
-
-.tt-subtitle {
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #111827;
-}
-
-.tt-user-trips-empty {
-  margin: 0;
-  font-size: 0.96rem;
-  color: #6b7280;
-}
-
-/* Grid de cards de viaje reutilizando app-card-viaje */
-.tt-user-trips-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.8rem;
-}
-
-/* Texto gris reutilizable */
-.tt-text-muted {
-  color: #6b7280;
-}
-
-/* RESPONSIVE */
 
 @media (max-width: 960px) {
   .tt-profile-header {
@@ -382,30 +303,11 @@
   .tt-profile-rating {
     justify-content: center;
   }
-
-  .tt-tagline-edit {
-    text-align: left;
-  }
 }
 
 @media (max-width: 768px) {
   .tt-next-trip-card {
-    flex-direction: column;
-    align-items: flex-start;
     padding: 1.6rem 1.7rem;
-  }
-
-  .tt-next-trip-left {
-    max-width: 100%;
-  }
-
-  .tt-next-trip-right {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .tt-next-trip-badge {
-    margin-top: 0.9rem;
   }
 
   .tt-stats-grid {
@@ -422,8 +324,47 @@
     width: 160px;
     height: 160px;
   }
+}
 
-  .tt-user-trips-grid {
-    grid-template-columns: 1fr;
+@media (max-width: 767.98px) {
+  .tt-next-trip-card-main {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+  }
+
+  .tt-next-trip-main-left {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tt-next-trip-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .tt-next-trip-right {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .tt-rate-card {
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .tt-rate-card .tt-next-trip-left,
+  .tt-rate-card-right {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 }

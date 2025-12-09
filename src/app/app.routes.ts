@@ -5,7 +5,7 @@ import { Registro } from './pages/registro/registro';
 import { BuscadorViajes } from './pages/buscador-viajes/buscador-viajes';
 import { authGuard } from './core/guards/auth-guard';
 import { DetalleViaje } from './pages/detalle-viaje/detalle-viaje';
-import { Perfil } from './pages/perfil/perfil';
+import { Perfil } from './pages/perfil-publico/perfil';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { CrearEditarViaje } from './pages/crear-editar-viaje/crear-editar-viaje';
 import { ValoracionesPendientesComponent } from './pages/ratings/ratings';

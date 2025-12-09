@@ -4,7 +4,6 @@
   padding: 1.5rem 1rem 3rem;
 }
 
-/* HEADER del panel (título centrado) */
 .tt-panel-header,
 .tt-title-center {
   text-align: center;
@@ -36,7 +35,6 @@
   margin: 0 auto 1.5rem;
 }
 
-/* Botón degradado igual que la navbar */
 .tt-btn-gradient {
   padding: 0.7rem 1.8rem;
   border-radius: 999px;
@@ -94,7 +92,6 @@
   background-color: #f3f4ff;
 }
 
-/* Columna izquierda */
 .tt-trip-main {
   display: flex;
   flex-direction: column;

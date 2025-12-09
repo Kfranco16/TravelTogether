@@ -5,13 +5,14 @@ import { Subscription, filter } from 'rxjs';
 
 import { AuthService } from '../../../core/services/auth';
 import { NotificationsService, NotificationDto } from '../../../core/services/notifications';
+import { Logo } from '../logo/logo';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.css'],
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, Logo],
 })
 export class Navbar implements OnInit, OnDestroy {
   private authService = inject(AuthService);
@@ -26,12 +27,10 @@ export class Navbar implements OnInit, OnDestroy {
     this.showMobileSpace = !this.showMobileSpace;
   }
 
-  // Estado UI
   open = false;
   isAuthenticated = false;
   currentUser: { id: number; username?: string; image?: string } | null = null;
 
-  // Notificaciones
   hasNotifications = false;
   notificaciones: NotificationDto[] = [];
 
@@ -46,7 +45,6 @@ export class Navbar implements OnInit, OnDestroy {
   };
 
   ngOnInit(): void {
-    // Suscribirse al estado de autenticación
     this.authSub = this.authService.user$.subscribe((user) => {
       this.currentUser = user;
       this.isAuthenticated = !!user;
@@ -54,7 +52,6 @@ export class Navbar implements OnInit, OnDestroy {
       if (this.isAuthenticated) {
         this.cargarNotificaciones();
 
-        // suscribirse a navegación sólo si está logueado
         if (!this.routerSub) {
           this.routerSub = this.router.events
             .pipe(filter((e) => e instanceof NavigationEnd))
@@ -63,7 +60,6 @@ export class Navbar implements OnInit, OnDestroy {
             });
         }
       } else {
-        // no logueado → limpiar notificaciones y quitar subs de router
         this.resetFlags();
         this.notificaciones = [];
         this.routerSub?.unsubscribe();
@@ -77,9 +73,6 @@ export class Navbar implements OnInit, OnDestroy {
     this.authSub?.unsubscribe();
   }
 
-  // -------------------
-  // MENÚ MOBILE
-  // -------------------
   onToggleOpen(): void {
     this.open = !this.open;
   }
@@ -92,9 +85,6 @@ export class Navbar implements OnInit, OnDestroy {
     this.open = false;
   }
 
-  // -------------------
-  // NOTIFICACIONES
-  // -------------------
   private resetFlags(): void {
     this.notif = {
       perfil: false,
@@ -215,12 +205,9 @@ export class Navbar implements OnInit, OnDestroy {
     }
   }
 
-  // -------------------
-  // AUTH
-  // -------------------
   onLogout(): void {
     this.authService.logout();
-    // El BehaviorSubject ya pondrá currentUser a null e isAuthenticated a false
+
     this.router.navigate(['/login']);
   }
 }

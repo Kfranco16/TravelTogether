@@ -1,18 +1,48 @@
 .navbar {
   background: #fff;
-  border-bottom: none; /* quitamos línea inferior global */
+  border-bottom: none;
 }
 
-/* ===== Bottom nav móvil ===== */
+/* HEADER: fila desktop, columna móvil */
+.tt-fixed .tt-header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
 
+@media (max-width: 767.98px) {
+  .tt-fixed .tt-header-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+  }
+
+  .tt-header-logo-link {
+    justify-content: center;
+  }
+}
+
+/* ===== NAV MÓVIL ===== */
+/* Contenedor móvil: columna, ocupa todo el ancho */
+.tt-mobile-nav {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+/* Bottom nav fija abajo, con items repartidos */
 .tt-bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   background: #fff;
-  border-top: none; /* quitamos línea superior */
+  border-top: 1px solid #e5e7eb;
   padding: 0.3rem 1rem 0.4rem;
+
   z-index: 1030;
 }
 
@@ -20,10 +50,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
 }
 
+/* Cada item ocupa el mismo ancho y se centra */
 .tt-bottom-item {
-  flex: 1;
+  flex: 1 1 0;
   text-align: center;
   text-decoration: none;
   color: #6b7280;
@@ -31,6 +63,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.1rem;
 }
 
@@ -42,7 +75,7 @@
   color: #4f46e5;
 }
 
-/* Item de perfil en bottom bar: avatar pequeño */
+/* Perfil compacto en barra móvil */
 .tt-bottom-item-profile {
   position: relative;
 }
@@ -59,22 +92,11 @@
   padding: 2px;
 }
 
-/* FAB central crear viaje */
-.tt-fab {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%) translateY(-18%);
-  width: 52px;
-  height: 52px;
-  border-radius: 999px;
-  border: 0;
-  background-image: var(--tt-gradient);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 10px 24px rgba(79, 70, 229, 0.45);
-  font-size: 1.4rem;
+/* Deja hueco para la bottom nav fija */
+@media (max-width: 767.98px) {
+  body {
+    padding-bottom: 64px; /* altura aprox de la bottom nav */
+  }
 }
 
 /* ===== Nav desktop / estilos comunes ===== */
@@ -276,7 +298,26 @@
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  font-size: 0.8rem;
+  font-size: 1rem;
+}
+
+@media (max-width: 767.98px) {
+  .tt-avatar-bell {
+    width: 14px;
+    height: 14px;
+    bottom: -1px;
+    right: -1px;
+    box-shadow: 0 0 0 1px #ffffff, 0 2px 6px rgba(129, 140, 248, 0.8);
+  }
+
+  .tt-avatar-bell-inner {
+    font-size: 0; /* anulamos cualquier font-size heredado */
+  }
+
+  .tt-avatar-bell-inner i {
+    font-size: 0.6rem; /* tamaño específico del icono en móvil */
+    line-height: 1;
+  }
 }
 
 /* Dot notificación */
