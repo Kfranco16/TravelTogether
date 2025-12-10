@@ -24,6 +24,12 @@ export class ParticipationService {
     return this.http.get<any[]>(url);
   }
 
+  checkIfRequestExists(tripId: number, userId: number) {
+    return this.http.get<{ exists: boolean }>(
+      `${environment.apiUrl}/trips/${tripId}/participants/${userId}/request`
+    );
+  }
+
   getParticipantsByTripIdWithImages(tripId: number): Observable<any[]> {
     return this.getParticipantsByTripId(tripId).pipe(
       switchMap((response: any) => {

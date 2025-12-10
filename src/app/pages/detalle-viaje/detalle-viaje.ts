@@ -42,6 +42,9 @@ export class DetalleViaje {
   solicitudEnviada = signal<boolean>(false);
 
   // 🎯 Nuevo: Signal para mostrar spinner mientras se procesa la solicitud
+  // Estado de la solicitud: null | 'pending' | 'accepted' | 'rejected'
+  solicitudStatus = signal<'pending' | 'accepted' | 'rejected' | null>(null);
+
   enviandoSolicitud = signal<boolean>(false);
 
   // ========================================================================
@@ -124,6 +127,33 @@ export class DetalleViaje {
     });
   }
 
+  cargandoSolicitudStatus = signal<boolean>(false);
+
+  private checkSolicitudEnviada(tripId: number, userId: number): void {
+    this.cargandoSolicitudStatus.set(true);
+
+    this.participationService.getParticipantsByTripId(tripId).subscribe({
+      next: (res: any) => {
+        const data = Array.isArray(res.data) ? res.data : [];
+        const myParticipation = data.find((p: any) => p.user_id === userId);
+
+        if (!myParticipation) {
+          this.solicitudStatus.set(null);
+        } else {
+          const status = myParticipation.status as 'pending' | 'accepted' | 'rejected';
+          this.solicitudStatus.set(status);
+        }
+      },
+      error: (err) => {
+        console.error('Error comprobando solicitud previa', err);
+        this.solicitudStatus.set(null);
+      },
+      complete: () => {
+        this.cargandoSolicitudStatus.set(false);
+      },
+    });
+  }
+
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
     this.usuarioActual = this.authService.getCurrentUser();
@@ -147,6 +177,10 @@ export class DetalleViaje {
         } catch {
           this.usuario = null;
         }
+      }
+
+      if (this.usuarioActual && this.viaje?.id && !this.esCreador) {
+        this.checkSolicitudEnviada(this.viaje.id, this.usuarioActual.id);
       }
 
       this.participationService.getParticipantsByTripId(this.viaje.id).subscribe({
@@ -376,6 +410,36 @@ export class DetalleViaje {
       // 🔄 Desactivar estado de carga
       this.enviandoSolicitud.set(false);
     }
+    // Evitar duplicados
+    if (this.solicitudStatus() === 'pending' || this.enviandoSolicitud()) {
+      this.mostrarToastPersonalizado(
+        'info',
+        'Solicitud pendiente',
+        'Ya has enviado una solicitud para este viaje'
+      );
+      return;
+    }
+
+    try {
+      this.enviandoSolicitud.set(true);
+
+      const response = await firstValueFrom(
+        this.participantService.requestToJoinTrip(this.viaje.id)
+      );
+
+      this.mostrarToastPersonalizado('success', 'Solicitud enviada', response.message, 5000);
+
+      // 🔹 Marca como pending en cuanto el back la acepta
+      this.solicitudStatus.set('pending');
+
+      console.log('✅ Solicitud de participación exitosa:', response.data);
+    } catch (error: any) {
+      const errorMsg = error?.message || 'Error al enviar la solicitud de participación';
+      console.error('❌ Error en handleSolicitud:', error);
+      this.mostrarToastPersonalizado('error', 'Error en la solicitud', errorMsg, 5000);
+    } finally {
+      this.enviandoSolicitud.set(false);
+    }
   }
 
   async eliminarViaje() {
@@ -432,6 +496,10 @@ export class DetalleViaje {
     if (this.usuario && this.usuario.id) {
       this.router.navigate([`mis-valoraciones/${this.usuario.id}`]);
     }
+  }
+
+  goToMyTrip() {
+    this.router.navigate(['/gestion-viajes']);
   }
   getGoogleMapsUrl(lat: number, lng: number, zoom: number): string {
     return `https://www.google.com/maps/@${lat},${lng},${zoom}z`;

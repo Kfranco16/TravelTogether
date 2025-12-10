@@ -1,20 +1,12 @@
-<!-- Usamos la rejilla de Bootstrap para crear nuestro layout asimétrico -->
 <div class="container my-5">
   <div class="row g-4">
-    <!-- Columna Izquierda: La "Tarjeta" de Identidad -->
-
     <div class="col-lg-4">
-      <!-- 
-        Usamos una card de Bootstrap con colores y padding para crear el panel.
-        'text-center' centra todo el contenido.
-        'sticky-top' es un toque moderno para que se mantenga visible al hacer scroll.
-      -->
       <div
         class="card shadow-sm border-0 rounded-4 text-center p-5 text-white sticky-top"
         style="top: 2rem; background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
       >
         <img
-          [src]="usuario?.image"
+          [src]="usuario?.image || 'images/defaultUser.png'"
           [alt]="'Foto de perfil de ' + usuario?.username"
           class="profile-photo mx-auto mb-3 rounded-circle img-fluid"
           style="width: 200px; height: 200px"
@@ -37,19 +29,10 @@
           </div>
           }
         </div>
-
-        <!--  <h2 class="h1 mb-1">{{ usuario?.username }}</h2>
-        <p class="mb-3 fs-5">
-          <i class="bi bi-star-fill text-warning"></i>
-          "4.9/5 - Excelente anfitrión"
-        </p> -->
       </div>
     </div>
 
-    <!-- Columna Derecha: El Contenido Principal -->
-
     <div class="col-lg-8">
-      <!-- Card para la Biografía -->
       <div class="card shadow-sm border-0 rounded-4 mb-4">
         <div class="card-body p-4">
           <h4 class="card-title mb-3">
@@ -69,7 +52,6 @@
         </div>
       </div>
 
-      <!-- Card para los Intereses -->
       <div class="card shadow-sm border-0 rounded-4 mb-4">
         <div class="card-body p-4">
           <h4 class="card-title mb-3">
@@ -91,7 +73,6 @@
         </div>
       </div>
 
-      <!-- Card Placeholder para Futuras Modificaciones -->
       <div class="card shadow-sm border-0 rounded-4">
         <div class="card-body p-4">
           <h4 class="card-title mb-3">

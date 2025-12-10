@@ -7,6 +7,7 @@ import { AuthService } from '../../core/services/auth';
 import { Trip } from '../../interfaces/trip';
 import { File } from 'lucide-angular';
 import { toast } from 'ngx-sonner';
+import { lastValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-crear-editar-viaje',
@@ -218,15 +219,16 @@ export class CrearEditarViaje implements AfterViewInit {
           let tripResp: any;
 
           if (this.modoEdicion && this.tripId) {
-            // EDICIÓN
-            tripResp = await this.tripService.updateTrip(this.tripId, baseTripData);
+            tripResp = await lastValueFrom(this.tripService.updateTrip(this.tripId, baseTripData));
+            toast.success('Viaje actualizado con éxito');
+
+            this.router.navigate(['/viaje', this.tripId]);
+            return;
           } else {
-            // CREAR NUEVO
             baseTripData.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
             tripResp = await this.tripService.createTrip(baseTripData);
             const tripId = tripResp.trip.id;
 
-            // Subir portada
             if (this.selectedCoverPhoto) {
               try {
                 await this.tripService.uploadImage(
@@ -241,7 +243,6 @@ export class CrearEditarViaje implements AfterViewInit {
               }
             }
 
-            // Subir principal
             if (this.selectedMainPhoto) {
               try {
                 await this.tripService.uploadImage(
@@ -255,21 +256,16 @@ export class CrearEditarViaje implements AfterViewInit {
                 console.error('Error subiendo principal:', e);
               }
             }
-
-            // notificacion??
-            // await firstValueFrom(this.notificationsService.create(notiBody, token!));
           }
 
           return tripResp;
         })(),
         {
           loading: this.modoEdicion ? 'Actualizando viaje...' : 'Creando viaje...',
-          success: this.modoEdicion ? 'Viaje actualizado con éxito' : 'Viaje creado con éxito',
+
           error: 'Ha ocurrido un error al guardar el viaje',
         }
       );
-
-      this.router.navigate(['/home']);
     } catch (err) {
       toast.warning('Error al crear/actualizar viaje o subir imágenes');
       if (err instanceof HttpErrorResponse) {

@@ -69,22 +69,21 @@
             <li>
               <a
                 class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
-                routerLink="/gestion-viajes"
-                (click)="onSectionOpen('gestionViajes')"
-              >
-                <span>Gestión de Viajes</span>
-                @if (notif.gestionViajes) { <span class="tt-dot" aria-hidden="true"></span> }
-              </a>
-            </li>
-
-            <li>
-              <a
-                class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
                 routerLink="/dashboard/perfil"
                 (click)="onSectionOpen('perfil')"
               >
                 <span>Mi perfil</span>
                 @if (notif.perfil) { <span class="tt-dot" aria-hidden="true"></span> }
+              </a>
+            </li>
+            <li>
+              <a
+                class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
+                routerLink="/gestion-viajes"
+                (click)="onSectionOpen('gestionViajes')"
+              >
+                <span>Gestión de Viajes</span>
+                @if (notif.gestionViajes) { <span class="tt-dot" aria-hidden="true"></span> }
               </a>
             </li>
 

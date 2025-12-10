@@ -13,7 +13,6 @@
   border-radius: 28px;
   padding: 2rem 2.5rem;
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
-  margin-top: 1.25rem;
 }
 
 .tt-profile-main {
@@ -367,4 +366,69 @@
     flex-direction: column;
     align-items: center;
   }
+}
+
+.tt-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+.tt-modal {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  padding: 1.5rem 1.75rem;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+}
+
+.tt-modal-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #6f42c1;
+}
+
+.tt-modal-text {
+  margin-bottom: 1.25rem;
+  font-size: 0.95rem;
+  color: #495057;
+}
+
+.tt-modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.tt-btn.tt-btn-secondary.btn {
+  background-color: #ffffff;
+  border: 1px solid #6c757d;
+  color: #6c757d;
+}
+
+.tt-btn.tt-btn-primary.btn {
+  background-color: #6f42c1;
+  border-color: #6f42c1;
+  color: #ffffff;
+}
+
+.tt-btn.tt-btn-secondary.btn:hover {
+  background-color: #f8f9fa;
+}
+
+.tt-btn.tt-btn-primary.btn:hover {
+  background-color: #5a32a3;
+  border-color: #5a32a3;
+}
+
+.tt-btn.tt-btn-danger.btn {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: #ffffff;
 }
