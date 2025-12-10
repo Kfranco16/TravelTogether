@@ -734,10 +734,4 @@ export class ForoViaje implements OnInit {
       return dateString;
     }
   }
-
-  // ========================================================================
-  // MÉTODOS PRIVADOS
-  // ========================================================================
-
-  // (No hay métodos privados adicionales en esta fase)
 }
