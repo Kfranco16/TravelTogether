@@ -4,7 +4,7 @@ import { firstValueFrom, Observable, forkJoin } from 'rxjs';
 import { catchError, of, switchMap } from 'rxjs';
 import { Trip } from '../../interfaces/trip';
 import { environment } from '../../../environment/environment';
-
+import { HttpParams } from '@angular/common/http';
 export interface TripApiResponse {
   page: number;
   per_page: number;

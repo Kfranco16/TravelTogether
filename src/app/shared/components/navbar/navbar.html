@@ -69,6 +69,17 @@
             <li>
               <a
                 class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
+                routerLink="/gestion-viajes"
+                (click)="onSectionOpen('gestionViajes')"
+              >
+                <span>Gestión de Viajes</span>
+                @if (notif.gestionViajes) { <span class="tt-dot" aria-hidden="true"></span> }
+              </a>
+            </li>
+
+            <li>
+              <a
+                class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
                 routerLink="/dashboard/perfil"
                 (click)="onSectionOpen('perfil')"
               >
@@ -80,44 +91,11 @@
             <li>
               <a
                 class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
-                routerLink="/dashboard/reservas"
-                (click)="onSectionOpen('reservas')"
-              >
-                <span>Mis reservas</span>
-                @if (notif.reservas) { <span class="tt-dot" aria-hidden="true"></span> }
-              </a>
-            </li>
-
-            <li>
-              <a
-                class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
-                routerLink="/dashboard/mis-viajes"
-                (click)="onSectionOpen('misViajes')"
-              >
-                <span>Mis viajes</span>
-                @if (notif.misViajes) { <span class="tt-dot" aria-hidden="true"></span> }
-              </a>
-            </li>
-
-            <li>
-              <a
-                class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
                 routerLink="/dashboard/favoritos"
                 (click)="onSectionOpen('favoritos')"
               >
                 <span>Favoritos</span>
                 @if (notif.favoritos) { <span class="tt-dot" aria-hidden="true"></span> }
-              </a>
-            </li>
-
-            <li>
-              <a
-                class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
-                routerLink="/dashboard/foros"
-                (click)="onSectionOpen('foros')"
-              >
-                <span>Foros</span>
-                @if (notif.foros) { <span class="tt-dot" aria-hidden="true"></span> }
               </a>
             </li>
 
@@ -150,9 +128,9 @@
       </div>
       } @else {
       <div class="tt-bottom-nav-inner">
-        <a routerLink="/dashboard/mis-viajes" routerLinkActive="active" class="tt-bottom-item">
-          <i class="bi bi-geo-alt" aria-hidden="true"></i>
-          <span>Mis viajes</span>
+        <a routerLink="/gestion-viajes" routerLinkActive="active" class="tt-bottom-item">
+          <i class="bi bi-gear" aria-hidden="true"></i>
+          <span>Gestión Viajes</span>
         </a>
 
         <a routerLink="/crear-viaje" routerLinkActive="active" class="tt-bottom-item">

@@ -6,7 +6,6 @@ import { DatePipe, NgClass } from '@angular/common';
 import { Iuser } from '../../interfaces/iuser';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { toast } from 'ngx-sonner';
 
 import { CardUsuario } from '../../components/card-usuario/card-usuario';
 import { AuthService } from '../../core/services/auth';
@@ -17,7 +16,7 @@ import { toast } from 'ngx-sonner';
 @Component({
   selector: 'app-detalle-viaje',
   standalone: true,
-  imports: [DatePipe, CardUsuario, RouterLink],
+  imports: [DatePipe, CardUsuario, RouterLink, NgClass],
   templateUrl: './detalle-viaje.html',
   styleUrl: './detalle-viaje.css',
 })

@@ -37,11 +37,9 @@ export class Navbar implements OnInit, OnDestroy {
   notif = {
     perfil: false,
     datos: false,
-    reservas: false,
-    misViajes: false,
     favoritos: false,
     notificaciones: false,
-    foros: false,
+    gestionViajes: false,
   };
 
   ngOnInit(): void {
@@ -89,11 +87,9 @@ export class Navbar implements OnInit, OnDestroy {
     this.notif = {
       perfil: false,
       datos: false,
-      reservas: false,
-      misViajes: false,
+      gestionViajes: false,
       favoritos: false,
       notificaciones: false,
-      foros: false,
     };
     this.hasNotifications = false;
   }
@@ -108,16 +104,16 @@ export class Navbar implements OnInit, OnDestroy {
     for (const n of this.notificaciones) {
       switch (n.type) {
         case 'message':
-          this.notif.foros = true;
+          this.notif.gestionViajes = true;
           break;
         case 'trip':
-          this.notif.misViajes = true;
+          this.notif.gestionViajes = true;
           break;
         case 'favorites':
           this.notif.favoritos = true;
           break;
         case 'group':
-          this.notif.reservas = true;
+          this.notif.gestionViajes = true;
           break;
       }
     }
@@ -159,11 +155,13 @@ export class Navbar implements OnInit, OnDestroy {
         this.actualizarFlagsDesdeNotifications();
 
         if (noti.type === 'trip') {
-          this.router.navigate(['/dashboard/mis-viajes']);
+          this.router.navigate(['/gestion-viajes']);
         } else if (noti.type === 'message') {
-          this.router.navigate(['/dashboard/foros']);
+          this.router.navigate(['/gestion-viajes']);
         } else if (noti.type === 'favorites') {
           this.router.navigate(['/dashboard/favoritos']);
+        } else if (noti.type === 'group') {
+          this.router.navigate(['/gestion-viajes']);
         }
       },
       error: (err) => {
@@ -180,8 +178,10 @@ export class Navbar implements OnInit, OnDestroy {
       return;
     }
 
-    if (section === 'misViajes' && this.notificaciones.length > 0) {
-      const toDelete = this.notificaciones.filter((n) => n.type === 'trip');
+    if (section === 'gestionViajes' && this.notificaciones.length > 0) {
+      const toDelete = this.notificaciones.filter(
+        (n) => n.type === 'trip' || n.type === 'message' || n.type === 'group'
+      );
       if (toDelete.length === 0) {
         this.notif[section] = false;
         this.hasNotifications = Object.values(this.notif).some((v) => v);
@@ -194,7 +194,7 @@ export class Navbar implements OnInit, OnDestroy {
             this.notificaciones = this.notificaciones.filter((x) => x.id !== n.id);
             this.actualizarFlagsDesdeNotifications();
           },
-          error: (err) => console.error('Error eliminando notificación de tipo trip', err),
+          error: (err) => console.error('Error eliminando notificación de gestión de viajes', err),
         });
       });
     } else {
