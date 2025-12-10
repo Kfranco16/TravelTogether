@@ -54,24 +54,60 @@
     style="height: 320px"
   />
 
-  <div class="container my-4">
-    <div class="d-flex mb-3 gap-2">
-      @if (esCreador) {
-      <div class="d-flex align-items-start justify-content-start">
-        <button class="btn btn-danger" (click)="eliminarViaje()">
-          <i class="bi bi-trash"></i> Eliminar viaje
-        </button>
+  <div class="container my-4 justify-content-center">
+    <div class="container my-4">
+      <div class="container">
+        @if (esCreador) {
+        <div class="d-flex flex-wrap justify-content-center align-items-center gap-2 gap-md-3">
+          <button
+            class="btn btn-outline-danger d-flex align-items-center gap-2"
+            type="button"
+            (click)="openDeleteModal()"
+          >
+            <i class="bi bi-trash"></i>
+            <span>Eliminar viaje</span>
+          </button>
+
+          @if (showDeleteModal) {
+          <div class="tt-modal-overlay" (click)="cancelDelete()">
+            <div class="tt-modal" (click)="$event.stopPropagation()">
+              <h3 class="tt-modal-title">Eliminar viaje</h3>
+              <p class="tt-modal-text">¿Seguro que quieres eliminar este viaje?</p>
+
+              <div class="tt-modal-buttons">
+                <button class="tt-btn tt-btn-secondary btn btn-sm" (click)="cancelDelete()">
+                  Volver y cancelar
+                </button>
+                <button class="tt-btn tt-btn-primary btn btn-sm" (click)="confirmDelete()">
+                  Confirmar
+                </button>
+              </div>
+            </div>
+          </div>
+          }
+
+          <button
+            class="btn btn-outline-primary d-flex align-items-center gap-2"
+            type="button"
+            [routerLink]="['/viaje/editar', trip.id]"
+          >
+            <i class="bi bi-pencil-square"></i>
+            <span>Editar viaje</span>
+          </button>
+
+          <button
+            class="btn btn-warning d-flex align-items-center gap-2"
+            type="button"
+            (click)="goToValorarPage()"
+          >
+            <i class="bi bi-people"></i>
+            <span>Gestionar mi viaje</span>
+          </button>
+        </div>
+        }
       </div>
-      <div class="d-flex align-items-start justify-content-start">
-        <button class="btn btn-primary"><i class="bi bi-arrow-left-right"></i> Editar viaje</button>
-      </div>
-      <div class="d-flex align-items-start justify-content-start">
-        <button class="btn btn-warning" (click)="goToValorarPage()">
-          <i class="bi bi-people"></i>Gestionar valoraciones
-        </button>
-      </div>
-      }
     </div>
+
     <div class="row g-4">
       <div class="col-lg-8">
         <div class="position-relative rounded overflow-hidden">

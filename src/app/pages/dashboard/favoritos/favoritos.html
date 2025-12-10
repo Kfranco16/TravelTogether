@@ -1,18 +1,93 @@
-<section class="tt-panel">
-  <h2 class="tt-title mb-3">Favoritos</h2>
+<div class="container my-5">
+  <section class="py-4 py-md-4 mb-4 bg-light rounded-3 px-3 px-md-4">
+    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+      <div
+        class="rounded-circle bg-white shadow-sm d-flex align-items-center justify-content-center flex-shrink-0"
+        style="width: 56px; height: 56px"
+      >
+        <i class="bi bi-heart-fill text-danger fs-3"></i>
+      </div>
 
-  @if (!cargando && favoritos.length) {
-  <ul class="list-group">
-    @for (f of favoritos; track f.id) {
-    <li class="list-group-item d-flex justify-content-between align-items-center">
-      <span>{{ f.titulo }}</span>
-      <a [routerLink]="['/detalle-viaje', f.id]" class="btn btn-sm btn-link">Ver</a>
-    </li>
-    }
-  </ul>
-  } @else if (!cargando) {
-  <p class="text-muted">Aún no has marcado viajes como favoritos.</p>
-  } @else {
-  <p class="text-muted">Cargando…</p>
+      <div>
+        <p
+          class="text-uppercase text-secondary fw-semibold mb-1 small d-flex align-items-center gap-2"
+        >
+          <i class="bi bi-stars"></i>
+          Mis favoritos
+        </p>
+
+        <h1 class="h3 mb-2 color-principal">Tus viajes guardados</h1>
+
+        <p class="mb-2 text-muted">
+          Reúne en un solo lugar los viajes que más te interesan para poder revisarlos con calma y
+          decidir cuándo unirte.
+        </p>
+
+        <p class="mb-0 text-muted small">
+          Mantén tus favoritos organizados, vuelve a sus detalles cuando quieras y no pierdas de
+          vista las aventuras que más te inspiran.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  @if (!loading && !error && favoritos.length) {
+  <p class="tt-subtitle-small mt-2">
+    Tienes {{ favoritos.length }} viaje{{ favoritos.length > 1 ? 's' : '' }} guardado{{
+      favoritos.length > 1 ? 's' : ''
+    }}
+    en favoritos.
+  </p>
+  } @if (loading) {
+  <p class="tt-text-muted text-center mt-3">Cargando tus favoritos...</p>
+  } @if (!loading && error) {
+  <p class="tt-text-error text-center mt-3">
+    {{ error }}
+  </p>
+  } @if (!loading && !error && !favoritos.length) {
+  <p class="tt-text-muted text-center mt-3">
+    Aún no tienes viajes en favoritos. Marca con el corazón los viajes que te gusten para verlos
+    aquí.
+  </p>
+  } @if (hasFavorites()) {
+  <div class="container my-3">
+    <div class="row g-4">
+      @for (fav of favoritos; track trackByFavId($index, fav)) {
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="tt-fav-card-wrapper">
+          <app-card-viaje [trip]="fav.trip"></app-card-viaje>
+
+          <footer class="tt-fav-footer">
+            <div class="tt-fav-footer-text">
+              Añadido a favoritos @if (fav.created_at) {
+              <div>{{ fav.created_at | date : 'dd/MM/yyyy' }}</div>
+              }
+            </div>
+
+            <button type="button" class="tt-fav-footer-btn" (click)="onRemoveFavorite(fav)">
+              Quitar
+            </button>
+          </footer>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+  } @if (showModal) {
+  <div class="tt-modal-overlay">
+    <div class="tt-modal">
+      <h3 class="tt-modal-title">Quitar de favoritos</h3>
+      <p class="tt-modal-text">¿Seguro que quieres eliminar este viaje de tus favoritos?</p>
+
+      <div class="tt-modal-buttons">
+        <button class="tt-btn tt-btn-secondary btn btn-sm" (click)="cancelRemove()">
+          Volver y cancelar
+        </button>
+        <button class="tt-btn tt-btn-primary btn btn-sm" (click)="confirmRemove()">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
   }
-</section>
+</div>

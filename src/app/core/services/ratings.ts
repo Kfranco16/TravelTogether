@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { BehaviorSubject, map, Observable } from 'rxjs';
 import { environment } from '../../../environment/environment';
 
 @Injectable({
@@ -69,5 +69,16 @@ export class RatingsService {
     return this.http.delete<any>(`${environment.apiUrl}/ratings/${id}`, {
       headers: this.getHeaders(),
     });
+  }
+
+  private _pendingCount$ = new BehaviorSubject<number>(0);
+  pendingCount$ = this._pendingCount$.asObservable();
+
+  setPendingCount(count: number): void {
+    this._pendingCount$.next(count);
+  }
+
+  getPendingCount(): number {
+    return this._pendingCount$.getValue();
   }
 }

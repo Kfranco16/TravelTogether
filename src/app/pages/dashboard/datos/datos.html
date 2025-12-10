@@ -1,9 +1,6 @@
-<main class="container g-3 my-5 tt-datos-page">
-  <div class="tt-datos-inner">
-    <!-- Título de la página Mis datos -->
-    <h4 class="tt-datos-title mb-4">Mis datos</h4>
-
-    <!-- Reutilizamos el componente de Registro -->
-    <app-registro [tituloFormulario]="tituloFormulario" [textoBoton]="textoBoton"></app-registro>
-  </div>
-</main>
+<app-registro
+  [isEditMode]="true"
+  [userData]="currentUser"
+  [tituloFormulario]="'Actualiza tu perfil'"
+  [textoBoton]="'Guardar cambios'"
+></app-registro>

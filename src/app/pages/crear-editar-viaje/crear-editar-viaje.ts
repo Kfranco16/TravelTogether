@@ -1,10 +1,12 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { AfterViewInit, Component, ViewChild, ElementRef } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TripService } from '../../core/services/viajes';
 import { AuthService } from '../../core/services/auth';
 import { Trip } from '../../interfaces/trip';
 import { File } from 'lucide-angular';
+import { toast } from 'ngx-sonner';
 
 @Component({
   selector: 'app-crear-editar-viaje',
@@ -16,8 +18,11 @@ export class CrearEditarViaje implements AfterViewInit {
   @ViewChild('destinationInput') destinationInput!: ElementRef;
 
   trip?: Trip;
-
   tripForm!: FormGroup;
+
+  modoEdicion = false;
+  tripId?: number;
+
   includesList = [
     'flights',
     'tickets',
@@ -38,7 +43,9 @@ export class CrearEditarViaje implements AfterViewInit {
     private fb: FormBuilder,
     private tripService: TripService,
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -61,6 +68,7 @@ export class CrearEditarViaje implements AfterViewInit {
       breakfast: [false],
       visas: [false],
       assistance24: [false],
+
       min_participants: ['', [Validators.required, Validators.min(1)]],
       estimated_cost: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
       transport: ['', Validators.required],
@@ -71,6 +79,48 @@ export class CrearEditarViaje implements AfterViewInit {
       gallery_photos: [null],
       latitude: [''],
       longitude: [''],
+    });
+
+    this.route.paramMap.subscribe((params) => {
+      const id = params.get('id');
+      if (id) {
+        this.modoEdicion = true;
+        this.tripId = +id;
+        this.cargarViaje(+id);
+      }
+    });
+  }
+
+  cargarViaje(id: number) {
+    this.tripService.getTripById(id).then((trip: Trip) => {
+      this.trip = trip;
+
+      this.tripForm.patchValue({
+        title: trip.title,
+        origin: trip.origin,
+        destination: trip.destination,
+        start_date: trip.start_date?.slice(0, 10),
+        end_date: trip.end_date?.slice(0, 10),
+        description: trip.description,
+        itinerary: trip.itinerary,
+        requirements: trip.requirements,
+        min_participants: trip.min_participants,
+        estimated_cost: trip.estimated_cost,
+        transport: trip.transport,
+        accommodation: trip.accommodation,
+        flights: !!trip.flights,
+        tickets: !!trip.tickets,
+        visits: !!trip.visits,
+        full_board: !!trip.full_board,
+        travel_insurance: !!trip.travel_insurance,
+        tour_guide: !!trip.tour_guide,
+        informative_material: !!trip.informative_material,
+        breakfast: !!trip.breakfast,
+        visas: !!trip.visas,
+        assistance24: !!trip.assistance24,
+        latitude: trip.latitude,
+        longitude: trip.longitude,
+      });
     });
   }
 
@@ -87,7 +137,7 @@ export class CrearEditarViaje implements AfterViewInit {
         script.onload = resolve;
       });
     }
-    // 2.  API Places Autocomplete
+    // 2. API Places Autocomplete
     const { Autocomplete } = await (window as any).google.maps.importLibrary('places');
     const autocomplete = new Autocomplete(this.destinationInput.nativeElement, {
       types: ['(cities)'],
@@ -105,10 +155,6 @@ export class CrearEditarViaje implements AfterViewInit {
         });
       }
     });
-  }
-
-  get includesFormArray() {
-    return this.tripForm.get('includes') as FormArray;
   }
 
   onPhotoChange(event: any, controlName: string, multiple = false) {
@@ -129,87 +175,108 @@ export class CrearEditarViaje implements AfterViewInit {
       return;
     }
 
+    const user = JSON.parse(localStorage.getItem('usuario') || 'null');
+    const userId = user ? user.id : null;
+
+    const baseTripData: any = {
+      origin: this.tripForm.value.origin || '',
+      destination: this.tripForm.value.destination,
+      title: this.tripForm.value.title,
+      description: this.tripForm.value.description,
+      creator_id: userId,
+      start_date: this.tripForm.value.start_date + ' 00:00:00',
+      end_date: this.tripForm.value.end_date + ' 00:00:00',
+      estimated_cost: this.tripForm.value.estimated_cost,
+      min_participants: this.tripForm.value.min_participants,
+      transport: this.tripForm.value.transport,
+      accommodation: this.tripForm.value.accommodation,
+      itinerary: this.tripForm.value.itinerary,
+      requirements: this.tripForm.value.requirements,
+      flights: this.tripForm.value.flights,
+      tickets: this.tripForm.value.tickets,
+      visits: this.tripForm.value.visits,
+      full_board: this.tripForm.value.full_board,
+      travel_insurance: this.tripForm.value.travel_insurance,
+      tour_guide: this.tripForm.value.tour_guide,
+      informative_material: this.tripForm.value.informative_material,
+      breakfast: this.tripForm.value.breakfast,
+      visas: this.tripForm.value.visas,
+      assistance24: this.tripForm.value.assistance24,
+      status: 'open',
+      latitude: this.tripForm.value.latitude,
+      longitude: this.tripForm.value.longitude,
+      updated_at: new Date().toISOString().slice(0, 19).replace('T', ' '),
+    };
+
+    this.includesList.forEach((campo) => {
+      baseTripData[campo] = this.tripForm.value[campo] ? 1 : 0;
+    });
+
     try {
-      const user = JSON.parse(localStorage.getItem('usuario') || 'null');
-      const userId = user ? user.id : null;
+      const tripResponse = await toast.promise(
+        (async () => {
+          let tripResp: any;
 
-      const tripData = {
-        origin: this.tripForm.value.origin || '',
-        destination: this.tripForm.value.destination,
-        title: this.tripForm.value.title,
-        description: this.tripForm.value.description,
-        creator_id: userId,
-        start_date: this.tripForm.value.start_date + ' 00:00:00',
-        end_date: this.tripForm.value.end_date + ' 00:00:00',
-        estimated_cost: this.tripForm.value.estimated_cost,
-        min_participants: this.tripForm.value.min_participants,
-        transport: this.tripForm.value.transport,
-        accommodation: this.tripForm.value.accommodation,
-        itinerary: this.tripForm.value.itinerary,
-        requirements: this.tripForm.value.requirements,
-        flights: this.tripForm.value.flights,
-        tickets: this.tripForm.value.tickets,
-        visits: this.tripForm.value.visits,
-        full_board: this.tripForm.value.full_board,
-        travel_insurance: this.tripForm.value.travel_insurance,
-        tour_guide: this.tripForm.value.tour_guide,
-        informative_material: this.tripForm.value.informative_material,
-        breakfast: this.tripForm.value.breakfast,
-        visas: this.tripForm.value.visas,
-        assistance24: this.tripForm.value.assistance24,
-        status: 'open',
-        latitude: this.tripForm.value.latitude,
-        longitude: this.tripForm.value.longitude,
-        created_at: new Date().toISOString().slice(0, 19).replace('T', ' '),
-        updated_at: new Date().toISOString().slice(0, 19).replace('T', ' '),
-      };
+          if (this.modoEdicion && this.tripId) {
+            // EDICIÓN
+            tripResp = await this.tripService.updateTrip(this.tripId, baseTripData);
+          } else {
+            // CREAR NUEVO
+            baseTripData.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+            tripResp = await this.tripService.createTrip(baseTripData);
+            const tripId = tripResp.trip.id;
 
-      this.includesList.forEach((campo) => {
-        (tripData as any)[campo] = this.tripForm.value[campo] ? 1 : 0;
-      });
+            // Subir portada
+            if (this.selectedCoverPhoto) {
+              try {
+                await this.tripService.uploadImage(
+                  this.selectedCoverPhoto,
+                  'Foto de portada',
+                  tripId,
+                  tripResp.trip.creator_id,
+                  false
+                );
+              } catch (e) {
+                console.error('Error subiendo portada:', e);
+              }
+            }
 
-      const tripResponse = await this.tripService.createTrip(tripData);
-      const tripId = tripResponse.trip.id;
+            // Subir principal
+            if (this.selectedMainPhoto) {
+              try {
+                await this.tripService.uploadImage(
+                  this.selectedMainPhoto,
+                  'Foto principal',
+                  tripId,
+                  tripResp.trip.creator_id,
+                  true
+                );
+              } catch (e) {
+                console.error('Error subiendo principal:', e);
+              }
+            }
 
-      try {
-        if (this.selectedCoverPhoto) {
-          await this.tripService.uploadImage(
-            this.selectedCoverPhoto,
-            'Foto de portada',
-            tripResponse.trip.id,
-            tripResponse.trip.creator_id,
-            false
-          );
+            // notificacion??
+            // await firstValueFrom(this.notificationsService.create(notiBody, token!));
+          }
+
+          return tripResp;
+        })(),
+        {
+          loading: this.modoEdicion ? 'Actualizando viaje...' : 'Creando viaje...',
+          success: this.modoEdicion ? 'Viaje actualizado con éxito' : 'Viaje creado con éxito',
+          error: 'Ha ocurrido un error al guardar el viaje',
         }
-      } catch (e) {
-        console.error('Error subiendo portada:', e);
-      }
-      await new Promise((res) => setTimeout(res, 2000));
+      );
 
-      try {
-        if (this.selectedMainPhoto) {
-          await this.tripService.uploadImage(
-            this.selectedMainPhoto,
-            'Foto principal',
-            tripResponse.trip.id,
-            tripResponse.trip.creator_id,
-            true
-          );
-        }
-      } catch (e) {
-        console.error('Error subiendo principal:', e);
-      }
-
-      alert('Viaje creado con éxito');
+      this.router.navigate(['/home']);
     } catch (err) {
-      console.error('Error al crear viaje o subir imágenes', err);
+      toast.warning('Error al crear/actualizar viaje o subir imágenes');
       if (err instanceof HttpErrorResponse) {
         console.error('Status:', err.status);
         console.error('StatusText:', err.statusText);
         console.error('URL:', err.url);
         console.error('Backend error:', err.error);
-
-        alert('Error: ' + (err.error?.message || JSON.stringify(err.error)));
       }
     }
   }

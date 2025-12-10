@@ -1,23 +1,118 @@
 .navbar {
   background: #fff;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: none;
 }
 
-/* Contenedor principal: logo + menú alineados */
+/* HEADER: fila desktop, columna móvil */
+.tt-fixed .tt-header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+@media (max-width: 767.98px) {
+  .tt-fixed .tt-header-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+  }
+
+  .tt-header-logo-link {
+    justify-content: center;
+  }
+}
+
+/* ===== NAV MÓVIL ===== */
+/* Contenedor móvil: columna, ocupa todo el ancho */
+.tt-mobile-nav {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 0.25rem;
+}
+
+/* Bottom nav fija abajo, con items repartidos */
+.tt-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid #e5e7eb;
+  padding: 0.3rem 1rem 0.4rem;
+
+  z-index: 1030;
+}
+
+.tt-bottom-nav-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Cada item ocupa el mismo ancho y se centra */
+.tt-bottom-item {
+  flex: 1 1 0;
+  text-align: center;
+  text-decoration: none;
+  color: #6b7280;
+  font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+}
+
+.tt-bottom-item i {
+  font-size: 1.2rem;
+}
+
+.tt-bottom-item.active {
+  color: #4f46e5;
+}
+
+/* Perfil compacto en barra móvil */
+.tt-bottom-item-profile {
+  position: relative;
+}
+
+.tt-bottom-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tt-bottom-avatar .tt-avatar-ring {
+  width: 32px;
+  height: 32px;
+  padding: 2px;
+}
+
+/* Deja hueco para la bottom nav fija */
+@media (max-width: 767.98px) {
+  body {
+    padding-bottom: 64px; /* altura aprox de la bottom nav */
+  }
+}
+
+/* ===== Nav desktop / estilos comunes ===== */
+
 .tt-mobile-wrap {
   display: flex;
   align-items: center;
 }
 
-/* Lista de navegación alineada a la derecha y centrada verticalmente */
 .tt-navlist {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-left: auto; /* Empuja la navlist a la derecha en desktop */
+  margin-left: auto;
 }
 
-/* Quita pseudo-elementos que no necesitamos */
 .tt-navlist::before,
 .tt-navlist::after {
   content: none;
@@ -28,7 +123,6 @@
   text-decoration: none;
 }
 
-/* Links normales */
 .navbar .tt-link {
   color: #374151;
   font-weight: 700;
@@ -37,7 +131,6 @@
   line-height: 1;
 }
 
-/* Hover degradado en textos */
 .navbar .tt-link:hover,
 .navbar .tt-link:focus {
   background-image: var(--tt-gradient);
@@ -47,7 +140,6 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* Botón + Crear viaje */
 .navbar .tt-btn-primary {
   background-image: var(--tt-gradient);
   color: #fff;
@@ -71,57 +163,8 @@
   box-shadow: 0 12px 28px rgba(139, 92, 246, 0.3), 0 6px 16px rgba(59, 130, 246, 0.18);
 }
 
-/* Botón hamburguesa */
-.navbar-toggler {
-  border: 0;
-  box-shadow: none;
-}
+/* Dropdown escritorio */
 
-.navbar-toggler-icon {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cpath stroke='white' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
-  width: 1.4rem;
-  height: 1.4rem;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
-  display: inline-block;
-  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.12));
-}
-
-/* Wrapper para posicionar hamburguesa y campana */
-.tt-toggler-with-bell {
-  position: relative;
-}
-
-.tt-toggler {
-  background: var(--tt-gradient);
-  border: 0;
-  border-radius: 12px;
-  padding: 0.5rem 0.6rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.25);
-}
-
-/* X fija en móvil cuando el menú está abierto */
-.tt-close-x-fixed {
-  position: fixed;
-  top: 1rem;
-  right: 1.2rem;
-  z-index: 1050;
-  background: transparent;
-  border: 0;
-  font-size: 30px;
-  font-weight: 800;
-  line-height: 1;
-  background-image: var(--tt-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Dropdown general */
 .tt-dropdown {
   background: #fff;
   border: 1px solid #e8e8ef;
@@ -165,29 +208,19 @@
   color: #b02a37;
 }
 
-/* Layout móvil del dropdown */
-@media (max-width: 767.98px) {
-  .navbar .dropdown-menu {
-    position: static;
-    float: none;
-    transform: none;
-    box-shadow: none;
-    border: 0;
-    padding: 0.25rem 0;
-    margin-top: 0.25rem;
-  }
+/* Ajustes responsive mínimos */
 
+@media (max-width: 767.98px) {
   .navbar .tt-btn-primary {
     margin: 0.25rem 0;
   }
 
-  /* En móvil no necesitamos alinear la navlist a la derecha */
   .tt-navlist {
     margin-left: 0;
   }
 }
 
-/* AVATAR + NOTIFICACIONES */
+/* Avatar + campana */
 
 .tt-user-menu {
   display: inline-flex;
@@ -195,7 +228,6 @@
   gap: 0.5rem;
 }
 
-/* Wrapper general */
 .tt-avatar-wrapper {
   position: relative;
   display: inline-flex;
@@ -203,7 +235,6 @@
   justify-content: center;
 }
 
-/* Aro del avatar */
 .tt-avatar-ring {
   width: 44px;
   height: 44px;
@@ -215,20 +246,17 @@
   transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
 }
 
-/* Sin notificaciones: aro gris */
 .tt-avatar-ring--idle {
   background: linear-gradient(135deg, #d4d4d8, #e5e7eb);
   box-shadow: none;
 }
 
-/* Con notificaciones: degradado + glow */
 .tt-avatar-ring--active {
   background: linear-gradient(135deg, #a855f7, #3b82f6);
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.95), 0 0 16px rgba(129, 140, 248, 0.75);
   transform: translateY(-1px);
 }
 
-/* Imagen del avatar */
 .tt-avatar-img {
   width: 100%;
   height: 100%;
@@ -240,7 +268,6 @@
   justify-content: center;
 }
 
-/* Placeholder (si no hay foto) */
 .tt-avatar-placeholder {
   color: #6b7280;
   font-weight: 700;
@@ -248,7 +275,6 @@
   -webkit-text-fill-color: currentColor;
 }
 
-/* Campanita sobre el avatar */
 .tt-avatar-bell {
   position: absolute;
   bottom: -2px;
@@ -271,45 +297,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 0.8rem;
+  color: #ffffff;
+  font-size: 1rem;
 }
 
-/* Campanita sobre el botón hamburguesa (solo móvil) */
-.tt-bell-mobile {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  width: 22px;
-  height: 22px;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #ffffff;
-  box-shadow: 0 0 0 2px #ffffff, 0 4px 12px rgba(129, 140, 248, 0.8);
-}
+@media (max-width: 767.98px) {
+  .tt-avatar-bell {
+    width: 14px;
+    height: 14px;
+    bottom: -1px;
+    right: -1px;
+    box-shadow: 0 0 0 1px #ffffff, 0 2px 6px rgba(129, 140, 248, 0.8);
+  }
 
-.tt-bell-mobile-inner {
-  width: 100%;
-  height: 100%;
-  border-radius: 999px;
-  background-image: var(--tt-gradient);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-}
+  .tt-avatar-bell-inner {
+    font-size: 0; /* anulamos cualquier font-size heredado */
+  }
 
-/* Solo visible en móvil */
-@media (min-width: 768px) {
-  .tt-bell-mobile {
-    display: none;
+  .tt-avatar-bell-inner i {
+    font-size: 0.6rem; /* tamaño específico del icono en móvil */
+    line-height: 1;
   }
 }
 
-/* Puntos del menú (notificaciones por sección) */
+/* Dot notificación */
+
 .tt-dot {
   width: 10px;
   height: 10px;

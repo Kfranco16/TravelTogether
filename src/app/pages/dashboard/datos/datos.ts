@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { Registro } from '../../registro/registro';
+import { AuthService } from '../../../core/services/auth';
+import { Iuser } from '../../../interfaces/iuser';
 
 @Component({
   selector: 'app-datos',
@@ -9,7 +11,11 @@ import { Registro } from '../../registro/registro';
   styleUrl: './datos.css',
 })
 export class Datos {
-  // Texto específico para la página "Mis datos"
-  tituloFormulario = 'Actualiza tu información personal';
-  textoBoton = 'Guardar cambios';
+  currentUser: Iuser | null = null;
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.currentUser = this.authService.getCurrentUser();
+  }
 }

@@ -1,7 +1,7 @@
-@if (!usuario) {
+@if (!isLoggedIn) {
 <div class="d-flex align-items-center text-shadow-black gap-2">
   <img
-    src="https://img.freepik.com/psd-gratis/ilustracion-3d-avatar-o-perfil-humano_23-2150671142.jpg?semt=ais_hybrid&w=740&q=80"
+    src="images/defaultUser.png"
     alt="Avatar genérico"
     class="rounded-1"
     style="width: 35px; height: 55px; object-fit: cover"
@@ -13,28 +13,27 @@
 } @else {
 <div class="d-flex align-items-center text-shadow-black gap-2">
   <img
-    [src]="
-      usuario.image ||
-      'https://img.freepik.com/psd-gratis/ilustracion-3d-avatar-o-perfil-humano_23-2150671142.jpg?semt=ais_hybrid&w=740&q=80'
-    "
-    [alt]="usuario.username ? 'Avatar de ' + usuario.username : 'Avatar genérico'"
+    [src]="usuario?.image || 'images/defaultUser.png'"
+    [alt]="usuario?.username ? 'Avatar de ' + usuario?.username : 'Avatar genérico'"
     class="rounded-1"
     style="width: 35px; height: 55px; object-fit: cover"
   />
 
   <div class="d-flex flex-column">
     <div class="fw-semibold fs-5">
-      {{ usuario.username }}
+      {{ usuario?.username }}
     </div>
-    @if (usuarioValoracion != null) {
+
     <div class="d-flex align-items-center gap-1 text-shadow-black mt-1">
-      @for (estrella of getEstrellas(usuarioValoracion); track estrella.icon + estrella.color +
-      $index) {
+      @if (usuarioValoracion != null) { @for (estrella of getEstrellas(usuarioValoracion); track
+      estrella.icon + estrella.color + $index) {
       <i class="bi {{ estrella.icon }} {{ estrella.color }}"></i>
       }
       <span class="ms-2">{{ usuarioValoracion }}</span>
+      } @else {
+      <span>Aún por valorar</span>
+      }
     </div>
-    }
   </div>
 </div>
 }

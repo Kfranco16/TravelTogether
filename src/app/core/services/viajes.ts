@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom, Observable, forkJoin } from 'rxjs';
 import { catchError, of, switchMap } from 'rxjs';
 import { Trip } from '../../interfaces/trip';
-import { HttpParams } from '@angular/common/http';
 import { environment } from '../../../environment/environment';
 
 export interface TripApiResponse {
@@ -41,6 +40,7 @@ export class TripService {
   // Signal privado para cachear los viajes y evitar peticiones repetidas
   private tripsCacheSignal = signal<Trip[] | null>(null);
 
+  //Obtener lista de viajes general
   getTrips(token: string): Observable<TripApiResponse> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
@@ -48,6 +48,7 @@ export class TripService {
     return this.http.get<TripApiResponse>(`${environment.apiUrl}/trips`, { headers });
   }
 
+  //Obtener viaje por ID
   async getTripById(id: number): Promise<Trip> {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
@@ -55,6 +56,7 @@ export class TripService {
     return firstValueFrom(this.http.get<Trip>(url, { headers }));
   }
 
+  //Crear viaje
   async createTrip(tripData: any): Promise<any> {
     const token = localStorage.getItem('authToken');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
@@ -65,8 +67,22 @@ export class TripService {
     return this.http.get<any[]>(`${environment.apiUrl}/trips/`);
   }
 
-  deleteTripById(id: number) {
-    return this.http.delete(`${environment.apiUrl}/trips/${id}`);
+  //Actualizar viaje
+  updateTrip(id: number, tripData: any): Observable<any> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    const url = `${environment.apiUrl}/trips/${id}`;
+    return this.http.put<any>(url, tripData, { headers });
+  }
+
+  // Eliminar viaje
+  deleteTripById(id: number, token?: string) {
+    const auth = token || localStorage.getItem('authToken') || '';
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${auth}`,
+    });
+
+    return this.http.delete(`${environment.apiUrl}/trips/${id}`, { headers });
   }
 
   getImagesByTripId(tripId: number): Observable<any[]> {
@@ -120,23 +136,25 @@ export class TripService {
   async uploadImage(
     file: File,
     description: string,
-    tripId: number,
+    tripId: number | null,
     userId: number,
     mainImg: boolean
   ): Promise<any> {
     const url = `${environment.apiUrl}/images/upload`;
     const formData = new FormData();
+
     formData.append('image', file);
-    formData.append('trip_id', tripId.toString());
+
+    if (tripId !== null) {
+      formData.append('trip_id', tripId.toString());
+    }
     formData.append('user_id', userId.toString());
     formData.append('description', description);
     formData.append('main_img', mainImg ? '1' : '0');
 
     const token = localStorage.getItem('authToken');
     const headers: any = {};
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
+    if (token) headers['Authorization'] = `Bearer ${token}`;
 
     const response = await fetch(url, {
       method: 'POST',
@@ -144,23 +162,30 @@ export class TripService {
       headers,
     });
 
-    if (!response.ok) {
-      throw new Error('Error al subir imagen: ' + response.statusText);
-    }
-
+    if (!response.ok) throw new Error('Error al subir imagen: ' + response.statusText);
     return await response.json();
   }
 
-  //mis viajes (viajes creados por el usuario)
-  getMisViajes(userId: number): Observable<Trip[]> {
-    const token = localStorage.getItem('tt_token') || '';
-    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
-    const params = new HttpParams().set('owner_id', String(userId));
-    // reutilizamos /trips con filtro por owner_id (back debe soportarlo)
-    return this.http.get<Trip[]>(environment.apiUrl + '/trips', { headers, params });
+  async uploadUserImage(file: File, userId: number): Promise<any> {
+    return this.uploadImage(file, 'avatar', null, userId, true);
   }
 
-  //mis reservas
+  getTripsByCreator(userId: number): Observable<any> {
+    const token = localStorage.getItem('authToken') || '';
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    const params = new HttpParams()
+      .set('creator_id', String(userId))
+      .set('per_page', '50')
+      .set('page', '1');
+
+    return this.http.get<any>(`${environment.apiUrl}/trips`, {
+      headers,
+      params,
+    });
+  }
+
+  //Mis reservas
   getMisReservas(userId: number): Observable<any[]> {
     const token = localStorage.getItem('tt_token') || '';
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
@@ -168,7 +193,7 @@ export class TripService {
     return this.http.get<any[]>('http://localhost:3000/api/bookings', { headers, params });
   }
 
-  // favoritos de usuario
+  //  Favoritos
   getFavoritos(userId: number): Observable<any[]> {
     const token = localStorage.getItem('tt_token') || '';
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;

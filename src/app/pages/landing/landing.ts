@@ -3,6 +3,7 @@ import { CardViaje } from '../../components/card-viaje/card-viaje';
 import { TripService } from '../../core/services/viajes';
 import { AuthService } from '../../core/services/auth';
 import { Iuser } from '../../interfaces/iuser';
+import { finalize, finalize as rxFinalize } from 'rxjs';
 
 export interface Trip {
   id: number;
@@ -717,7 +718,30 @@ export class Landing {
     return this.viajesVisibles.length < viajesBase.length;
   }
 
+  visibleTrips: Trip[] = [];
+  isLoadingTrips = false;
+  hasTripsError = false;
+
+  loadTrips() {
+    this.isLoadingTrips = true;
+    this.hasTripsError = false;
+
+    this.tripService
+      .getTrips(this.token)
+      .pipe(finalize(() => (this.isLoadingTrips = false)))
+      .subscribe({
+        next: (data: any) => {
+          this.visibleTrips = data.results || data;
+        },
+        error: (err) => {
+          console.error('Error loading trips', err);
+          this.hasTripsError = true;
+        },
+      });
+  }
+
   ngOnInit() {
+    this.loadTrips();
     // Iniciar la rotación automática de imágenes cada 5 segundos
     this.intervalId = setInterval(() => {
       const nextIndex = (this.currentImageIndex() + 1) % this.heroImages().length;
