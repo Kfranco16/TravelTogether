@@ -2,7 +2,8 @@
   background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
   color: #fff;
 }
-.btn-morado :hover {
+
+.btn-morado:hover {
   filter: brightness(1.05);
 }
 
@@ -16,18 +17,23 @@
   min-height: 630px;
   height: 630px;
   max-height: 330px;
-
   transition: box-shadow 0.2s;
 }
 
-.tt-modal-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.5); /* fondo oscuro */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1050;
+.btn-morado:disabled,
+.btn-morado[disabled] {
+  opacity: 1 !important;
+}
+
+.btn-warning:disabled,
+.btn-success:disabled,
+.btn-danger:disabled,
+.btn-secondary:disabled,
+.btn-warning[disabled],
+.btn-success[disabled],
+.btn-danger[disabled],
+.btn-secondary[disabled] {
+  opacity: 1 !important;
 }
 
 .tt-modal-overlay {
@@ -98,6 +104,7 @@
 .viaje-card .layer-base {
   z-index: 1;
 }
+
 .viaje-card .layer-info {
   z-index: 2;
   background: whitesmoke;
@@ -116,6 +123,7 @@
   justify-content: center;
   padding: 1.5rem;
 }
+
 .viaje-card:hover .layer-info,
 .viaje-card:focus-within .layer-info {
   opacity: 1;
@@ -176,18 +184,6 @@
   animation: shake-effect 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) 1;
 }
 
-.btn-morado {
-  background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
-  color: #fff;
-}
-.btn-morado :hover {
-  filter: brightness(1.05);
-}
-
-.color-principal {
-  color: #5223b9;
-}
-
 .login-container {
   width: 100%;
 }
@@ -198,15 +194,6 @@
   overflow-y: auto;
 }
 
-/* ============================================================================
-   ESTILOS TOAST PERSONALIZADO - VALIDACIONES
-   ============================================================================ */
-
-/**
- * Contenedor del toast - Centrado en la pantalla
- * Usa Bootstrap utilities: position-fixed, top-50, start-50, translate-middle
- * Responsive: Se adapta a diferentes tamaños de pantalla
- */
 .toast-container {
   max-width: 100%;
   width: 100%;
@@ -215,9 +202,6 @@
   align-items: center;
 }
 
-/**
- * Alert del toast - Con animaciones smooth
- */
 .alert {
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -226,9 +210,6 @@
   transition: all 0.3s ease;
 }
 
-/**
- * Animación de entrada del toast (desde abajo hacia el centro)
- */
 @keyframes slideInToastCenter {
   from {
     opacity: 0;
@@ -240,9 +221,6 @@
   }
 }
 
-/**
- * Animación de salida del toast (hacia afuera con escala)
- */
 @keyframes slideOutToastCenter {
   from {
     opacity: 1;
@@ -254,16 +232,10 @@
   }
 }
 
-/**
- * Clase que aplica la animación de salida
- */
 .alert.hide {
   animation: slideOutToastCenter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-/**
- * Estilos para diferentes tipos de alertas
- */
 .alert-success {
   background-color: #d4edda;
   border-color: #c3e6cb;
@@ -304,9 +276,6 @@
   color: #17a2b8;
 }
 
-/**
- * Botón de cerrar personalizado
- */
 .btn-close {
   opacity: 0.7;
   transition: opacity 0.2s ease;
@@ -317,9 +286,6 @@
   opacity: 1;
 }
 
-/* ============================================================================
-   RESPONSIVE - Mobile (< 576px)
-   ============================================================================ */
 @media (max-width: 575.98px) {
   .toast-container {
     padding: 12px !important;
@@ -362,9 +328,6 @@
   }
 }
 
-/* ============================================================================
-   RESPONSIVE - Tablet (576px - 991px)
-   ============================================================================ */
 @media (min-width: 576px) and (max-width: 991.98px) {
   .toast-container {
     padding: 15px !important;
@@ -401,9 +364,6 @@
   }
 }
 
-/* ============================================================================
-   RESPONSIVE - Desktop (992px+)
-   ============================================================================ */
 @media (min-width: 992px) {
   .toast-container {
     padding: 20px !important;
@@ -446,13 +406,6 @@
   }
 }
 
-/* ============================================================================
-   ACCESIBILIDAD
-   ============================================================================ */
-
-/**
- * Soporte para modo oscuro (prefers-color-scheme)
- */
 @media (prefers-color-scheme: dark) {
   .alert-success {
     background-color: #1e5631;
@@ -479,9 +432,6 @@
   }
 }
 
-/**
- * Reducir movimiento para usuarios con preferencias de accesibilidad
- */
 @media (prefers-reduced-motion: reduce) {
   .alert {
     animation: none !important;
@@ -493,9 +443,6 @@
   }
 }
 
-/**
- * Focus visible para teclado
- */
 .btn-close:focus {
   outline: 2px solid rgba(0, 123, 255, 0.5);
   outline-offset: 2px;

@@ -268,6 +268,19 @@ export class CardViaje {
     }
 
     this.handleSolicitud(trip);
+
+    if (!this.currentUser?.id) return;
+
+    trip.solicitado = !trip.solicitado;
+    const token = this.authService.gettoken();
+    const notiBody = {
+      title: 'Nueva solicitud de viaje',
+      message: `${this.currentUser.username} ha solicitado unirse a tu viaje "${this.trip.title}".`,
+      type: 'trip',
+      is_read: 0, // <- obligatorio para que no sea null
+      sender_id: this.currentUser.id,
+      receiver_id: this.trip.creator_id,
+    };
   }
 
   /**

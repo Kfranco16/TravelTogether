@@ -98,7 +98,8 @@
           <button
             class="btn btn-warning d-flex align-items-center gap-2"
             type="button"
-            (click)="goToValorarPage()"
+            routerLink="/gestion-viajes"
+            (click)="goToMyTrip()"
           >
             <i class="bi bi-people"></i>
             <span>Gestionar mi viaje</span>
@@ -142,29 +143,42 @@
             </div>
           </div>
 
-          <!-- 🎯 Botón para solicitar unirse al viaje - Ahora con lógica real -->
           <button
-            class="btn btn-outline-secondary btn-morado position-absolute top-0 end-0 m-3"
+            class="btn position-absolute top-0 end-0 m-3"
             type="button"
-            [class.btn-success]="solicitudEnviada()"
-            [class.btn-outline-secondary]="!solicitudEnviada()"
-            [class.btn-morado]="!solicitudEnviada()"
-            [disabled]="enviandoSolicitud() || solicitudEnviada() || esCreador"
+            [ngClass]="{
+              'btn-morado text-white': !solicitudStatus() && !esCreador,
+              'btn-secondary text-white': esCreador,
+              'btn-warning text-dark': solicitudStatus() === 'pending',
+              'btn-success text-white': solicitudStatus() === 'accepted',
+              'btn-danger text-white': solicitudStatus() === 'rejected'
+            }"
+            [disabled]="
+              cargandoSolicitudStatus() ||
+              enviandoSolicitud() ||
+              solicitudStatus() === 'pending' ||
+              solicitudStatus() === 'accepted' ||
+              esCreador
+            "
             (click)="handleSolicitud()"
           >
-            <!-- Estado 1: Enviando solicitud -->
-            @if (enviandoSolicitud()) {
+            @if (cargandoSolicitudStatus()) {
             <span
               class="spinner-border spinner-border-sm me-2"
               role="status"
               aria-hidden="true"
             ></span>
-            Enviando solicitud... }
-            <!-- Estado 2: Solicitud ya enviada -->
-            @else if (solicitudEnviada()) {
-            <i class="bi bi-check-circle"></i> Solicitud enviada }
-            <!-- Estado 3: Normal - Solicitar unirse -->
-            @else if (enviandoSolicitud() || solicitudEnviada()) {} @else { Solicitar unirme }
+            Cargando estado... } @else if (esCreador) { Tu viaje } @else if (enviandoSolicitud()) {
+            <span
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            Enviando solicitud... } @else if (solicitudStatus() === 'pending') {
+            <i class="bi bi-hourglass-split"></i> Solicitud enviada } @else if (solicitudStatus()
+            === 'accepted') { <i class="bi bi-check-circle"></i> Solicitud aceptada } @else if
+            (solicitudStatus() === 'rejected') { <i class="bi bi-x-circle"></i> Solicitud rechazada
+            } @else { Solicitar unirme }
           </button>
         </div>
 

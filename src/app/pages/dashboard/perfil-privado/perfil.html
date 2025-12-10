@@ -22,7 +22,6 @@
         (click)="goToSection('misViajes', '/dashboard/mis-viajes')"
       >
         <span><i class="bi bi-bell"></i> Tienes una notificación en tus viajes</span>
-
         <span class="tt-dot"></span>
       </button>
       } @if (notif.favoritos) {
@@ -79,7 +78,11 @@
         </div>
 
         <div class="tt-profile-actions">
-          <button type="button" class="tt-btn tt-btn-sm tt-btn-danger" (click)="onDeletePhoto()">
+          <button
+            type="button"
+            class="tt-btn tt-btn-sm tt-btn-danger"
+            (click)="openDeletePhotoModal()"
+          >
             Eliminar foto
           </button>
 
@@ -95,7 +98,6 @@
           {{ user?.username || 'Tu nombre' }}
         </h1>
 
-        <!-- Rating -->
         <div class="tt-profile-rating">
           <div class="d-flex align-items-center gap-1 text-shadow-black mt-1">
             @if (usuarioValoracion != null) { @for (estrella of getEstrellas(usuarioValoracion);
@@ -129,10 +131,12 @@
       <div class="tt-stat-icon">
         <i class="bi bi-calendar-event"></i>
       </div>
-      <p class="tt-stat-label">Miembro desde</p>
-      <p class="tt-stat-value">
-        {{ memberSince | date : 'dd-MM-yyyy' : 'es' }}
-      </p>
+      <div class="fs-8">
+        <p class="tt-stat-label">Miembro desde:</p>
+        <p class="tt-stat-value">
+          {{ (user?.created_at | date : 'dd MMMM, y' : 'es') || '—' }}
+        </p>
+      </div>
     </article>
 
     <article class="tt-stat-card">
@@ -162,13 +166,13 @@
       </p>
     </div>
 
-    <div class="tt-next-trip-right tt-rate-card-right">
+    <!-- <div class="tt-next-trip-right tt-rate-card-right">
       <div class="tt-next-trip-badge">
         <p class="tt-next-trip-caption">
           {{ pendingRatingsCount !== null ? 'viajes por valorar' : 'sin valoraciones pendientes' }}
         </p>
       </div>
-    </div>
+    </div> -->
   </section>
 
   <section class="tt-next-trip-card tt-next-trip-card-main">
@@ -216,3 +220,25 @@
     </div>
   </section>
 </section>
+
+@if (showDeletePhotoModal) {
+<div class="tt-modal-overlay">
+  <div class="tt-modal">
+    <h3 class="tt-modal-title">Eliminar foto de perfil</h3>
+    <p class="tt-modal-text">¿Seguro que quieres eliminar tu foto de perfil?</p>
+
+    <div class="tt-modal-buttons">
+      <button
+        class="tt-btn tt-btn-secondary btn btn-sm"
+        type="button"
+        (click)="cancelDeletePhoto()"
+      >
+        Volver y cancelar
+      </button>
+      <button class="tt-btn tt-btn-primary btn btn-sm" type="button" (click)="confirmDeletePhoto()">
+        Confirmar
+      </button>
+    </div>
+  </div>
+</div>
+}

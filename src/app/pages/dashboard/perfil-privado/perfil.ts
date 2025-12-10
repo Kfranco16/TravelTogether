@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { FavoritesService } from '../../../core/services/favorites';
@@ -9,14 +9,6 @@ import { TripService } from '../../../core/services/viajes';
 import { RatingsService } from '../../../core/services/ratings';
 import { Iuser } from '../../../interfaces/iuser';
 import { NotificationsService, NotificationDto } from '../../../core/services/notifications';
-
-interface Rating {
-  id: number;
-  score: number;
-  comment: string;
-  from: string;
-  createdAt: string;
-}
 
 @Component({
   selector: 'app-perfil',
@@ -28,43 +20,30 @@ interface Rating {
 export class Perfil {
   private auth = inject(AuthService);
   private tripsService = inject(TripService);
-  private route = inject(ActivatedRoute);
   private favorites = inject(FavoritesService);
   private ratingsService = inject(RatingsService);
   private notificationsService = inject(NotificationsService);
   private router = inject(Router);
 
-  isOwnProfile = true;
-
-  defaultAvatar = '/images/defaultUserImage.png';
   user: Iuser | null = null;
+  defaultAvatar = '/images/defaultUserImage.png';
 
-  ratings: Rating[] = [];
-  hasRatings = false;
-  averageScore = 0;
-  averageStars = 0;
-  ratingCount = 0;
   usuarioValoracion: number | null = null;
-
   stars = [1, 2, 3, 4, 5];
 
-  memberSince: string | null = null;
   tripsCount: number | null = null;
   favoritesCount: number | null = null;
 
+  createdTrips: any[] = [];
   nextTrip: any | null = null;
   nextTripDestination: string | null = null;
   nextTripDate: string | null = null;
   daysToNextTrip: number | null = null;
 
-  publicTagline = '';
-  createdTrips: any[] = [];
-
   pendingRatingsCount = 0;
 
   hasNotifications = false;
   notificaciones: NotificationDto[] = [];
-
   notif = {
     perfil: false,
     datos: false,
@@ -75,45 +54,142 @@ export class Perfil {
     foros: false,
   };
 
-  async ngOnInit(): Promise<void> {
-    this.cargarNotificaciones();
+  showDeletePhotoModal = false;
 
+  async ngOnInit(): Promise<void> {
     this.ratingsService.pendingCount$.subscribe((count) => {
       this.pendingRatingsCount = count;
     });
 
-    const current: any = this.auth.getCurrentUser();
-    const paramId = this.route.snapshot.paramMap.get('id');
-
-    if (!paramId) {
-      if (current) {
-        this.isOwnProfile = true;
-        this.setupFromUser(current);
-      } else {
-        this.isOwnProfile = false;
-        this.setupFromUser(null);
-      }
-    } else {
-      const viewedId = Number(paramId);
-
-      if (current && current.id === viewedId) {
-        this.isOwnProfile = true;
-        this.setupFromUser(current);
-      } else {
-        this.isOwnProfile = false;
-        try {
-          const viewedUser = await this.auth.getUserById(viewedId);
-          this.setupFromUser(viewedUser as any);
-        } catch (error) {
-          console.error('Error cargando usuario por id', error);
-          this.setupFromUser(null);
-        }
-      }
+    const current = this.auth.getCurrentUser() as Iuser | null;
+    if (!current) {
+      this.router.navigate(['/home']);
+      return;
     }
 
-    if (this.user?.id) {
+    await this.loadLoggedUserData(current.id);
+
+    this.cargarNotificaciones();
+  }
+
+  private async loadLoggedUserData(userId: number): Promise<void> {
+    try {
+      const fullUser = await this.auth.getUserById(userId);
+      if (!fullUser) {
+        this.router.navigate(['/home']);
+        return;
+      }
+
+      this.user = fullUser as Iuser;
+
+      this.loadUserRating(this.user.id);
+      this.loadFavoritesCount(this.user.id);
       this.loadCreatedTrips(this.user.id);
+
+      this.tripsCount =
+        (fullUser as any).tripsCount || (fullUser as any).trips_count || this.tripsCount;
+      this.favoritesCount =
+        (fullUser as any).favoritesCount ||
+        (fullUser as any).favorites_count ||
+        this.favoritesCount;
+    } catch (error) {
+      console.error('Error cargando usuario logueado con getUserById', error);
+      this.router.navigate(['/home']);
     }
+  }
+
+  private loadUserRating(userId: number): void {
+    const token = this.auth.gettoken() || '';
+    if (!token) {
+      this.usuarioValoracion = null;
+      return;
+    }
+
+    this.auth.getUserRating(userId, token).subscribe({
+      next: (rating: number) => {
+        this.usuarioValoracion = rating;
+      },
+      error: (error) => {
+        if (error.status === 404) {
+          this.usuarioValoracion = null;
+        } else {
+          console.error('Error obteniendo valoración en perfil:', error);
+          this.usuarioValoracion = null;
+        }
+      },
+    });
+  }
+
+  private loadFavoritesCount(userId: number): void {
+    const token = this.auth.gettoken() || '';
+    if (!token) {
+      this.favoritesCount = 0;
+      return;
+    }
+
+    this.favorites.getFavoritesByUser(userId, token).subscribe({
+      next: (favorites) => {
+        this.favoritesCount = favorites.length;
+      },
+      error: () => {
+        this.favoritesCount = 0;
+      },
+    });
+  }
+
+  private loadCreatedTrips(userId: number): void {
+    this.tripsService.getTripsByCreator(userId).subscribe({
+      next: (res: any) => {
+        this.createdTrips = res?.trips || res?.results || [];
+
+        if (!this.tripsCount) {
+          this.tripsCount = this.createdTrips.length;
+        }
+
+        this.calculateNextTrip();
+      },
+      error: (err: any) => {
+        console.error('Error cargando viajes creados por el usuario', err);
+      },
+    });
+  }
+
+  private calculateNextTrip(): void {
+    if (!this.createdTrips || this.createdTrips.length === 0) {
+      this.nextTrip = null;
+      this.nextTripDestination = null;
+      this.nextTripDate = null;
+      this.daysToNextTrip = null;
+      return;
+    }
+
+    const today = new Date();
+
+    const futureTrips = this.createdTrips
+      .map((trip: any) => ({
+        ...trip,
+        startDate: new Date(trip.start_date || trip.startDate),
+      }))
+      .filter((t: any) => t.startDate.getTime() > today.getTime());
+
+    if (futureTrips.length === 0) {
+      this.nextTrip = null;
+      this.nextTripDestination = null;
+      this.nextTripDate = null;
+      this.daysToNextTrip = null;
+      return;
+    }
+
+    futureTrips.sort((a: any, b: any) => a.startDate.getTime() - b.startDate.getTime());
+
+    const next = futureTrips[0];
+    this.nextTrip = next;
+
+    this.nextTripDestination = next.destination || next.city || next.title || 'Próximo viaje';
+    this.nextTripDate = next.startDate.toISOString();
+
+    const diffMs = next.startDate.getTime() - today.getTime();
+    this.daysToNextTrip = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
   }
 
   public goToSection(section: keyof typeof this.notif, path: string): void {
@@ -136,10 +212,7 @@ export class Perfil {
 
   private actualizarFlagsDesdeNotifications(): void {
     this.resetFlags();
-
-    if (this.notificaciones.length === 0) {
-      return;
-    }
+    if (this.notificaciones.length === 0) return;
 
     for (const n of this.notificaciones) {
       switch (n.type) {
@@ -164,7 +237,8 @@ export class Perfil {
 
   private cargarNotificaciones(): void {
     const token = this.auth.gettoken() || '';
-    const currentUser = this.auth.getCurrentUser();
+    const currentUser = this.auth.getCurrentUser() as Iuser | null;
+
     if (!token || !currentUser) {
       this.resetFlags();
       return;
@@ -230,14 +304,11 @@ export class Perfil {
   }
 
   goToEditProfile(): void {
-    if (!this.user) return;
     this.router.navigate(['/dashboard/datos']);
   }
 
   goToFavoritesPage(): void {
-    if (this.user && this.user.id) {
-      this.router.navigate([`dashboard/favoritos/`]);
-    }
+    this.router.navigate(['dashboard/favoritos']);
   }
 
   irADetalleViaje(): void {
@@ -274,154 +345,20 @@ export class Perfil {
     }
   }
 
-  private loadFavoritesCount(userId: number): void {
-    const token = this.auth.gettoken() || '';
-    this.favorites.getFavoritesByUser(userId, token).subscribe({
-      next: (favorites) => {
-        this.favoritesCount = favorites.length;
-      },
-      error: () => {
-        this.favoritesCount = 0;
-      },
-    });
+  openDeletePhotoModal(): void {
+    if (!this.user) return;
+    this.showDeletePhotoModal = true;
   }
 
-  private setupFromUser(raw: any | null | undefined): void {
-    if (!raw) {
-      this.user = null;
-      this.ratings = [];
-      this.hasRatings = false;
-      this.averageScore = 0;
-      this.averageStars = 0;
-      this.ratingCount = 0;
-      this.memberSince = null;
-      this.tripsCount = null;
-      this.favoritesCount = null;
-      this.nextTripDestination = null;
-      this.nextTripDate = null;
-      this.daysToNextTrip = null;
-      this.publicTagline = '';
-      this.usuarioValoracion = null;
+  cancelDeletePhoto(): void {
+    this.showDeletePhotoModal = false;
+  }
+
+  confirmDeletePhoto(): void {
+    if (!this.user) {
+      this.showDeletePhotoModal = false;
       return;
     }
-
-    this.user = raw as Iuser;
-
-    if (this.user?.id) {
-      this.loadCreatedTrips(this.user.id);
-      this.loadFavoritesCount(this.user.id);
-    }
-
-    const token = localStorage.getItem('tt_token') || '';
-    this.auth.getUserRating(this.user.id, token).subscribe({
-      next: (rating: number) => {
-        this.usuarioValoracion = rating;
-      },
-      error: (error) => {
-        if (error.status === 404) {
-          this.usuarioValoracion = null;
-        } else {
-          console.error('Error obteniendo valoración en perfil:', error);
-          this.usuarioValoracion = null;
-        }
-      },
-    });
-
-    if (raw.ratings && Array.isArray(raw.ratings)) {
-      this.ratings = raw.ratings;
-    } else {
-      this.ratings = [];
-    }
-
-    this.hasRatings = this.ratings.length > 0;
-
-    if (this.hasRatings) {
-      const sum = this.ratings.reduce((acc, r) => acc + r.score, 0);
-      this.averageScore = sum / this.ratings.length;
-      this.averageStars = Math.round(this.averageScore);
-      this.ratingCount = this.ratings.length;
-    } else {
-      this.averageScore = 0;
-      this.averageStars = 0;
-      this.ratingCount = 0;
-    }
-
-    this.memberSince = raw.memberSince || raw.created_at || null;
-    this.tripsCount = raw.tripsCount || raw.trips_count || null;
-    this.favoritesCount = raw.favoritesCount || raw.favorites_count || null;
-
-    this.nextTripDestination = raw.nextTripDestination || null;
-    this.nextTripDate = raw.nextTripDate || null;
-    this.daysToNextTrip = typeof raw.daysToNextTrip === 'number' ? raw.daysToNextTrip : null;
-
-    this.publicTagline = raw.public_tagline || raw.bio || '';
-  }
-
-  private loadCreatedTrips(userId: number): void {
-    this.tripsService.getTripsByCreator(userId).subscribe({
-      next: (res: any) => {
-        this.createdTrips = res?.trips || res?.results || [];
-
-        if (!this.tripsCount) {
-          this.tripsCount = this.createdTrips.length;
-        }
-
-        this.calculateNextTrip();
-      },
-      error: (err: any) => {
-        console.error('Error cargando viajes creados por el usuario', err);
-      },
-    });
-  }
-
-  private calculateNextTrip(): void {
-    if (!this.createdTrips || this.createdTrips.length === 0) {
-      this.nextTrip = null;
-      this.nextTripDestination = null;
-      this.nextTripDate = null;
-      this.daysToNextTrip = null;
-      return;
-    }
-
-    const today = new Date();
-
-    const futureTrips = this.createdTrips
-      .map((trip: any) => ({
-        ...trip,
-        startDate: new Date(trip.start_date || trip.startDate),
-      }))
-      .filter((t: any) => t.startDate.getTime() > today.getTime());
-
-    if (futureTrips.length === 0) {
-      this.nextTrip = null;
-      this.nextTripDestination = null;
-      this.nextTripDate = null;
-      this.daysToNextTrip = null;
-      return;
-    }
-
-    futureTrips.sort((a: any, b: any) => a.startDate.getTime() - b.startDate.getTime());
-
-    const next = futureTrips[0];
-    this.nextTrip = next;
-
-    this.nextTripDestination = next.destination || next.city || next.title || 'Próximo viaje';
-    this.nextTripDate = next.startDate.toISOString();
-
-    const diffMs = next.startDate.getTime() - today.getTime();
-    this.daysToNextTrip = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-  }
-
-  onTaglineInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.publicTagline = input.value;
-  }
-
-  onDeletePhoto(): void {
-    if (!this.isOwnProfile || !this.user) return;
-
-    const confirmed = window.confirm('¿Seguro que quieres eliminar tu foto de perfil?');
-    if (!confirmed) return;
 
     this.auth
       .updateUser(this.user.id, {
@@ -434,14 +371,16 @@ export class Perfil {
       })
       .then((updated) => {
         this.user = updated;
+        this.showDeletePhotoModal = false;
       })
       .catch((err) => {
         console.error('Error eliminando foto de usuario', err);
+        this.showDeletePhotoModal = false;
       });
   }
 
   onUploadPhoto(event: Event): void {
-    if (!this.isOwnProfile || !this.user) return;
+    if (!this.user) return;
 
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
