@@ -1,0 +1,466 @@
+<!-- TRAVEL MANAGEMENT - TEMPLATE -->
+<div class="container-fluid py-5">
+  <!-- HEADER -->
+  <div class="mb-5">
+    <div class="travel-header">
+      <h1 class="mb-3">
+        <i class="bi bi-map"></i>
+        Gestión de Viajes
+      </h1>
+      <p class="lead text-muted">
+        Administra tus solicitudes, participantes y viajes en un solo lugar
+      </p>
+    </div>
+  </div>
+
+  <!-- NAVIGATION TABS -->
+  <div class="mb-5">
+    <ul class="nav nav-tabs nav-filled gap-2 tab-navigation" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          [class.active]="activeTab === 'pending'"
+          (click)="switchTab('pending')"
+          type="button"
+          role="tab"
+        >
+          <i class="bi bi-clock-history"></i>
+          <span class="d-none d-md-inline ms-2">Solicitudes Pendientes</span>
+          <span class="badge bg-danger rounded-pill ms-2">{{ pendingParticipations.length }}</span>
+        </button>
+      </li>
+
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          [class.active]="activeTab === 'accepted'"
+          (click)="switchTab('accepted')"
+          type="button"
+          role="tab"
+        >
+          <i class="bi bi-check-circle"></i>
+          <span class="d-none d-md-inline ms-2">Participantes Aceptados</span>
+          <!-- <span class="badge bg-success rounded-pill ms-2">{{ myCreatedTrips.length }}</span> -->
+        </button>
+      </li>
+
+      <li class="nav-item" role="presentation">
+        <button
+          class="nav-link"
+          [class.active]="activeTab === 'myTrips'"
+          (click)="switchTab('myTrips')"
+          type="button"
+          role="tab"
+        >
+          <i class="bi bi-suitcase"></i>
+          <span class="d-none d-md-inline ms-2">Mis Viajes</span>
+          <span class="badge bg-info rounded-pill ms-2">{{ userParticipations.length }}</span>
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- ============================================================================
+       TAB 1: PENDING REQUESTS
+       ============================================================================ -->
+  @if (activeTab === 'pending') { @if (isLoading) {
+  <div class="card border-0 shadow-sm">
+    <div class="card-body text-center p-5">
+      <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="text-muted">Cargando solicitudes pendientes...</p>
+    </div>
+  </div>
+  } @else if (errorMessage && !isLoading) {
+  <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    <strong>Error:</strong>
+    {{ errorMessage }}
+  </div>
+  } @else if (pendingParticipations.length >= 0) {
+  <div class="mb-4">
+    <button class="btn btn-gradient" (click)="refreshParticipations()" [disabled]="isLoading">
+      <i class="bi bi-arrow-clockwise"></i>
+      Recargar Solicitudes
+    </button>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-header gradient-header">
+      <h5 class="mb-0">
+        <i class="bi bi-list-ul"></i>
+        Total: {{ pendingParticipations.length }} solicitud(es)
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Usuario</th>
+              <th>Viaje</th>
+              <th>Estado</th>
+              <th>Fecha</th>
+              <th>Puntuación</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (participation of pendingParticipations; track participation.participation_id) {
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  @if (participation.participant_image_url) {
+                  <img
+                    [src]="participation.participant_image_url"
+                    alt="Avatar"
+                    class="rounded-circle"
+                    style="width: 32px; height: 32px; object-fit: cover"
+                  />
+                  } @else {
+                  <div
+                    class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white"
+                    style="width: 32px; height: 32px"
+                  >
+                    <i class="bi bi-person"></i>
+                  </div>
+                  }
+                  <div>
+                    <div class="fw-bold">{{ participation.participant_username }}</div>
+                    <small class="text-muted">{{ participation.participant_email }}</small>
+                  </div>
+                </div>
+              </td>
+              <td>
+                {{ participation.trip_name }}
+              </td>
+              <td>
+                <span class="badge" [ngClass]="getStatusBadgeClass(participation.status)">
+                  {{ translateStatus(participation.status) }}
+                </span>
+              </td>
+              <td>
+                <small class="text-muted">
+                  {{ participation.request_date | date : 'dd/MM/yyyy' }}
+                </small>
+              </td>
+              <td>
+                <span class="badge bg-info">⭐ {{ participation.participant_avg_score }}</span>
+              </td>
+              <td>
+                <div class="btn-group gap-1" role="group">
+                  <button
+                    class="btn btn-sm btn-success"
+                    (click)="approveParticipation(participation.participation_id)"
+                    title="Aceptar"
+                  >
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                  <button
+                    class="btn btn-sm btn-danger"
+                    (click)="rejectParticipation(participation.participation_id)"
+                    title="Rechazar"
+                  >
+                    <i class="bi bi-x-lg"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  } @else {
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <i class="bi bi-inbox"></i>
+    </div>
+    <h5>No hay solicitudes pendientes</h5>
+    <p class="text-muted">Cuando recibas solicitudes aparecerán aquí</p>
+  </div>
+  } }
+
+  <!-- ============================================================================
+       TAB 2: ACCEPTED PARTICIPANTS
+       ============================================================================ -->
+  @else if (activeTab === 'accepted') { @if (isLoading) {
+  <div class="card border-0 shadow-sm">
+    <div class="card-body text-center p-5">
+      <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="text-muted">Cargando viajes creados...</p>
+    </div>
+  </div>
+  } @else if (!isLoading) {
+  <div class="mb-4">
+    <button class="btn btn-gradient" (click)="loadMyCreatedTrips()" [disabled]="isLoading">
+      <i class="bi bi-arrow-clockwise"></i>
+      Recargar Viajes
+    </button>
+  </div>
+
+  @if (myCreatedTrips.length > 0) {
+  <div class="row g-4">
+    @for (trip of myCreatedTrips; track trip.trip_id) {
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="card trip-card border-0 shadow-sm h-100">
+        <div class="card-header gradient-header">
+          <h6 class="mb-2">{{ trip.title }}</h6>
+          <span class="badge bg-info">
+            {{ getAcceptedParticipants(trip).length }}/{{ trip.capacity }}
+          </span>
+        </div>
+        <div class="card-body">
+          <p class="mb-3">
+            <i class="bi bi-geo-alt"></i>
+            <strong>{{ trip.origin }}</strong> → <strong>{{ trip.destination }}</strong>
+          </p>
+          <p class="small text-muted mb-3">{{ trip.description }}</p>
+          <div class="d-flex justify-content-between text-muted small mb-3">
+            <span>
+              <i class="bi bi-calendar"></i>
+              {{ trip.start_date | date : 'dd/MM/yyyy' }}
+            </span>
+            <span>
+              <i class="bi bi-cash"></i>
+              ${{ trip.estimated_cost }}
+            </span>
+          </div>
+        </div>
+        <div class="card-footer bg-light">
+          <h6 class="mb-3">Participantes Aceptados:</h6>
+          @if (getAcceptedParticipants(trip).length > 0) {
+          <div class="participants-list">
+            @for (participant of getAcceptedParticipants(trip); track participant.id) {
+            <div class="participant-item mb-2">
+              <div class="d-flex align-items-center gap-2">
+                @if (participant.participant_image_url) {
+                <img
+                  [src]="participant.participant_image_url"
+                  alt="Avatar"
+                  class="rounded-circle"
+                  style="width: 28px; height: 28px; object-fit: cover"
+                />
+                } @else {
+                <div
+                  class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white"
+                  style="width: 28px; height: 28px; font-size: 12px"
+                >
+                  <i class="bi bi-person"></i>
+                </div>
+                }
+                <div class="flex-grow-1">
+                  <div class="small fw-bold">{{ participant.username }}</div>
+                  <small class="text-muted">⭐ {{ participant.participant_avg_score }}</small>
+                </div>
+                <!-- Botón eliminar: Responsive design con mayor espaciado -->
+                <button
+                  class="btn btn-sm btn-outline-danger d-none d-md-block"
+                  (click)="
+                    mostrarConfirmacionEliminar(
+                      getParticipationId(trip.trip_id, participant.id)!,
+                      trip.trip_id,
+                      participant.username
+                    )
+                  "
+                  [disabled]="userId === participant.id"
+                  title="Eliminar participante"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+                <!-- Versión compacta para móvil -->
+                <button
+                  class="btn btn-sm btn-outline-danger d-md-none"
+                  (click)="
+                    mostrarConfirmacionEliminar(
+                      getParticipationId(trip.trip_id, participant.id)!,
+                      trip.trip_id,
+                      participant.username
+                    )
+                  "
+                  [disabled]="userId === participant.id"
+                  title="Eliminar"
+                >
+                  <i class="bi bi-x-circle"></i>
+                </button>
+              </div>
+            </div>
+            }
+          </div>
+          } @else {
+          <small class="text-muted">Sin participantes aceptados aún</small>
+          }
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+  } @else {
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <i class="bi bi-map"></i>
+    </div>
+    <h5>No has creado viajes aún</h5>
+    <p class="text-muted">Crea tu primer viaje para comenzar a recibir solicitudes</p>
+    <a href="/crear-viaje" class="btn btn-gradient mt-3">
+      <i class="bi bi-plus"></i>
+      Crear Viaje
+    </a>
+  </div>
+  } } }
+
+  <!-- ============================================================================
+       TAB 3: MY TRIPS (CREATED + JOINED)
+       ============================================================================ -->
+  @else if (activeTab === 'myTrips') { @if (isLoading) {
+  <div class="card border-0 shadow-sm">
+    <div class="card-body text-center p-5">
+      <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Cargando...</span>
+      </div>
+      <p class="text-muted">Cargando tus viajes...</p>
+    </div>
+  </div>
+  } @else if (!isLoading) {
+  <div class="mb-4">
+    <button class="btn btn-gradient" (click)="loadMyParticipations()" [disabled]="isLoading">
+      <i class="bi bi-arrow-clockwise"></i>
+      Recargar Viajes
+    </button>
+  </div>
+
+  @if (userParticipations.length > 0) {
+  <div class="row g-4">
+    @for (participation of userParticipations; track participation.participation_id) {
+    <div class="col-12 col-md-6 col-lg-4">
+      <div
+        class="card trip-card border-0 shadow-sm h-100"
+        [class.opacity-75]="participation.status !== 'accepted'"
+      >
+        <div class="card-header gradient-header d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="mb-2">{{ participation.trip_name }}</h6>
+            <span class="badge" [ngClass]="getTripTypeBadge(participation).color">
+              <i [class]="'bi ' + getTripTypeBadge(participation).icon"></i>
+              {{ getTripTypeBadge(participation).text }}
+            </span>
+          </div>
+          @if (canCancelParticipation(participation)) {
+          <button
+            class="btn btn-sm btn-outline-danger"
+            (click)="mostrarConfirmacionCancelarParticipacion(participation)"
+            title="Cancelar participación"
+          >
+            <i class="bi bi-x-circle"></i>
+          </button>
+          }
+        </div>
+        <div class="card-body">
+          <p class="mb-3">
+            <i class="bi bi-geo-alt"></i>
+            <strong>{{ participation.origin }}</strong> →
+            <strong>{{ participation.destination }}</strong>
+          </p>
+          <div class="d-flex justify-content-between text-muted small mb-3">
+            <span>
+              <i class="bi bi-calendar"></i>
+              {{ participation.start_date | date : 'dd/MM/yyyy' }}
+            </span>
+          </div>
+          <div class="mb-3">
+            <span
+              class="badge"
+              [ngClass]="
+                participation.status === 'accepted'
+                  ? 'bg-success'
+                  : participation.status === 'pending'
+                  ? 'bg-warning text-dark'
+                  : 'bg-danger'
+              "
+            >
+              {{
+                participation.status === 'accepted'
+                  ? 'Aceptado'
+                  : participation.status === 'pending'
+                  ? 'Pendiente'
+                  : 'Rechazado'
+              }}
+            </span>
+          </div>
+          <small class="text-muted d-block">
+            <i class="bi bi-person"></i>
+            Creador: {{ participation.creator_username }}
+          </small>
+        </div>
+        <div class="card-footer bg-light">
+          @if (participation.status === 'accepted' || isMyTrip(participation)) {
+          <button class="btn btn-sm btn-gradient w-100" (click)="accederAlForo(participation)">
+            <i class="bi bi-chat-dots"></i>
+            Acceder al Foro
+          </button>
+          } @else {
+          <button class="btn btn-sm btn-outline-secondary w-100" disabled>
+            <i class="bi bi-lock"></i>
+            Foro no disponible
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+  } @else {
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <i class="bi bi-suitcase"></i>
+    </div>
+    <h5>Aún no tienes viajes</h5>
+    <p class="text-muted">Crea un viaje o únete a uno para comenzar</p>
+    <div class="btn-group mt-3" role="group">
+      <a href="/crear-viaje" class="btn btn-gradient">
+        <i class="bi bi-plus"></i>
+        Crear Viaje
+      </a>
+      <a href="/buscador" class="btn btn-outline-primary">
+        <i class="bi bi-search"></i>
+        Explorar Viajes
+      </a>
+    </div>
+  </div>
+  } } }
+
+  <!-- ============================================================================
+     TOAST DE CONFIRMACIÓN - ELIMINAR PARTICIPANTE
+     ============================================================================ -->
+  @if (mostrarToastConfirmacion()) {
+  <div
+    class="toast-confirmation"
+    [class.toast-confirming]="!ocultandoToastConfirmacion()"
+    [class.toast-hiding]="ocultandoToastConfirmacion()"
+  >
+    <div class="toast-body">
+      <div class="toast-icon">
+        <i class="bi bi-exclamation-triangle"></i>
+      </div>
+      <div class="toast-content">
+        <h6 class="toast-title">Confirmar eliminación</h6>
+        <p class="toast-message">{{ mensajeConfirmacion() }}</p>
+      </div>
+      <div class="toast-actions">
+        <button class="btn btn-sm btn-outline-secondary" (click)="cancelarEliminacion()">
+          <i class="bi bi-x-lg"></i>
+          Cancelar
+        </button>
+        <button class="btn btn-sm btn-danger" (click)="confirmarEliminacion()">
+          <i class="bi bi-trash"></i>
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+  }
+</div>
