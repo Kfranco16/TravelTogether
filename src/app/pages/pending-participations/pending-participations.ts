@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import {
   ParticipantService,
   PendingParticipationInfo,
@@ -8,6 +9,10 @@ import {
   UserParticipation,
   TripParticipation,
 } from '../../core/services/participant.service';
+import {
+  ForumAccessContext,
+  createForumAccessContext,
+} from '../../core/interfaces/forum-access-context';
 import { toast } from 'ngx-sonner';
 import { firstValueFrom } from 'rxjs';
 /**
@@ -41,6 +46,7 @@ export class PendingParticipationsComponent implements OnInit {
   // INYECCIONES DE DEPENDENCIAS
   // ========================================================================
   private participantService = inject(ParticipantService);
+  private router = inject(Router);
 
   // ========================================================================
   // PROPIEDADES DEL COMPONENTE
@@ -133,6 +139,13 @@ export class PendingParticipationsComponent implements OnInit {
    * Signal que controla si se está animando el toast de salida
    */
   ocultandoToastConfirmacion = signal<boolean>(false);
+
+  /**
+   * Signal que indica el tipo de eliminación
+   * 'acceptedParticipant' = eliminar un participante aceptado de un viaje creado
+   * 'userParticipation' = cancelar la participación propia del usuario en un viaje
+   */
+  tipoEliminacion = signal<'acceptedParticipant' | 'userParticipation' | null>(null);
 
   // ========================================================================
   // CICLO DE VIDA
@@ -484,6 +497,7 @@ export class PendingParticipationsComponent implements OnInit {
   ): void {
     this.participationIdPendiente.set(participationId);
     this.tripIdPendiente.set(tripId);
+    this.tipoEliminacion.set('acceptedParticipant');
     this.mensajeConfirmacion.set(
       `¿Eliminar a ${participantName} de este viaje? Esta acción no se puede deshacer.`
     );
@@ -494,16 +508,26 @@ export class PendingParticipationsComponent implements OnInit {
   /**
    * Confirmar y ejecutar la eliminación del participante
    * Se llama cuando el user hace click en "Confirmar" en el toast
+   * Distingue entre dos tipos de eliminación:
+   * - acceptedParticipant: eliminar un participante aceptado de un viaje creado
+   * - userParticipation: cancelar la participación propia del usuario
    */
   confirmarEliminacion(): void {
     const participationId = this.participationIdPendiente();
     const tripId = this.tripIdPendiente();
+    const tipo = this.tipoEliminacion();
 
-    if (participationId && tripId) {
+    if (participationId && tripId && tipo) {
       this.ocultarToastConfirmacion();
       // Esperar a que se anule la animación antes de eliminar
       setTimeout(() => {
-        this.deleteParticipant(participationId, tripId);
+        if (tipo === 'acceptedParticipant') {
+          // Eliminar un participante aceptado de un viaje creado
+          this.deleteParticipant(participationId, tripId);
+        } else if (tipo === 'userParticipation') {
+          // Cancelar la participación propia del usuario
+          this.cancelUserParticipation(participationId, tripId);
+        }
       }, 300);
     }
   }
@@ -527,6 +551,7 @@ export class PendingParticipationsComponent implements OnInit {
       this.ocultandoToastConfirmacion.set(false);
       this.participationIdPendiente.set(null);
       this.tripIdPendiente.set(null);
+      this.tipoEliminacion.set(null);
     }, 300);
   }
 
@@ -587,6 +612,57 @@ export class PendingParticipationsComponent implements OnInit {
   }
 
   /**
+   * Cancelar la participación del usuario en un viaje
+   * Se usa en la pestaña "Mis Viajes" para eliminar la participación del usuario actual
+   *
+   * @param participationId - ID de la participación a eliminar
+   * @param tripId - ID del viaje
+   */
+  async cancelUserParticipation(participationId: number, tripId: number): Promise<void> {
+    // Guardar el estado original por si necesitamos revertir
+    const originalParticipations = [...this.userParticipations];
+
+    try {
+      // Optimistic update: eliminar de la UI inmediatamente
+      const participationToRemove = this.userParticipations.find(
+        (p) => p.participation_id === participationId
+      );
+
+      if (!participationToRemove) {
+        toast.error('No se encontró la participación');
+        return;
+      }
+
+      // Eliminar de la UI
+      this.userParticipations = this.userParticipations.filter(
+        (p) => p.participation_id !== participationId
+      );
+
+      // Hacer la petición DELETE
+      const response = await firstValueFrom(
+        this.participantService.deleteParticipant(participationId)
+      );
+
+      toast.success('Participación cancelada correctamente', {
+        description: response.message,
+      });
+
+      console.log('✅ Participación cancelada:', response.data);
+    } catch (error: any) {
+      // Revertir cambios en caso de error
+      this.userParticipations = originalParticipations;
+
+      console.error('❌ Error al cancelar participación:', error);
+      const errorMsg = error?.message || 'Error al cancelar participación';
+      this.errorMessage = errorMsg;
+
+      toast.error(errorMsg, {
+        description: 'Por favor, intenta de nuevo más tarde',
+      });
+    }
+  }
+
+  /**
    * Obtener los participantes aceptados de un viaje específico
    *
    * Filtra solo los participantes con status 'accepted' del array all_related_participants
@@ -629,5 +705,81 @@ export class PendingParticipationsComponent implements OnInit {
         text: 'Te uniste',
       };
     }
+  }
+
+  /**
+   * Navega a la página del foro para un viaje específico.
+   * NOTA: El guard (forumAccessGuard) validará el acceso en la ruta
+   *
+   * @param participation - La participación del usuario en ese viaje
+   * Contiene toda la información necesaria para crear el ForumAccessContext
+   */
+  accederAlForo(participation: UserParticipation): void {
+    // =====================================================================
+    // PASO 1: Crear el contexto de acceso al foro
+    // =====================================================================
+    const forumContext: ForumAccessContext = createForumAccessContext(
+      this.userId!, // userId - Ya validado en ngOnInit
+      participation.trip_id, // tripId
+      participation.trip_name, // tripTitle
+      participation.creator_id, // creatorId
+      participation.creator_username, // creatorUsername
+      participation.creator_image_url, // creatorImage
+      participation.participation_id, // participationId
+      participation.status as 'pending' | 'accepted' | 'rejected' // participationStatus
+    );
+
+    // =====================================================================
+    // PASO 2: Guardar el contexto en sessionStorage
+    // =====================================================================
+    // Este contexto será recuperado por el foro-viaje component
+    // para validar y mostrar/ocultar funcionalidades según permisos
+    sessionStorage.setItem('forumContext', JSON.stringify(forumContext));
+
+    // =====================================================================
+    // PASO 3: Navegar al foro
+    // =====================================================================
+    // El forumAccessGuard en app.routes.ts validará que el acceso sea permitido
+    // Si hay problemas, el guard redirigirá de vuelta al dashboard
+    this.router.navigate(['/foro', participation.trip_id]);
+  }
+
+  /**
+   * Mostrar confirmación para cancelar participación del usuario actual
+   * Se usa en la pestaña "Mis Viajes" para que el usuario pueda cancelar su participación
+   *
+   * @param participation - Participación que se va a cancelar
+   */
+  mostrarConfirmacionCancelarParticipacion(participation: UserParticipation): void {
+    this.participationIdPendiente.set(participation.participation_id);
+    this.tripIdPendiente.set(participation.trip_id);
+    this.tipoEliminacion.set('userParticipation');
+    this.mensajeConfirmacion.set(
+      `¿Deseas cancelar tu participación en "${participation.trip_name}"? Esta acción no se puede deshacer.`
+    );
+    this.ocultandoToastConfirmacion.set(false);
+    this.mostrarToastConfirmacion.set(true);
+  }
+
+  /**
+   * Verificar si una participación está aceptada
+   * Se usa para mostrar/ocultar el botón de cancelar participación
+   *
+   * @param participation - Participación a verificar
+   */
+  isParticipationAccepted(participation: UserParticipation): boolean {
+    return participation.status === 'accepted';
+  }
+
+  /**
+   * Verificar si se puede cancelar la participación
+   * Solo visible si:
+   * 1. La participación está aceptada
+   * 2. El usuario NO es el creador del viaje (no es myTrip)
+   *
+   * @param participation - Participación a verificar
+   */
+  canCancelParticipation(participation: UserParticipation): boolean {
+    return /* this.isParticipationAccepted(participation) && */ !this.isMyTrip(participation);
   }
 }

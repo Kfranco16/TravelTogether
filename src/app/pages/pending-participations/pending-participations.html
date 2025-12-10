@@ -341,12 +341,23 @@
         class="card trip-card border-0 shadow-sm h-100"
         [class.opacity-75]="participation.status !== 'accepted'"
       >
-        <div class="card-header gradient-header">
-          <h6 class="mb-2">{{ participation.trip_name }}</h6>
-          <span class="badge" [ngClass]="getTripTypeBadge(participation).color">
-            <i [class]="'bi ' + getTripTypeBadge(participation).icon"></i>
-            {{ getTripTypeBadge(participation).text }}
-          </span>
+        <div class="card-header gradient-header d-flex justify-content-between align-items-center">
+          <div>
+            <h6 class="mb-2">{{ participation.trip_name }}</h6>
+            <span class="badge" [ngClass]="getTripTypeBadge(participation).color">
+              <i [class]="'bi ' + getTripTypeBadge(participation).icon"></i>
+              {{ getTripTypeBadge(participation).text }}
+            </span>
+          </div>
+          @if (canCancelParticipation(participation)) {
+          <button
+            class="btn btn-sm btn-outline-danger"
+            (click)="mostrarConfirmacionCancelarParticipacion(participation)"
+            title="Cancelar participación"
+          >
+            <i class="bi bi-x-circle"></i>
+          </button>
+          }
         </div>
         <div class="card-body">
           <p class="mb-3">
@@ -387,7 +398,7 @@
         </div>
         <div class="card-footer bg-light">
           @if (participation.status === 'accepted' || isMyTrip(participation)) {
-          <button class="btn btn-sm btn-gradient w-100">
+          <button class="btn btn-sm btn-gradient w-100" (click)="accederAlForo(participation)">
             <i class="bi bi-chat-dots"></i>
             Acceder al Foro
           </button>
