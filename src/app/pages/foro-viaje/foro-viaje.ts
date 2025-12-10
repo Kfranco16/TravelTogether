@@ -482,7 +482,7 @@ export class ForoViaje implements OnInit {
         });
 
         this.isLoading.set(false);
-        toast.success(`${loadedMessages.length} mensajes cargados`);
+        /* toast.success(`${loadedMessages.length} mensajes cargados`); */
       },
       error: (error) => {
         console.error('❌ Error al cargar mensajes:', error);

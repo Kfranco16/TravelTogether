@@ -15,24 +15,6 @@ import {
 } from '../../core/interfaces/forum-access-context';
 import { toast } from 'ngx-sonner';
 import { firstValueFrom } from 'rxjs';
-/**
- * ============================================================================
- * PENDING PARTICIPATIONS COMPONENT (TEMPORAL - PARA DEBUGGING)
- * ============================================================================
- * Componente temporal para visualizar todas las solicitudes pendientes
- * de participación en los viajes creados por el usuario actual.
- *
- * IMPORTANTE: Este componente es temporal para validación de la API.
- * Una vez validado, será reemplazado por un componente mejorado en el dashboard.
- *
- * Funcionalidades:
- * - Cargar y mostrar solicitudes pendientes
- * - Mostrar información completa del participante
- * - Mostrar información del viaje
- * - Mostrar respuesta del API en formato JSON para debugging
- * - Aprobar/Rechazar participantes (próxima fase)
- * ============================================================================
- */
 
 @Component({
   selector: 'app-pending-participations',
@@ -204,9 +186,9 @@ export class PendingParticipationsComponent implements OnInit {
       this.debugResponseData = response;
 
       // 📊 Toast de éxito
-      toast.success(`Se encontraron ${response.data.length} solicitudes pendientes`, {
+      /* toast.success(`Se encontraron ${response.data.length} solicitudes pendientes`, {
         description: this.successMessage,
-      });
+      }); */
     } catch (error: any) {
       // ❌ Manejo de error
       console.error('❌ Error al cargar solicitudes:', error);
@@ -330,9 +312,9 @@ export class PendingParticipationsComponent implements OnInit {
       this.myCreatedTrips = response.data;
       this.debugResponseData = response;
 
-      toast.success(`Se encontraron ${response.data.length} viaje(s) creado(s)`, {
+      /*  toast.success(`Se encontraron ${response.data.length} viaje(s) creado(s)`, {
         description: this.successMessage,
-      });
+      }); */
     } catch (error: any) {
       console.error('❌ Error al cargar viajes:', error);
 
@@ -368,9 +350,9 @@ export class PendingParticipationsComponent implements OnInit {
       this.userParticipations = response.data;
       this.debugResponseData = response;
 
-      toast.success(`Se encontraron ${response.data.length} viaje(s)`, {
+      /* toast.success(`Se encontraron ${response.data.length} viaje(s)`, {
         description: this.successMessage,
-      });
+      }); */
     } catch (error: any) {
       console.error('❌ Error al cargar participaciones:', error);
 
@@ -434,7 +416,7 @@ export class PendingParticipationsComponent implements OnInit {
         }
       });
 
-      toast.success('Participantes cargados correctamente');
+      /* toast.success('Participantes cargados correctamente'); */
     } catch (error: any) {
       console.error('❌ Error al cargar participaciones:', error);
       const errorMsg = error?.message || 'Error al cargar participantes';

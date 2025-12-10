@@ -3,6 +3,35 @@
   <div class="row">
     <div class="col-12 col-lg-9 mx-auto">
       <!-- ================================================================
+           BARRA DE CONTROLES (Volver y Actualizar)
+           ================================================================ -->
+      <div class="mb-4 d-flex justify-content-between align-items-center gap-2">
+        <!-- Botón Volver (izquierda) -->
+        <button
+          class="btn btn-sm btn-outline-primary"
+          (click)="goBackToMisViajes()"
+          title="Volver a Mis Viajes"
+        >
+          <i class="bi bi-arrow-left me-1"></i>
+          <span class="d-none d-sm-inline">Volver</span>
+        </button>
+
+        <!-- Espaciador flexible -->
+        <div class="flex-grow-1"></div>
+
+        <!-- Botón Refrescar (derecha) -->
+        @if (!isLoading()) {
+        <button
+          class="btn btn-sm btn-outline-primary"
+          (click)="refreshMessages()"
+          title="Refrescar mensajes"
+        >
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
+        }
+      </div>
+
+      <!-- ================================================================
            VERIFICACIÓN DE ACCESO DENEGADO
            ================================================================ -->
       @if (accessDenied()) {
@@ -20,19 +49,9 @@
       <div class="card modern-foro-card">
         <!-- HEADER -->
         <div class="card-header modern-foro-header text-white">
-          <div class="d-flex justify-content-between align-items-center gap-2">
-            <!-- Botón Volver (izquierda) -->
-            <button
-              class="btn btn-sm btn-outline-light back-btn"
-              (click)="goBackToMisViajes()"
-              title="Volver a Mis Viajes"
-            >
-              <i class="bi bi-arrow-left me-1"></i>
-              <span class="d-none d-sm-inline">Volver</span>
-            </button>
-
+          <div class="d-flex justify-content-center align-items-center gap-2">
             <!-- Título (centro - responsive) -->
-            <h4 class="mb-0 d-flex align-items-center flex-grow-1 justify-content-center">
+            <h4 class="mb-0 d-flex align-items-center">
               @if (isLoading()) {
               <span
                 class="spinner-border spinner-border-sm me-2"
@@ -45,17 +64,6 @@
               <span class="text-truncate">Foro: {{ tripTitle() || 'Viaje no encontrado' }}</span>
               }
             </h4>
-
-            <!-- Botón Refrescar (derecha) -->
-            @if (!isLoading()) {
-            <button
-              class="btn btn-sm btn-outline-light"
-              (click)="refreshMessages()"
-              title="Refrescar mensajes"
-            >
-              <i class="bi bi-arrow-clockwise"></i>
-            </button>
-            }
           </div>
         </div>
 

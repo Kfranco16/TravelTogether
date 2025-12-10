@@ -7,7 +7,7 @@
 <div class="toast-container position-fixed top-50 start-50 translate-middle p-3 z-1050">
   <!-- Toast Alert -->
   <div
-    [ngClass]="getToastClass()"
+    [ngClass]="toastClass()"
     role="alert"
     aria-live="polite"
     aria-atomic="true"
@@ -19,7 +19,7 @@
     <div class="d-flex align-items-start gap-3">
       <!-- Icono según el tipo de toast -->
       <div class="flex-shrink-0">
-        <i [class]="'bi ' + getToastIcon()" style="font-size: 1.5rem"></i>
+        <i class="bi" [ngClass]="toastIcon()" style="font-size: 1.5rem"></i>
       </div>
 
       <!-- Contenido del toast -->

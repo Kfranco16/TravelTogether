@@ -1,12 +1,13 @@
-import { Component, inject, Input, Pipe, PipeTransform } from '@angular/core';
+import { Component, inject, Input, Pipe, PipeTransform, signal, computed } from '@angular/core';
 import { CardUsuario } from '../card-usuario/card-usuario';
 import { Minilogin } from '../minilogin/minilogin';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth';
 import { Iuser } from '../../interfaces/iuser';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { TripService } from '../../core/services/viajes';
 import { NotificationsService } from '../../core/services/notifications';
+import { ParticipantService } from '../../core/services/participant.service';
 import { toast, NgxSonnerToaster } from 'ngx-sonner';
 import { firstValueFrom, timeInterval } from 'rxjs';
 
@@ -20,7 +21,7 @@ export class CapitalizeFirstPipe implements PipeTransform {
 
 @Component({
   selector: 'app-card-viaje',
-  imports: [CardUsuario, DatePipe, DecimalPipe, CapitalizeFirstPipe, Minilogin],
+  imports: [CardUsuario, DatePipe, DecimalPipe, CapitalizeFirstPipe, Minilogin, NgClass],
   templateUrl: './card-viaje.html',
   styleUrl: './card-viaje.css',
 })
@@ -28,9 +29,52 @@ export class CardViaje {
   @Input() trip!: any;
   private tripService = inject(TripService);
   private notificationsService = inject(NotificationsService);
+  private participantService = inject(ParticipantService);
 
   usuario: Iuser | null = null; // dueño del viaje (creator)
   currentUser: Iuser | null = null; // usuario logueado
+
+  // ========================================================================
+  // SIGNALS PARA MANEJO DE SOLICITUD DE PARTICIPACIÓN
+  // ========================================================================
+
+  /**
+   * Signal que almacena el estado de envío de solicitud
+   * true = solicitando, false = inactivo
+   */
+  enviandoSolicitud = signal<boolean>(false);
+
+  /**
+   * Signal que controla si ya se envió la solicitud (evita duplicados)
+   * true = solicitud enviada, false = no enviada
+   */
+  solicitudEnviada = signal<boolean>(false);
+
+  /**
+   * Signal que almacena el tipo de toast a mostrar
+   * success | error | warning | info
+   */
+  tipoToast = signal<'success' | 'error' | 'warning' | 'info'>('info');
+
+  /**
+   * Signal que almacena el mensaje principal del toast
+   */
+  mensajeToast = signal<string>('');
+
+  /**
+   * Signal que almacena la descripción del toast
+   */
+  detalleToast = signal<string>('');
+
+  /**
+   * Signal que controla la visibilidad del toast
+   */
+  mostrarToast = signal<boolean>(false);
+
+  /**
+   * Signal que controla la animación de salida del toast
+   */
+  ocultandoToast = signal<boolean>(false);
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -182,23 +226,179 @@ export class CardViaje {
   toggleSolicitud(trip: any) {
     if (!this.currentUser?.id) return;
 
-    trip.solicitado = !trip.solicitado;
-    const token = this.authService.gettoken();
-    const notiBody = {
-      title: 'Nueva solicitud de viaje',
-      message: `${this.currentUser.username} ha solicitado unirse a tu viaje "${this.trip.title}".`,
-      type: 'trip',
-      is_read: 0, // <- obligatorio para que no sea null
-      sender_id: this.currentUser.id,
-      receiver_id: this.trip.creator_id,
-    };
+    // ✅ Validación 1: Verificar que el usuario esté autenticado
+    if (!this.currentUser) {
+      this.mostrarToastPersonalizado(
+        'warning',
+        'Sesión requerida',
+        'Debes iniciar sesión para solicitar unirte a un viaje'
+      );
+      setTimeout(() => this.router.navigate(['/login']), 1500);
+      return;
+    }
 
-    toast.promise(firstValueFrom(this.notificationsService.create(notiBody, token!)), {
-      loading: 'Cargando...',
-      success: 'Solicitud enviada',
-      error: 'Error al enviar',
-    });
+    // ✅ Validación 2: Verificar que el viaje exista
+    if (!trip?.id) {
+      this.mostrarToastPersonalizado(
+        'error',
+        'Viaje no disponible',
+        'El viaje no existe o no se cargó correctamente'
+      );
+      return;
+    }
+
+    // ✅ Validación 3: Verificar que no sea el creador
+    if (this.currentUser.id === trip.creator_id) {
+      this.mostrarToastPersonalizado(
+        'warning',
+        'No permitido',
+        'No puedes solicitar unirte a tu propio viaje'
+      );
+      return;
+    }
+
+    // ✅ Validación 4: Prevenir solicitudes duplicadas
+    if (this.solicitudEnviada() || this.enviandoSolicitud()) {
+      this.mostrarToastPersonalizado(
+        'info',
+        'Solicitud pendiente',
+        'Ya has enviado una solicitud para este viaje'
+      );
+      return;
+    }
+
+    this.handleSolicitud(trip);
   }
+
+  /**
+   * Método para solicitar unirse a un viaje
+   *
+   * Flujo:
+   * 1. Activar estado de carga
+   * 2. Llamar al servicio ParticipantService.requestToJoinTrip()
+   * 3. Si es exitoso: mostrar toast con el mensaje del API
+   * 4. Si falla: mostrar toast de error
+   * 5. Actualizar estado del botón
+   *
+   * @async
+   */
+  async handleSolicitud(trip: any) {
+    try {
+      // 🔄 Activar estado de carga (mostrar spinner)
+      this.enviandoSolicitud.set(true);
+
+      // 📡 Realizar la petición al servidor
+      const response = await firstValueFrom(this.participantService.requestToJoinTrip(trip.id));
+
+      // ✅ Si la respuesta es exitosa
+      // Mostrar el mensaje del API en un toast personalizado
+      this.mostrarToastPersonalizado('success', 'Solicitud enviada', response.message, 5000);
+
+      // 🎯 Marcar que la solicitud fue enviada
+      this.solicitudEnviada.set(true);
+      trip.solicitado = true;
+
+      // 💬 Log para debugging
+      console.log('✅ Solicitud de participación exitosa:', response.data);
+    } catch (error: any) {
+      // ❌ Manejar error
+      const errorMsg = error?.message || 'Error al enviar la solicitud de participación';
+
+      console.error('❌ Error en handleSolicitud:', error);
+
+      this.mostrarToastPersonalizado('error', 'Error en la solicitud', errorMsg, 5000);
+    } finally {
+      // 🔄 Desactivar estado de carga
+      this.enviandoSolicitud.set(false);
+    }
+  }
+
+  /**
+   * Mostrar un toast con animación
+   *
+   * @param tipo - Tipo de toast: 'success', 'error', 'warning', 'info'
+   * @param mensaje - Título/mensaje principal
+   * @param detalle - Descripción adicional (opcional)
+   * @param duracion - Duración en ms antes de ocultarse (default: 4000ms)
+   */
+  mostrarToastPersonalizado(
+    tipo: 'success' | 'error' | 'warning' | 'info',
+    mensaje: string,
+    detalle: string = '',
+    duracion: number = 4000
+  ): void {
+    // Actualizar propiedades del toast
+    this.tipoToast.set(tipo);
+    this.mensajeToast.set(mensaje);
+    this.detalleToast.set(detalle);
+    this.ocultandoToast.set(false);
+    this.mostrarToast.set(true);
+
+    // Auto-ocultar después de la duración especificada
+    setTimeout(() => {
+      this.ocultarToast();
+    }, duracion);
+  }
+
+  /**
+   * Ocultar el toast con animación de salida
+   */
+  ocultarToast(): void {
+    this.ocultandoToast.set(true);
+
+    // Esperar a que termine la animación antes de ocultarlo
+    setTimeout(() => {
+      this.mostrarToast.set(false);
+      this.ocultandoToast.set(false);
+    }, 300);
+  }
+
+  /**
+   * Signal computed que genera la clase CSS para el toast según su tipo
+   * Reemplaza el método getToastClass() por una solución reactiva
+   */
+  toastClass = computed(() => {
+    const tipo = this.tipoToast();
+    const baseClass = 'alert';
+
+    switch (tipo) {
+      case 'success':
+        return `${baseClass} alert-success`;
+      case 'error':
+        return `${baseClass} alert-danger`;
+      case 'warning':
+        return `${baseClass} alert-warning`;
+      case 'info':
+        return `${baseClass} alert-info`;
+      default:
+        return `${baseClass} alert-info`;
+    }
+  });
+
+  /**
+   * Signal computed que genera el icono según el tipo de toast
+   * Reemplaza el método getToastIcon() por una solución reactiva
+   */
+  toastIcon = computed(() => {
+    const tipo = this.tipoToast();
+
+    switch (tipo) {
+      case 'success':
+        return 'bi-check-circle-fill';
+      case 'error':
+        return 'bi-exclamation-circle-fill';
+      case 'warning':
+        return 'bi-exclamation-triangle-fill';
+      case 'info':
+        return 'bi-info-circle-fill';
+      default:
+        return 'bi-info-circle-fill';
+    }
+  });
+
+  // ========================================================================
+  // MÉTODOS EXISTENTES
+  // ========================================================================
 
   getGoogleMapsUrl(lat: number, lng: number, zoom: number): string {
     return `https://www.google.com/maps/@${lat},${lng},${zoom}z`;

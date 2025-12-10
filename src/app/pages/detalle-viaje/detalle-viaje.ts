@@ -1,4 +1,4 @@
-import { Component, inject, Input, signal } from '@angular/core';
+import { Component, inject, Input, signal, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TripService, ImageResponse } from '../../core/services/viajes';
 import { Trip } from '../../interfaces/trip';
@@ -242,11 +242,12 @@ export class DetalleViaje {
   }
 
   /**
-   * Obtener la clase CSS para el toast según su tipo
+   * Signal computed que genera la clase CSS para el toast según su tipo
+   * Reemplaza el antiguo método getToastClass() por una solución reactiva
    *
    * @returns Clase de Bootstrap para el toast (alert-success, alert-danger, etc.)
    */
-  getToastClass(): string {
+  toastClass = computed(() => {
     const tipo = this.tipoToast();
     const baseClass = 'alert';
 
@@ -262,14 +263,15 @@ export class DetalleViaje {
       default:
         return `${baseClass} alert-info`;
     }
-  }
+  });
 
   /**
-   * Obtener el icono según el tipo de toast
+   * Signal computed que genera el icono según el tipo de toast
+   * Reemplaza el antiguo método getToastIcon() por una solución reactiva
    *
    * @returns Icono de Bootstrap Icons
    */
-  getToastIcon(): string {
+  toastIcon = computed(() => {
     const tipo = this.tipoToast();
 
     switch (tipo) {
@@ -284,7 +286,7 @@ export class DetalleViaje {
       default:
         return 'bi-info-circle-fill';
     }
-  }
+  });
 
   // ========================================================================
   // MÉTODOS DE PARTICIPACIÓN

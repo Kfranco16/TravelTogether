@@ -1,3 +1,49 @@
+<!-- ========================================================================
+     TOAST PERSONALIZADO - VALIDACIONES
+     ======================================================================== -->
+@if (mostrarToast()) {
+<div class="toast-container position-fixed top-50 start-50 translate-middle p-3 z-1050">
+  <!-- Toast Alert -->
+  <div
+    [ngClass]="toastClass()"
+    role="alert"
+    aria-live="polite"
+    aria-atomic="true"
+    class="alert alert-dismissible fade"
+    [class.show]="!ocultandoToast()"
+    [class.hide]="ocultandoToast()"
+  >
+    <!-- Contenedor principal del toast con flex -->
+    <div class="d-flex align-items-start gap-3">
+      <!-- Icono según el tipo de toast -->
+      <div class="flex-shrink-0">
+        <i class="bi" [ngClass]="toastIcon()" style="font-size: 1.5rem"></i>
+      </div>
+
+      <!-- Contenido del toast -->
+      <div class="flex-grow-1">
+        <!-- Título/Mensaje principal -->
+        <strong>{{ mensajeToast() }}</strong>
+
+        <!-- Detalle/Descripción (si existe) -->
+        @if (detalleToast()) {
+        <div class="small mt-1">{{ detalleToast() }}</div>
+        }
+      </div>
+
+      <!-- Botón para cerrar manualmente -->
+      <button
+        type="button"
+        class="btn-close flex-shrink-0"
+        (click)="ocultarToast()"
+        aria-label="Cerrar notificación"
+      ></button>
+    </div>
+  </div>
+</div>
+}
+<!-- /FIN TOAST PERSONALIZADO -->
+
 <div class="container my-3 g-4">
   <section class="">
     <div class="col">
