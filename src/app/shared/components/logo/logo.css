@@ -13,9 +13,3 @@
   -webkit-text-fill-color: transparent;
   color: transparent;
 }
-
-@media (max-width: 420px) {
-  .logo-text {
-    display: none;
-  }
-}

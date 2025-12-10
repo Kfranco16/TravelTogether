@@ -21,6 +21,10 @@ export class CardUsuario {
 
   @Input() trip: Trip | null = null;
 
+  get isLoggedIn(): boolean {
+    return this.authService.isAuth();
+  }
+
   usuarioValoracion: number | null = null;
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -31,7 +35,12 @@ export class CardUsuario {
           this.usuarioValoracion = rating;
         },
         error: (error) => {
-          this.usuarioValoracion = null;
+          if (error.status === 404) {
+            this.usuarioValoracion = null;
+          } else {
+            console.error('Error obteniendo valoración:', error);
+            this.usuarioValoracion = null;
+          }
         },
       });
     }
@@ -69,7 +78,6 @@ export class CardUsuario {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
     try {
-      // this.trip = await this.tripService.getTripById(Number(id));
       console.log('Viaje:', this.trip);
       const userId = this.usuario?.id;
       const token = localStorage.getItem('tt_token') || '';

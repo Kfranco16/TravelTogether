@@ -191,9 +191,26 @@
     - Si hay filtros activos, muestra solo viajes coincidentes
   -->
   <section class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-    @for (trip of viajesVisibles; track trip.id) {
+    @if (isLoadingTrips) {
+    <div class="col-12 text-center py-5">
+      <p>Cargando viajes...</p>
+      <!-- Optional spinner component -->
+      <!-- <app-spinner></app-spinner> -->
+    </div>
+
+    } @else if (hasTripsError) {
+    <div class="col-12 text-center py-5 text-danger">
+      <p>Error al cargar los viajes. Por favor, inténtalo de nuevo más tarde.</p>
+    </div>
+
+    } @else if (visibleTrips.length === 0) {
+    <div class="col-12 text-center py-5">
+      <p>No hay viajes disponibles.</p>
+    </div>
+
+    } @else { @for (trip of viajesVisibles; track trip.id) {
     <app-card-viaje [trip]="trip"></app-card-viaje>
-    }
+    } }
   </section>
 
   <!-- ========== FIN Galería de Viajes ========== -->

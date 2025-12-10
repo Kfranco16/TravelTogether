@@ -5,7 +5,7 @@ import { Registro } from './pages/registro/registro';
 import { BuscadorViajes } from './pages/buscador-viajes/buscador-viajes';
 import { authGuard } from './core/guards/auth-guard';
 import { DetalleViaje } from './pages/detalle-viaje/detalle-viaje';
-import { Perfil } from './pages/perfil/perfil';
+import { Perfil } from './pages/perfil-publico/perfil';
 import { Dashboard } from './pages/dashboard/dashboard';
 import { CrearEditarViaje } from './pages/crear-editar-viaje/crear-editar-viaje';
 import { ValoracionesPendientesComponent } from './pages/ratings/ratings';
@@ -21,6 +21,7 @@ export const routes: Routes = [
   // RUTAS PRIVADAS (requieren login)
   { path: 'viaje/:id', component: DetalleViaje, canActivate: [authGuard] },
   { path: 'crear-viaje', component: CrearEditarViaje, canActivate: [authGuard] },
+  { path: 'viaje/editar/:id', component: CrearEditarViaje, canActivate: [authGuard] },
   { path: 'perfil/:id', component: Perfil, canActivate: [authGuard] },
 
   // MI ESPACIO (Dashboard con rutas hijas)
@@ -39,7 +40,8 @@ export const routes: Routes = [
 
       {
         path: 'perfil',
-        loadComponent: () => import('./pages/dashboard/perfil/perfil').then((m) => m.Perfil),
+        loadComponent: () =>
+          import('./pages/dashboard/perfil-privado/perfil').then((m) => m.Perfil),
       },
       {
         path: 'datos',

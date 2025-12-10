@@ -1,93 +1,31 @@
-<nav class="navbar navbar-expand-md bg-white">
+<nav class="navbar navbar-expand-md bg-white" aria-label="Navegación principal">
   <div class="container align-items-center tt-mobile-wrap">
-    <!-- BOTÓN HAMBURGUESA (MÓVIL) -->
-    @if (!open) {
-    <button
-      class="navbar-toggler tt-toggler tt-toggler-with-bell d-md-none"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#ttNav"
-      aria-controls="ttNav"
-      aria-expanded="false"
-      aria-label="Abrir menú"
-      (click)="onToggleOpen()"
-    >
-      <span class="navbar-toggler-icon"></span>
-
-      <!-- Campanita en el botón hamburguesa si hay notificaciones -->
-      @if (hasNotifications) {
-      <span class="tt-bell-mobile">🔔</span>
-      }
-    </button>
-    }
-
-    <!-- BOTÓN X (CERRAR MENÚ MÓVIL) -->
-    @if (open) {
-    <button
-      class="tt-close-x-fixed d-md-none"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#ttNav"
-      aria-controls="ttNav"
-      aria-expanded="true"
-      aria-label="Cerrar menú"
-      (click)="onToggleOpen()"
-    >
-      ×
-    </button>
-    }
-
-    <!-- CONTENEDOR COLAPSABLE -->
-    <div
-      id="ttNav"
-      class="collapse navbar-collapse justify-content-end"
-      (shown.bs.collapse)="onOpen()"
-      (hidden.bs.collapse)="onClose()"
-    >
+    <div id="ttNav" class="collapse navbar-collapse justify-content-end d-none d-md-flex">
       <ul class="navbar-nav align-items-md-center gap-md-3 tt-navlist">
-        <!-- Siempre visible -->
-        <li class="nav-item">
-          <a class="nav-link tt-link" routerLink="/viajes" routerLinkActive="active">
-            Buscar viajes
-          </a>
-        </li>
-
-        <!-- NO autenticado -->
         @if (!isAuthenticated) {
         <li class="nav-item">
           <a class="nav-link tt-link" routerLink="/login" routerLinkActive="active">Login</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link tt-link" routerLink="/registro" routerLinkActive="active">
-            Registro
-          </a>
+          <a class="nav-link tt-link" routerLink="/registro" routerLinkActive="active">Registro</a>
         </li>
-        }
-
-        <!-- Autenticado -->
-        @if (isAuthenticated) {
+        } @else {
         <li class="nav-item d-md-inline-flex">
           <a class="btn tt-btn-primary" routerLink="/crear-viaje">+ Crear viaje</a>
         </li>
 
         <li class="nav-item dropdown">
-          <!-- Botón Mi espacio + avatar + campanita -->
-          <a
-            class="nav-link tt-link dropdown-toggle d-flex align-items-center gap-2 tt-user-menu"
+          <button
+            class="nav-link tt-link dropdown-toggle d-flex align-items-center gap-2 tt-user-menu btn btn-link p-0 border-0"
             id="espacioMenu"
-            role="button"
+            type="button"
             data-bs-toggle="dropdown"
             data-bs-display="static"
             aria-expanded="false"
           >
-            <!-- AVATAR CON ARO Y CAMPANA -->
-            <div class="tt-avatar-wrapper">
-              <div
-                [ngClass]="[
-                  'tt-avatar-ring',
-                  hasNotifications ? 'tt-avatar-ring--active' : 'tt-avatar-ring--idle'
-                ]"
-              >
+            <span class="tt-avatar-wrapper">
+              @if (hasNotifications) {
+              <span class="tt-avatar-ring tt-avatar-ring--active">
                 @if (currentUser?.image) {
                 <img
                   [src]="currentUser?.image || ''"
@@ -95,23 +33,38 @@
                   [alt]="currentUser?.username || 'Usuario'"
                 />
                 } @else {
-                <div class="tt-avatar-img tt-avatar-placeholder">
+                <span class="tt-avatar-img tt-avatar-placeholder">
                   <span>
                     {{ currentUser?.username?.charAt(0)?.toUpperCase() || '👤' }}
                   </span>
-                </div>
+                </span>
                 }
-              </div>
-
-              @if (hasNotifications) {
-              <span class="tt-avatar-bell" aria-label="Tienes notificaciones">🔔</span>
+              </span>
+              <span class="tt-avatar-bell" aria-hidden="true">
+                <span class="tt-avatar-bell-inner">
+                  <i class="bi bi-bell-fill"></i>
+                </span>
+              </span>
+              } @else {
+              <span class="tt-avatar-ring tt-avatar-ring--idle">
+                @if (currentUser?.image) {
+                <img
+                  [src]="currentUser?.image || ''"
+                  class="tt-avatar-img"
+                  [alt]="currentUser?.username || 'Usuario'"
+                />
+                } @else {
+                <span class="tt-avatar-img tt-avatar-placeholder">
+                  <span>
+                    {{ currentUser?.username?.charAt(0)?.toUpperCase() || '👤' }}
+                  </span>
+                </span>
+                }
+              </span>
               }
-            </div>
+            </span>
+          </button>
 
-            <span>Mi espacio</span>
-          </a>
-
-          <!-- Menú desplegable Mi espacio -->
           <ul class="dropdown-menu dropdown-menu-end tt-dropdown" aria-labelledby="espacioMenu">
             <li>
               <a
@@ -120,22 +73,7 @@
                 (click)="onSectionOpen('perfil')"
               >
                 <span>Mi perfil</span>
-                @if (notif.perfil) {
-                <span class="tt-dot"></span>
-                }
-              </a>
-            </li>
-
-            <li>
-              <a
-                class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
-                routerLink="/dashboard/datos"
-                (click)="onSectionOpen('datos')"
-              >
-                <span>Mis datos</span>
-                @if (notif.datos) {
-                <span class="tt-dot"></span>
-                }
+                @if (notif.perfil) { <span class="tt-dot" aria-hidden="true"></span> }
               </a>
             </li>
 
@@ -146,9 +84,7 @@
                 (click)="onSectionOpen('reservas')"
               >
                 <span>Mis reservas</span>
-                @if (notif.reservas) {
-                <span class="tt-dot"></span>
-                }
+                @if (notif.reservas) { <span class="tt-dot" aria-hidden="true"></span> }
               </a>
             </li>
 
@@ -159,9 +95,7 @@
                 (click)="onSectionOpen('misViajes')"
               >
                 <span>Mis viajes</span>
-                @if (notif.misViajes) {
-                <span class="tt-dot"></span>
-                }
+                @if (notif.misViajes) { <span class="tt-dot" aria-hidden="true"></span> }
               </a>
             </li>
 
@@ -172,9 +106,7 @@
                 (click)="onSectionOpen('favoritos')"
               >
                 <span>Favoritos</span>
-                @if (notif.favoritos) {
-                <span class="tt-dot"></span>
-                }
+                @if (notif.favoritos) { <span class="tt-dot" aria-hidden="true"></span> }
               </a>
             </li>
 
@@ -185,21 +117,105 @@
                 (click)="onSectionOpen('foros')"
               >
                 <span>Foros</span>
-                @if (notif.foros) {
-                <span class="tt-dot"></span>
-                }
+                @if (notif.foros) { <span class="tt-dot" aria-hidden="true"></span> }
               </a>
             </li>
 
             <li><hr class="dropdown-divider" /></li>
 
             <li>
-              <button class="dropdown-item tt-dd-danger" (click)="onLogout()">Cerrar sesión</button>
+              <button class="dropdown-item tt-dd-danger" type="button" (click)="onLogout()">
+                Cerrar sesión
+              </button>
             </li>
           </ul>
         </li>
         }
       </ul>
     </div>
+  </div>
+
+  <div class="tt-mobile-nav d-md-none" aria-label="Navegación móvil">
+    <nav class="tt-bottom-nav">
+      @if (!isAuthenticated) {
+      <div class="tt-bottom-nav-inner">
+        <a routerLink="/login" routerLinkActive="active" class="tt-bottom-item">
+          <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
+          <span>Login</span>
+        </a>
+        <a routerLink="/registro" routerLinkActive="active" class="tt-bottom-item">
+          <i class="bi bi-person-plus" aria-hidden="true"></i>
+          <span>Registro</span>
+        </a>
+      </div>
+      } @else {
+      <div class="tt-bottom-nav-inner">
+        <a routerLink="/dashboard/mis-viajes" routerLinkActive="active" class="tt-bottom-item">
+          <i class="bi bi-geo-alt" aria-hidden="true"></i>
+          <span>Mis viajes</span>
+        </a>
+
+        <a routerLink="/crear-viaje" routerLinkActive="active" class="tt-bottom-item">
+          <i class="bi bi-plus-circle" aria-hidden="true"></i>
+          <span>Crear viaje</span>
+        </a>
+
+        <a routerLink="/dashboard/favoritos" routerLinkActive="active" class="tt-bottom-item">
+          <i class="bi bi-heart" aria-hidden="true"></i>
+          <span>Favoritos</span>
+        </a>
+
+        <a
+          routerLink="/dashboard/perfil"
+          routerLinkActive="active"
+          class="tt-bottom-item tt-bottom-item-profile"
+        >
+          <span class="tt-bottom-avatar" aria-hidden="true">
+            <span class="tt-avatar-wrapper">
+              @if (hasNotifications) {
+              <span class="tt-avatar-ring tt-avatar-ring--active">
+                @if (currentUser?.image) {
+                <img
+                  [src]="currentUser?.image || ''"
+                  class="tt-avatar-img"
+                  [alt]="currentUser?.username || 'Usuario'"
+                />
+                } @else {
+                <span class="tt-avatar-img tt-avatar-placeholder">
+                  <span>
+                    {{ currentUser?.username?.charAt(0)?.toUpperCase() || '👤' }}
+                  </span>
+                </span>
+                }
+              </span>
+              <span class="tt-avatar-bell">
+                <span class="tt-avatar-bell-inner">
+                  <i class="bi bi-bell-fill"></i>
+                </span>
+              </span>
+              } @else {
+              <span class="tt-avatar-ring tt-avatar-ring--idle">
+                @if (currentUser?.image) {
+                <img
+                  [src]="currentUser?.image || ''"
+                  class="tt-avatar-img"
+                  [alt]="currentUser?.username || 'Usuario'"
+                />
+                } @else {
+                <span class="tt-avatar-img tt-avatar-placeholder">
+                  <span>
+                    {{ currentUser?.username?.charAt(0)?.toUpperCase() || '👤' }}
+                  </span>
+                </span>
+                }
+              </span>
+              }
+            </span>
+          </span>
+          <span>Perfil</span>
+        </a>
+      </div>
+      }
+    </nav>
   </div>
 </nav>

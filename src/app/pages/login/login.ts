@@ -6,6 +6,7 @@ import { toast } from 'ngx-sonner';
 
 import { AuthService } from '../../core/services/auth';
 import { TripService } from '../../core/services/viajes';
+import { finalize } from 'rxjs';
 
 interface LoginResponse {
   user: any;
@@ -52,7 +53,7 @@ export class Login implements OnInit {
   formSubmitAttempt = false;
 
   onTripClick(trip: Trip): void {
-    alert('Necesitas iniciar sesión para ver más detalles de este viaje.');
+    toast.error('Necesitas iniciar sesión para ver más detalles de este viaje.');
   }
 
   trips: Trip[] = [];
@@ -68,7 +69,31 @@ export class Login implements OnInit {
     password: ['', [Validators.required, Validators.minLength(4)]],
   });
 
+  featuredTrips: Trip[] = [];
+  isLoadingFeaturedTrips = false;
+  hasFeaturedTripsError = false;
+
+  loadFeaturedTrips() {
+    this.isLoadingFeaturedTrips = true;
+    this.hasFeaturedTripsError = false;
+
+    const token = localStorage.getItem('token') || '';
+    this.tripService
+      .getTrips(token)
+      .pipe(finalize(() => (this.isLoadingFeaturedTrips = false)))
+      .subscribe({
+        next: (trips) => {
+          this.featuredTrips = trips.results || [];
+        },
+        error: (err) => {
+          console.error('Error al cargar viajes', err);
+          this.hasFeaturedTripsError = true;
+        },
+      });
+  }
+
   ngOnInit(): void {
+    this.loadFeaturedTrips();
     const token = localStorage.getItem('token') || '';
 
     this.tripService.getTrips(token).subscribe({
@@ -140,7 +165,9 @@ export class Login implements OnInit {
         this.router.navigate(['/home']);
       }
     } catch (err: any) {
-      alert(err?.error?.message || 'Error en el inicio de sesión');
+      const message = err?.error?.message || err?.message || 'Error en el inicio de sesión';
+
+      toast.error(message);
     }
   }
 

@@ -9,7 +9,6 @@
   <p class="tt-text-error tt-center">{{ error }}</p>
   } @else if (hasTrips()) {
 
-  <!-- LISTA DE VIAJES (ya la tienes implementada arriba, no la toco) -->
   <div class="tt-trips-wrapper">
     <ul class="tt-trip-list">
       @for (viaje of viajes; track viaje.id) {
@@ -37,7 +36,6 @@
 
   } @else {
 
-  <!-- ESTADO SIN VIAJES -->
   <div class="tt-empty-state">
     <p class="tt-empty-text">
       Todavía no has creado ningún viaje.<br />
@@ -49,10 +47,7 @@
     </button>
   </div>
 
-  }
-
-  <!-- MODAL -->
-  @if (showConfirmModal && tripToDelete) {
+  } @if (showConfirmModal && tripToDelete) {
   <div class="tt-modal-backdrop">
     <div class="tt-modal">
       <h3 class="tt-modal-title">Eliminar viaje</h3>

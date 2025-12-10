@@ -75,17 +75,35 @@
   <div class="d-flex justify-content-center mb-2">
     <h2 class="h5 mb-0 d-flex align-items-center gap-2 mb-4">
       <i class="bi bi-compass text-primary"></i>
-      Únete y no te pierdas estos viajes
+      Unete y no te pierdas estos viajes...
     </h2>
   </div>
 
+  @if (isLoadingFeaturedTrips) {
+  <div class="d-flex justify-content-center align-items-center py-4">
+    <p class="mb-0">Cargando viajes...</p>
+  </div>
+
+  } @else if (hasFeaturedTripsError) {
+  <div class="d-flex justify-content-center align-items-center py-4">
+    <p class="mb-0 text-danger">
+      Error al cargar los viajes. Por favor, inténtalo de nuevo más tarde.
+    </p>
+  </div>
+
+  } @else if (featuredTrips.length === 0) {
+  <div class="d-flex justify-content-center align-items-center py-4">
+    <p class="mb-0">No hay viajes disponibles.</p>
+  </div>
+
+  } @else {
   <div class="d-flex justify-content-center align-items-center gap-2">
     <span class="dot d-flex align-items-center justify-content-center">
       <i class="fs-2 bi bi-chevron-left"></i>
     </span>
 
     <div class="d-flex gap-3 overflow-auto pb-2" style="max-width: 900px; scrollbar-width: thin">
-      @for (trip of viajesVisibles.slice(0, 10); track trip.id) {
+      @for (trip of featuredTrips.slice(0, 10); track trip.id) {
       <button
         type="button"
         class="text-decoration-none border-0 bg-transparent p-0"
@@ -118,4 +136,5 @@
       <i class="fs-2 bi bi-chevron-right"></i>
     </span>
   </div>
+  }
 </section>

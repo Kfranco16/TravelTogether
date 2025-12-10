@@ -53,6 +53,14 @@ export class TripService {
     return this.http.get<any[]>(`${environment.apiUrl}/trips/`);
   }
 
+  //Actualizar viaje
+  updateTrip(id: number, tripData: any): Observable<any> {
+    const token = localStorage.getItem('authToken');
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    const url = `${environment.apiUrl}/trips/${id}`;
+    return this.http.put<any>(url, tripData, { headers });
+  }
+
   // Eliminar viaje
   deleteTripById(id: number, token?: string) {
     const auth = token || localStorage.getItem('authToken') || '';
@@ -114,14 +122,18 @@ export class TripService {
   async uploadImage(
     file: File,
     description: string,
-    tripId: number,
+    tripId: number | null,
     userId: number,
     mainImg: boolean
   ): Promise<any> {
     const url = `${environment.apiUrl}/images/upload`;
     const formData = new FormData();
+
     formData.append('image', file);
-    formData.append('trip_id', tripId.toString());
+
+    if (tripId !== null) {
+      formData.append('trip_id', tripId.toString());
+    }
     formData.append('user_id', userId.toString());
     formData.append('description', description);
     formData.append('main_img', mainImg ? '1' : '0');
@@ -138,6 +150,10 @@ export class TripService {
 
     if (!response.ok) throw new Error('Error al subir imagen: ' + response.statusText);
     return await response.json();
+  }
+
+  async uploadUserImage(file: File, userId: number): Promise<any> {
+    return this.uploadImage(file, 'avatar', null, userId, true);
   }
 
   getTripsByCreator(userId: number): Observable<any> {
