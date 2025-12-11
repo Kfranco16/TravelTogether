@@ -7,48 +7,181 @@
   filter: brightness(1.05);
 }
 
-.color-principal {
-  color: #5223b9;
+.btn-morado:disabled,
+.btn-morado[disabled],
+.btn-warning:disabled,
+.btn-success:disabled,
+.btn-danger:disabled,
+.btn-secondary:disabled,
+.btn-warning[disabled],
+.btn-success[disabled],
+.btn-danger[disabled],
+.btn-secondary[disabled] {
+  opacity: 1 !important;
+}
+.section-title {
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 2px 0 rgba(75, 24, 130, 0.15);
 }
 
-.hover-bg-light:hover {
-  background-color: #f8fafc;
-}
-/* Tarjeta con fondo muy claro y ligero toque de corporativos */
 .foro-card {
   overflow: hidden;
   background: linear-gradient(90deg, #a299ce 0%, #eef2ff 40%, #98b9e5 100%);
   border-radius: 1rem;
 }
 
-/* Cabecera con el gradiente corporativo algo más claro */
 .foro-header {
   background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
 }
 
-/* Cuerpo sobre fondo blanco */
 .foro-body {
   background: #ffffff;
 }
 
 .foro-bloqueado {
-  opacity: 0.5;
-  filter: blur(1px);
-  pointer-events: none; /* desactiva clics en toda la card */
+  position: relative;
+  overflow: hidden;
+}
+
+.foro-bloqueado::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, #331688 0%, #8b5cf6 50%, #3b82f6 100%);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .foro-bloqueado-body {
-  opacity: 0.5;
+  filter: blur(6px);
+  opacity: 0.2;
 }
 
-/* Si prefieres que solo el contenido interno no sea clicable: */
+.foro-bloqueado {
+  position: relative;
+  overflow: hidden;
+}
+
+.foro-bloqueado-body {
+  filter: blur(6px);
+  opacity: 0.2;
+}
+
+.foro-overlay-text {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #f9fafb;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(30, 64, 175, 0.9));
+}
+.tt-trip-actions-wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.tt-trip-actions-bar {
+  border-radius: 8px;
+  background-color: #f9fafb;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.tt-trip-actions-label {
+  background: none;
+  padding: 0;
+  color: #374151;
+}
+
+.tt-trip-actions-label .bi {
+  font-size: 1rem;
+  color: #6b21a8;
+}
+
+.tt-trip-actions-label span {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+}
+
+.tt-trip-btn {
+  background-color: #ffffff;
+  color: #374151;
+}
+
+.tt-trip-btn-delete {
+  border: 1px solid #dc3545;
+  color: #b91c1c;
+}
+
+.tt-trip-btn-delete:hover {
+  background-color: #fef2f2;
+  border-color: #b91c1c;
+  color: #7f1d1d;
+}
+
+.tt-trip-btn-edit {
+  border: 1px solid #0d6efd;
+  color: #1d4ed8;
+}
+
+.tt-trip-btn-edit:hover {
+  background-color: #eff6ff;
+  border-color: #1d4ed8;
+  color: #1e3a8a;
+}
+
+.tt-trip-btn-manage {
+  border: 1px solid #ffc107;
+  color: #92400e;
+}
+
+.tt-trip-btn-manage:hover {
+  background-color: #fffbeb;
+  border-color: #d97706;
+  color: #78350f;
+}
+
+@media (max-width: 575.98px) {
+  .tt-trip-actions-bar {
+    border-radius: 6px;
+    padding-top: 0.35rem !important;
+    padding-bottom: 0.35rem !important;
+  }
+
+  .tt-trip-actions-bar .btn-sm {
+    font-size: 0.8rem;
+    padding-inline: 0.55rem;
+  }
+
+  .tt-trip-actions-label span {
+    font-size: 0.75rem;
+  }
+}
+
+.portada-img {
+  height: 320px;
+  object-fit: cover;
+}
+
+@media (max-width: 575.98px) {
+  .portada-img {
+    height: 120px; /* o 120px, lo que veas mejor */
+  }
+}
+
 .disabled-link {
   pointer-events: none;
   cursor: not-allowed;
   opacity: 0.5;
 }
 
-/* Burbuja clara tipo chat */
 .foro-bubble {
   background: linear-gradient(135deg, rgba(167, 139, 250, 0.12), rgba(139, 92, 246, 0.08));
   border-radius: 14px 14px 14px 4px;
@@ -66,17 +199,14 @@
   background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(139, 92, 246, 0.12));
 }
 
-/* Autor usando el morado principal para destacar */
 .foro-author {
   color: #5223b9;
 }
 
-/* Fecha en gris suave */
 .foro-date {
   color: #6b7280;
 }
 
-/* Texto del mensaje con buen contraste */
 .foro-text {
   color: #111827;
   max-width: 100%;
@@ -86,34 +216,31 @@
   overflow: hidden;
 }
 
-/* Estados vacíos/cargando en tonos neutros */
 .foro-body .text-muted {
   color: #6b7280 !important;
 }
 
-.viaje-card {
-  position: relative;
-  cursor: pointer;
-  min-height: 630px;
-  height: 630px;
-  max-height: 330px;
-  transition: box-shadow 0.2s;
+.text-2lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
 }
 
-.btn-morado:disabled,
-.btn-morado[disabled] {
-  opacity: 1 !important;
+.text-shadow-black {
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
 }
 
-.btn-warning:disabled,
-.btn-success:disabled,
-.btn-danger:disabled,
-.btn-secondary:disabled,
-.btn-warning[disabled],
-.btn-success[disabled],
-.btn-danger[disabled],
-.btn-secondary[disabled] {
-  opacity: 1 !important;
+.card-img-zoom {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.card-img-zoom:hover {
+  transform: scale(1.1);
 }
 
 .tt-modal-overlay {
@@ -179,99 +306,6 @@
   background-color: #dc3545;
   border-color: #dc3545;
   color: #ffffff;
-}
-
-.viaje-card .layer-base {
-  z-index: 1;
-}
-
-.viaje-card .layer-info {
-  z-index: 2;
-  background: whitesmoke;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s;
-  color: black;
-  font-weight: bold;
-  font-size: 1.15rem;
-  min-height: 330px;
-  height: 330px;
-  max-height: 330px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-}
-
-.viaje-card:hover .layer-info,
-.viaje-card:focus-within .layer-info {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.text-2lines {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: normal;
-}
-
-.badge {
-  font-size: 0.95rem;
-}
-
-.text-shadow-black {
-  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
-}
-
-.card-img-zoom {
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  will-change: transform;
-}
-
-.viaje-card:hover .card-img-zoom,
-.viaje-card:focus-within .card-img-zoom {
-  transform: scale(1.1);
-}
-
-@keyframes shake-effect {
-  0% {
-    transform: translate(0px, 0px);
-  }
-  20% {
-    transform: translate(-3px, 2px);
-  }
-  40% {
-    transform: translate(3px, -2px);
-  }
-  60% {
-    transform: translate(-2px, 3px);
-  }
-  80% {
-    transform: translate(2px, -3px);
-  }
-  100% {
-    transform: translate(0px, 0px);
-  }
-}
-
-.viaje-card:hover .card-img-shake,
-.viaje-card:focus-within .card-img-shake {
-  animation: shake-effect 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) 1;
-}
-
-.login-container {
-  width: 100%;
-}
-
-.app-login {
-  width: 100%;
-  max-height: 210px;
-  overflow-y: auto;
 }
 
 .toast-container {
@@ -364,6 +398,11 @@
 .btn-close:hover,
 .btn-close:focus {
   opacity: 1;
+}
+
+.btn-close:focus {
+  outline: 2px solid rgba(0, 123, 255, 0.5);
+  outline-offset: 2px;
 }
 
 @media (max-width: 575.98px) {
@@ -521,9 +560,4 @@
   .alert.hide {
     animation: none !important;
   }
-}
-
-.btn-close:focus {
-  outline: 2px solid rgba(0, 123, 255, 0.5);
-  outline-offset: 2px;
 }
