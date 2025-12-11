@@ -8,8 +8,9 @@ import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { TripService } from '../../core/services/viajes';
 import { NotificationsService } from '../../core/services/notifications';
 import { ParticipantService } from '../../core/services/participant.service';
-import { toast, NgxSonnerToaster } from 'ngx-sonner';
-import { firstValueFrom, timeInterval } from 'rxjs';
+import { ParticipationService } from '../../core/services/participations';
+import { toast } from 'ngx-sonner';
+import { firstValueFrom } from 'rxjs';
 
 @Pipe({ name: 'capitalizeFirst', standalone: true })
 export class CapitalizeFirstPipe implements PipeTransform {
@@ -27,79 +28,33 @@ export class CapitalizeFirstPipe implements PipeTransform {
 })
 export class CardViaje {
   @Input() trip!: any;
+
   private tripService = inject(TripService);
   private notificationsService = inject(NotificationsService);
   private participantService = inject(ParticipantService);
+  private participationService = inject(ParticipationService);
 
-  usuario: Iuser | null = null; // dueño del viaje (creator)
-  currentUser: Iuser | null = null; // usuario logueado
+  usuario: Iuser | null = null;
+  currentUser: Iuser | null = null;
 
-  // ========================================================================
-  // SIGNALS PARA MANEJO DE SOLICITUD DE PARTICIPACIÓN
-  // ========================================================================
-
-  /**
-   * Signal que almacena el estado de envío de solicitud
-   * true = solicitando, false = inactivo
-   */
   enviandoSolicitud = signal<boolean>(false);
-
-  /**
-   * Signal que controla si ya se envió la solicitud (evita duplicados)
-   * true = solicitud enviada, false = no enviada
-   */
   solicitudEnviada = signal<boolean>(false);
+  solicitudStatus = signal<'pending' | 'accepted' | 'rejected' | null>(null);
+  cargandoSolicitudStatus = signal<boolean>(false);
 
-  /**
-   * Signal que almacena el tipo de toast a mostrar
-   * success | error | warning | info
-   */
   tipoToast = signal<'success' | 'error' | 'warning' | 'info'>('info');
-
-  /**
-   * Signal que almacena el mensaje principal del toast
-   */
   mensajeToast = signal<string>('');
-
-  /**
-   * Signal que almacena la descripción del toast
-   */
   detalleToast = signal<string>('');
-
-  /**
-   * Signal que controla la visibilidad del toast
-   */
   mostrarToast = signal<boolean>(false);
-
-  /**
-   * Signal que controla la animación de salida del toast
-   */
   ocultandoToast = signal<boolean>(false);
-
-  constructor(private authService: AuthService, private router: Router) {}
-
-  irADetalleViaje() {
-    if (this.trip && this.trip.id) {
-      this.router.navigate([`viaje/${this.trip.id}`]);
-    }
-  }
 
   portadaImageUrl: string = 'images/coverDefault.jpg';
   portadaImageAlt: string = 'Imagen de portada por defecto';
 
-  cargarImagenes(tripId: number) {
-    this.tripService.getImagesByTripId(tripId).subscribe({
-      next: (data: any) => {
-        const fotos: any[] = data?.results?.results || [];
+  constructor(private authService: AuthService, private router: Router) {}
 
-        const fotoMain = fotos.find((f) => f.main_img == '1' || f.main_img == 1);
-        const fotoPortada = fotos.find((f) => f.main_img == '0' || f.main_img == 0);
-
-        this.portadaImageUrl = fotoPortada?.url || 'images/coverDefault.jpg';
-        this.portadaImageAlt = fotoPortada?.description || 'Imagen de portada';
-      },
-      error: () => {},
-    });
+  get esCreador(): boolean {
+    return this.currentUser?.id === this.trip?.creator_id;
   }
 
   ngOnInit() {
@@ -133,7 +88,53 @@ export class CardViaje {
             this.trip.favoriteId = null;
           },
         });
+
+        this.checkSolicitudEnviada(this.trip.id, globalUser.id);
       }
+    });
+  }
+
+  private checkSolicitudEnviada(tripId: number, userId: number): void {
+    this.cargandoSolicitudStatus.set(true);
+
+    this.participationService.getParticipantsByTripId(tripId).subscribe({
+      next: (res: any) => {
+        const data = Array.isArray(res.data) ? res.data : [];
+        const myParticipation = data.find((p: any) => p.user_id === userId);
+
+        if (!myParticipation) {
+          this.solicitudStatus.set(null);
+        } else {
+          const status = myParticipation.status as 'pending' | 'accepted' | 'rejected';
+          this.solicitudStatus.set(status);
+        }
+      },
+      error: () => {
+        this.solicitudStatus.set(null);
+      },
+      complete: () => {
+        this.cargandoSolicitudStatus.set(false);
+      },
+    });
+  }
+
+  irADetalleViaje() {
+    if (this.trip && this.trip.id) {
+      this.router.navigate([`viaje/${this.trip.id}`]);
+    }
+  }
+
+  cargarImagenes(tripId: number) {
+    this.tripService.getImagesByTripId(tripId).subscribe({
+      next: (data: any) => {
+        const fotos: any[] = data?.results?.results || [];
+
+        const fotoPortada = fotos.find((f) => f.main_img == '0' || f.main_img == 0);
+
+        this.portadaImageUrl = fotoPortada?.url || 'images/coverDefault.jpg';
+        this.portadaImageAlt = fotoPortada?.description || 'Imagen de portada';
+      },
+      error: () => {},
     });
   }
 
@@ -192,7 +193,6 @@ export class CardViaje {
   toggleFavorito(trip: any) {
     if (!this.isLoggedIn()) return;
 
-    // Bloquear favoritos en viajes propios
     if (this.currentUser && trip.creator_id === this.currentUser.id) {
       return;
     }
@@ -223,10 +223,7 @@ export class CardViaje {
     }
   }
 
-  toggleSolicitud(trip: any) {
-    if (!this.currentUser?.id) return;
-
-    // ✅ Validación 1: Verificar que el usuario esté autenticado
+  async handleSolicitud() {
     if (!this.currentUser) {
       this.mostrarToastPersonalizado(
         'warning',
@@ -237,8 +234,7 @@ export class CardViaje {
       return;
     }
 
-    // ✅ Validación 2: Verificar que el viaje exista
-    if (!trip?.id) {
+    if (!this.trip?.id) {
       this.mostrarToastPersonalizado(
         'error',
         'Viaje no disponible',
@@ -247,8 +243,7 @@ export class CardViaje {
       return;
     }
 
-    // ✅ Validación 3: Verificar que no sea el creador
-    if (this.currentUser.id === trip.creator_id) {
+    if (this.esCreador) {
       this.mostrarToastPersonalizado(
         'warning',
         'No permitido',
@@ -257,7 +252,65 @@ export class CardViaje {
       return;
     }
 
-    // ✅ Validación 4: Prevenir solicitudes duplicadas
+    if (this.enviandoSolicitud() || this.solicitudStatus() === 'pending') {
+      this.mostrarToastPersonalizado(
+        'info',
+        'Solicitud pendiente',
+        'Ya has enviado una solicitud para este viaje'
+      );
+      return;
+    }
+
+    try {
+      this.enviandoSolicitud.set(true);
+
+      const response = await firstValueFrom(
+        this.participantService.requestToJoinTrip(this.trip.id)
+      );
+
+      this.mostrarToastPersonalizado('success', 'Solicitud enviada', response.message, 5000);
+      this.solicitudStatus.set('pending');
+      this.solicitudEnviada.set(true);
+      this.trip.solicitado = true;
+    } catch (error: any) {
+      const errorMsg = error?.message || 'Error al enviar la solicitud de participación';
+      this.mostrarToastPersonalizado('error', 'Error en la solicitud', errorMsg, 5000);
+    } finally {
+      this.enviandoSolicitud.set(false);
+    }
+  }
+
+  toggleSolicitud() {
+    if (!this.currentUser?.id) return;
+
+    if (!this.currentUser) {
+      this.mostrarToastPersonalizado(
+        'warning',
+        'Sesión requerida',
+        'Debes iniciar sesión para solicitar unirte a un viaje'
+      );
+      setTimeout(() => this.router.navigate(['/login']), 1500);
+      return;
+    }
+
+    if (!this.trip?.id) {
+      this.mostrarToastPersonalizado(
+        'error',
+        'Viaje no disponible',
+        'El viaje no existe o no se cargó correctamente'
+      );
+      return;
+    }
+
+    if (this.currentUser.id === this.trip.creator_id) {
+      this.mostrarToastPersonalizado(
+        'warning',
+        'No permitido',
+        'No puedes solicitar unirte a tu propio viaje'
+      );
+      return;
+    }
+
     if (this.solicitudEnviada() || this.enviandoSolicitud()) {
       this.mostrarToastPersonalizado(
         'info',
@@ -267,109 +320,48 @@ export class CardViaje {
       return;
     }
 
-    this.handleSolicitud(trip);
+    this.handleSolicitud();
 
     if (!this.currentUser?.id) return;
 
-    trip.solicitado = !trip.solicitado;
+    this.trip.solicitado = true;
     const token = this.authService.gettoken();
     const notiBody = {
       title: 'Nueva solicitud de viaje',
       message: `${this.currentUser.username} ha solicitado unirse a tu viaje "${this.trip.title}".`,
       type: 'trip',
-      is_read: 0, // <- obligatorio para que no sea null
+      is_read: 0,
       sender_id: this.currentUser.id,
       receiver_id: this.trip.creator_id,
     };
   }
 
-  /**
-   * Método para solicitar unirse a un viaje
-   *
-   * Flujo:
-   * 1. Activar estado de carga
-   * 2. Llamar al servicio ParticipantService.requestToJoinTrip()
-   * 3. Si es exitoso: mostrar toast con el mensaje del API
-   * 4. Si falla: mostrar toast de error
-   * 5. Actualizar estado del botón
-   *
-   * @async
-   */
-  async handleSolicitud(trip: any) {
-    try {
-      // 🔄 Activar estado de carga (mostrar spinner)
-      this.enviandoSolicitud.set(true);
-
-      // 📡 Realizar la petición al servidor
-      const response = await firstValueFrom(this.participantService.requestToJoinTrip(trip.id));
-
-      // ✅ Si la respuesta es exitosa
-      // Mostrar el mensaje del API en un toast personalizado
-      this.mostrarToastPersonalizado('success', 'Solicitud enviada', response.message, 5000);
-
-      // 🎯 Marcar que la solicitud fue enviada
-      this.solicitudEnviada.set(true);
-      trip.solicitado = true;
-
-      // 💬 Log para debugging
-      console.log('✅ Solicitud de participación exitosa:', response.data);
-    } catch (error: any) {
-      // ❌ Manejar error
-      const errorMsg = error?.message || 'Error al enviar la solicitud de participación';
-
-      console.error('❌ Error en handleSolicitud:', error);
-
-      this.mostrarToastPersonalizado('error', 'Error en la solicitud', errorMsg, 5000);
-    } finally {
-      // 🔄 Desactivar estado de carga
-      this.enviandoSolicitud.set(false);
-    }
-  }
-
-  /**
-   * Mostrar un toast con animación
-   *
-   * @param tipo - Tipo de toast: 'success', 'error', 'warning', 'info'
-   * @param mensaje - Título/mensaje principal
-   * @param detalle - Descripción adicional (opcional)
-   * @param duracion - Duración en ms antes de ocultarse (default: 4000ms)
-   */
   mostrarToastPersonalizado(
     tipo: 'success' | 'error' | 'warning' | 'info',
     mensaje: string,
     detalle: string = '',
     duracion: number = 4000
   ): void {
-    // Actualizar propiedades del toast
     this.tipoToast.set(tipo);
     this.mensajeToast.set(mensaje);
     this.detalleToast.set(detalle);
     this.ocultandoToast.set(false);
     this.mostrarToast.set(true);
 
-    // Auto-ocultar después de la duración especificada
     setTimeout(() => {
       this.ocultarToast();
     }, duracion);
   }
 
-  /**
-   * Ocultar el toast con animación de salida
-   */
   ocultarToast(): void {
     this.ocultandoToast.set(true);
 
-    // Esperar a que termine la animación antes de ocultarlo
     setTimeout(() => {
       this.mostrarToast.set(false);
       this.ocultandoToast.set(false);
     }, 300);
   }
 
-  /**
-   * Signal computed que genera la clase CSS para el toast según su tipo
-   * Reemplaza el método getToastClass() por una solución reactiva
-   */
   toastClass = computed(() => {
     const tipo = this.tipoToast();
     const baseClass = 'alert';
@@ -388,10 +380,6 @@ export class CardViaje {
     }
   });
 
-  /**
-   * Signal computed que genera el icono según el tipo de toast
-   * Reemplaza el método getToastIcon() por una solución reactiva
-   */
   toastIcon = computed(() => {
     const tipo = this.tipoToast();
 
@@ -403,15 +391,10 @@ export class CardViaje {
       case 'warning':
         return 'bi-exclamation-triangle-fill';
       case 'info':
-        return 'bi-info-circle-fill';
       default:
         return 'bi-info-circle-fill';
     }
   });
-
-  // ========================================================================
-  // MÉTODOS EXISTENTES
-  // ========================================================================
 
   getGoogleMapsUrl(lat: number, lng: number, zoom: number): string {
     return `https://www.google.com/maps/@${lat},${lng},${zoom}z`;

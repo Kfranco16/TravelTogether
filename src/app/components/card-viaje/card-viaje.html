@@ -1,9 +1,5 @@
-<!-- ========================================================================
-     TOAST PERSONALIZADO - VALIDACIONES
-     ======================================================================== -->
 @if (mostrarToast()) {
 <div class="toast-container position-fixed top-50 start-50 translate-middle p-3 z-1050">
-  <!-- Toast Alert -->
   <div
     [ngClass]="toastClass()"
     role="alert"
@@ -13,25 +9,19 @@
     [class.show]="!ocultandoToast()"
     [class.hide]="ocultandoToast()"
   >
-    <!-- Contenedor principal del toast con flex -->
     <div class="d-flex align-items-start gap-3">
-      <!-- Icono según el tipo de toast -->
       <div class="flex-shrink-0">
         <i class="bi" [ngClass]="toastIcon()" style="font-size: 1.5rem"></i>
       </div>
 
-      <!-- Contenido del toast -->
       <div class="flex-grow-1">
-        <!-- Título/Mensaje principal -->
         <strong>{{ mensajeToast() }}</strong>
 
-        <!-- Detalle/Descripción (si existe) -->
         @if (detalleToast()) {
         <div class="small mt-1">{{ detalleToast() }}</div>
         }
       </div>
 
-      <!-- Botón para cerrar manualmente -->
       <button
         type="button"
         class="btn-close flex-shrink-0"
@@ -42,7 +32,6 @@
   </div>
 </div>
 }
-<!-- /FIN TOAST PERSONALIZADO -->
 
 <div class="container my-3 g-4">
   <section class="">
@@ -145,23 +134,52 @@
             <div class="mb-3 text-2lines text-muted text-center w-100">
               {{ trip?.description }}
             </div>
-
             <div class="d-flex gap-2 w-100 justify-content-center mt-auto mb-2">
               <button (click)="irADetalleViaje()" class="btn btn-outline-secondary btn-morado w-50">
                 Ver detalles
               </button>
+
               <button
+                class="btn btn-sm btn-solicitud w-50 text-nowrap"
                 type="button"
-                class="btn w-50"
-                [class.btn-success]="trip?.solicitado"
-                [class.btn-outline-secondary]="!trip?.solicitado"
-                [class.btn-morado]="!trip?.solicitado"
-                (click)="toggleSolicitud(trip)"
+                [ngClass]="{
+                  'btn-morado text-white': !solicitudStatus() && !esCreador,
+                  'btn-secondary text-white': esCreador,
+                  'btn-warning text-dark': solicitudStatus() === 'pending',
+                  'btn-success text-white': solicitudStatus() === 'accepted',
+                  'btn-danger text-white': solicitudStatus() === 'rejected'
+                }"
+                [disabled]="
+                  cargandoSolicitudStatus() ||
+                  enviandoSolicitud() ||
+                  solicitudStatus() === 'pending' ||
+                  solicitudStatus() === 'accepted' ||
+                  esCreador
+                "
+                (click)="handleSolicitud()"
               >
-                {{ trip?.solicitado ? 'Solicitado' : 'Solicitar unirme' }}
+                @if (cargandoSolicitudStatus()) {
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Cargando estado... } @else if (esCreador) { Tu viaje } @else if
+                (enviandoSolicitud()) {
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Enviando solicitud... } @else if (solicitudStatus() === 'pending') {
+                <i class="bi bi-hourglass-split"></i> Solicitud enviada } @else if
+                (solicitudStatus() === 'accepted') { <i class="bi bi-check-circle"></i> Solicitud
+                aceptada } @else if (solicitudStatus() === 'rejected') {
+                <i class="bi bi-x-circle"></i> Solicitud rechazada } @else { Solicitar unirme }
               </button>
             </div>
           </div>
+
           } @else {
 
           <div
