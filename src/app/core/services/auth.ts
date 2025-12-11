@@ -42,8 +42,6 @@ export class AuthService {
     this._user$.next(null);
   }
 
-  // --- Registro ---
-
   async register(payload: {
     username: string;
     email: string;
@@ -137,12 +135,7 @@ export class AuthService {
     return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  //lectura “limpia” del usuario actual (útil en Dashboard, Perfil, etc.)
   getCurrentUser(): Iuser | null {
     return this._user$.value ?? this.readUserFromStorage();
   }
-  /*   getCurrentUser(): Iuser | null {
-    return this._user$.value;
-  }
- */
 }

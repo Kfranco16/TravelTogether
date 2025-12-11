@@ -134,7 +134,9 @@
       <div class="fs-8">
         <p class="tt-stat-label">Miembro desde:</p>
         <p class="tt-stat-value">
-          {{ (user?.created_at | date : 'dd MMMM, y' : 'es') || '—' }}
+          @if (user?.created_at) {
+          {{ user?.created_at | date : 'dd MMMM, y' : 'es' }}
+          } @else { — }
         </p>
       </div>
     </article>

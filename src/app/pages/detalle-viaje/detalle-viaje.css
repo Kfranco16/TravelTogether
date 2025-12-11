@@ -31,6 +31,23 @@
   background: #ffffff;
 }
 
+.foro-bloqueado {
+  opacity: 0.5;
+  filter: blur(1px);
+  pointer-events: none; /* desactiva clics en toda la card */
+}
+
+.foro-bloqueado-body {
+  opacity: 0.5;
+}
+
+/* Si prefieres que solo el contenido interno no sea clicable: */
+.disabled-link {
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 /* Burbuja clara tipo chat */
 .foro-bubble {
   background: linear-gradient(135deg, rgba(167, 139, 250, 0.12), rgba(139, 92, 246, 0.08));

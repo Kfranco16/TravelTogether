@@ -9,14 +9,3 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   }
   return next(req);
 };
-/* export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  console.log('paso por el interceptor');
-
-  const cloneReq = req.clone({
-    setHeaders: {
-      'Content-type': 'application/json',
-      Authorization: localStorage.getItem('token') || '',
-    },
-  });
-  return next(cloneReq);
-}; */

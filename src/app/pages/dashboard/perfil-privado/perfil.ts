@@ -369,8 +369,11 @@ export class Perfil {
         bio: this.user.bio,
         interests: this.user.interests,
       })
-      .then((updated) => {
+      .then(async (updated) => {
         this.user = updated;
+        this.showDeletePhotoModal = false;
+        const fullUser = await this.auth.getUserById(this.user!.id);
+        this.user = fullUser as Iuser;
         this.showDeletePhotoModal = false;
       })
       .catch((err) => {
@@ -403,6 +406,12 @@ export class Perfil {
 
         this.user = updated;
       })
+      .then(async (updated) => {
+        const fullUser = await this.auth.getUserById(this.user!.id);
+        this.user = fullUser as Iuser;
+        this.showDeletePhotoModal = false;
+      })
+
       .catch((err) => {
         console.error('Error subiendo foto de usuario', err);
       });

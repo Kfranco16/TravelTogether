@@ -576,4 +576,8 @@ export class DetalleViaje {
   getGoogleMapsUrl(lat: number, lng: number, zoom: number): string {
     return `https://www.google.com/maps/@${lat},${lng},${zoom}z`;
   }
+
+  get puedeVerForo(): boolean {
+    return this.esCreador || this.solicitudStatus() === 'accepted';
+  }
 }
