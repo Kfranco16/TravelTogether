@@ -64,24 +64,24 @@ export const routes: Routes = [
         path: 'datos',
         loadComponent: () => import('./pages/dashboard/datos/datos').then((m) => m.Datos),
       },
-      {
+      /* {
         path: 'reservas',
         loadComponent: () => import('./pages/dashboard/reservas/reservas').then((m) => m.Reservas),
-      },
-      {
+      }, */
+      /*  {
         path: 'mis-viajes',
         loadComponent: () =>
           import('./pages/dashboard/mis-viajes/mis-viajes').then((m) => m.MisViajes),
-      },
+      }, */
       {
         path: 'favoritos',
         loadComponent: () =>
           import('./pages/dashboard/favoritos/favoritos').then((m) => m.Favoritos),
       },
-      {
+      /* {
         path: 'foros',
         loadComponent: () => import('./pages/dashboard/foros/foros').then((m) => m.Foros),
-      },
+      }, */
     ],
   },
 

@@ -641,3 +641,36 @@ a {
     max-height: 400px;
   }
 }
+
+/* ============================================================================
+   TRIP LINK STYLES - Origen/Destino como links
+   ============================================================================ */
+
+/**
+ * Estilos para los links de origen/destino en las cards de viajes
+ * Proporciona retroalimentación visual al usuario que puede hacer click
+ */
+.trip-link {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.trip-link p {
+  cursor: pointer;
+  transition: color 0.2s ease;
+  color: inherit;
+}
+
+.trip-link:hover p {
+  color: #5223b9;
+  font-weight: 500;
+}
+
+.trip-link:hover i {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+.trip-link:active p {
+  opacity: 0.8;
+}

@@ -209,16 +209,21 @@
     <div class="col-12 col-md-6 col-lg-4">
       <div class="card trip-card border-0 shadow-sm h-100">
         <div class="card-header gradient-header">
-          <h6 class="mb-2">{{ trip.title }}</h6>
+          <h6 class="mb-2 text-dark">{{ trip.title }}</h6>
           <span class="badge bg-info">
             {{ getAcceptedParticipants(trip).length }}/{{ trip.capacity }}
           </span>
         </div>
         <div class="card-body">
-          <p class="mb-3">
-            <i class="bi bi-geo-alt"></i>
-            <strong>{{ trip.origin }}</strong> → <strong>{{ trip.destination }}</strong>
-          </p>
+          <a
+            [routerLink]="['/viaje', trip.trip_id]"
+            class="text-decoration-none mb-3 d-block trip-link"
+          >
+            <p class="mb-3">
+              <i class="bi bi-geo-alt"></i>
+              <strong>{{ trip.origin }}</strong> → <strong>{{ trip.destination }}</strong>
+            </p>
+          </a>
           <p class="small text-muted mb-3">{{ trip.description }}</p>
           <div class="d-flex justify-content-between text-muted small mb-3">
             <span>
@@ -343,7 +348,7 @@
       >
         <div class="card-header gradient-header d-flex justify-content-between align-items-center">
           <div>
-            <h6 class="mb-2">{{ participation.trip_name }}</h6>
+            <h6 class="mb-2 text-dark">{{ participation.trip_name }}</h6>
             <span class="badge" [ngClass]="getTripTypeBadge(participation).color">
               <i [class]="'bi ' + getTripTypeBadge(participation).icon"></i>
               {{ getTripTypeBadge(participation).text }}
@@ -360,11 +365,16 @@
           }
         </div>
         <div class="card-body">
-          <p class="mb-3">
-            <i class="bi bi-geo-alt"></i>
-            <strong>{{ participation.origin }}</strong> →
-            <strong>{{ participation.destination }}</strong>
-          </p>
+          <a
+            [routerLink]="['/viaje', participation.trip_id]"
+            class="text-decoration-none mb-3 d-block trip-link"
+          >
+            <p class="mb-3">
+              <i class="bi bi-geo-alt"></i>
+              <strong>{{ participation.origin }}</strong> →
+              <strong>{{ participation.destination }}</strong>
+            </p>
+          </a>
           <div class="d-flex justify-content-between text-muted small mb-3">
             <span>
               <i class="bi bi-calendar"></i>
