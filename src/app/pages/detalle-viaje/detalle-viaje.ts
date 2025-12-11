@@ -1,20 +1,17 @@
 import { Component, inject, Input, signal, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { TripService, ImageResponse } from '../../core/services/viajes';
+import { TripService } from '../../core/services/viajes';
 import { Trip } from '../../interfaces/trip';
 import { DatePipe, NgClass } from '@angular/common';
 import { Iuser } from '../../interfaces/iuser';
 import { Router } from '@angular/router';
-import { firstValueFrom, switchMap } from 'rxjs';
-
+import { firstValueFrom, switchMap, forkJoin, of, from } from 'rxjs';
 import { CardUsuario } from '../../components/card-usuario/card-usuario';
 import { AuthService } from '../../core/services/auth';
 import { ParticipantService } from '../../core/services/participant.service';
 import { ParticipationService } from '../../core/services/participations';
 import { toast } from 'ngx-sonner';
 import { ForoService } from '../../core/services/foro.service';
-
-import { forkJoin, of, from } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
 @Component({
@@ -29,72 +26,28 @@ export class DetalleViaje {
   @Input() usuario: Iuser | null = null;
 
   resumenMensajes: { id: number; author: string; content: string; created_at: string }[] = [];
-
-  ultimosMensajes: {
-    id: number;
-    author: string;
-    content: string;
-    created_at: string;
-  }[] = [];
+  ultimosMensajes: { id: number; author: string; content: string; created_at: string }[] = [];
   cargandoResumenForo = false;
 
   private foroService = inject(ForoService);
-
-  constructor(private authService: AuthService, private router: Router) {}
-
   private route = inject(ActivatedRoute);
   private tripService = inject(TripService);
-  // 🎯 Nuevo: Inyectar el servicio de participantes para manejar solicitudes
   private participantService = inject(ParticipantService);
   private participationService = inject(ParticipationService);
-  // ========================================================================
-  // PROPIEDADES DEL COMPONENTE
-  // ========================================================================
+
+  constructor(private authService: AuthService, private router: Router) {}
 
   viaje: Trip | null = null;
   public itinerarioPorDia: string[] = [];
 
-  // 🎯 Nuevo: Signal para rastrear si ya se envió solicitud (evita duplicados)
   solicitudEnviada = signal<boolean>(false);
-
-  // 🎯 Nuevo: Signal para mostrar spinner mientras se procesa la solicitud
-  // Estado de la solicitud: null | 'pending' | 'accepted' | 'rejected'
   solicitudStatus = signal<'pending' | 'accepted' | 'rejected' | null>(null);
-
   enviandoSolicitud = signal<boolean>(false);
 
-  // ========================================================================
-  // PROPIEDADES DE TOASTS PERSONALIZADOS (Bootstrap)
-  // ========================================================================
-
-  /**
-   * Signal que controla la visibilidad del toast
-   * true = mostrar, false = ocultar
-   */
   mostrarToast = signal<boolean>(false);
-
-  /**
-   * Signal que almacena el tipo de toast (success, error, warning, info)
-   * Se usa para aplicar estilos de Bootstrap apropiados
-   */
   tipoToast = signal<'success' | 'error' | 'warning' | 'info'>('info');
-
-  /**
-   * Signal que almacena el mensaje principal del toast
-   * Se muestra como título/encabezado
-   */
   mensajeToast = signal<string>('');
-
-  /**
-   * Signal que almacena la descripción/detalle del toast
-   * Se muestra debajo del mensaje principal
-   */
   detalleToast = signal<string>('');
-
-  /**
-   * Signal que controla la animación de salida del toast
-   * Se activa antes de ocultarlo para animación smooth
-   */
   ocultandoToast = signal<boolean>(false);
 
   services = [
@@ -111,7 +64,6 @@ export class DetalleViaje {
   ];
 
   detalleViaje: any = {};
-
   usuarioActual: Iuser | null = null;
   participantesConfirmados: any[] = [];
   participants: any[] = [];
@@ -121,9 +73,7 @@ export class DetalleViaje {
   portadaImageUrl: string = 'images/coverDefault.jpg';
   portadaImageAlt: string = 'Imagen de portada por defecto';
 
-  // ========================================================================
-  // MÉTODOS DEL CICLO DE VIDA
-  // ========================================================================
+  cargandoSolicitudStatus = signal<boolean>(false);
 
   private cargarResumenForo(tripId: number): void {
     this.cargandoResumenForo = true;
@@ -143,9 +93,7 @@ export class DetalleViaje {
           );
 
           const peticionesUsuarios = idsUnicos.map((id) =>
-            from(this.authService.getUserById(id)).pipe(
-              catchError(() => of(null)) // si falla uno, no rompe todo
-            )
+            from(this.authService.getUserById(id)).pipe(catchError(() => of(null)))
           );
 
           return forkJoin(peticionesUsuarios).pipe(
@@ -161,8 +109,7 @@ export class DetalleViaje {
             })
           );
         }),
-        catchError((err) => {
-          console.error('Error al cargar resumen del foro', err);
+        catchError(() => {
           return of({ mensajes: [], diccionarioUsuarios: {} as Record<number, string> });
         })
       )
@@ -195,8 +142,6 @@ export class DetalleViaje {
     });
   }
 
-  cargandoSolicitudStatus = signal<boolean>(false);
-
   private checkSolicitudEnviada(tripId: number, userId: number): void {
     this.cargandoSolicitudStatus.set(true);
 
@@ -212,8 +157,7 @@ export class DetalleViaje {
           this.solicitudStatus.set(status);
         }
       },
-      error: (err) => {
-        console.error('Error comprobando solicitud previa', err);
+      error: () => {
         this.solicitudStatus.set(null);
       },
       complete: () => {
@@ -252,9 +196,7 @@ export class DetalleViaje {
       }
 
       this.participationService.getParticipantsByTripId(this.viaje.id).subscribe({
-        next: (res: any) => {
-          const data = Array.isArray(res.data) ? res.data : [];
-
+        next: () => {
           if (!this.viaje) return;
           this.participationService.getParticipantsByTripIdWithImages(this.viaje.id).subscribe({
             next: (data: any[]) => {
@@ -273,9 +215,7 @@ export class DetalleViaje {
                 (p: any) => p.status === 'accepted' && p.user_id !== this.viaje?.creator_id
               );
             },
-            error: (err) => {
-              console.error('Error al obtener participantes', err);
-            },
+            error: () => {},
           });
         },
       });
@@ -285,7 +225,7 @@ export class DetalleViaje {
       }
 
       this.cargarImagenes(Number(id));
-    } catch (error) {
+    } catch {
       this.viaje = null;
       this.usuario = null;
       this.itinerarioPorDia = [];
@@ -296,63 +236,32 @@ export class DetalleViaje {
     return this.usuarioActual?.id === this.viaje?.creator_id;
   }
 
-  // ========================================================================
-  // MÉTODOS DE CONTROL DE TOASTS
-  // ========================================================================
-
-  /**
-   * Mostrar un toast con animación
-   *
-   * @param tipo - Tipo de toast: 'success', 'error', 'warning', 'info'
-   * @param mensaje - Título/mensaje principal
-   * @param detalle - Descripción adicional (opcional)
-   * @param duracion - Duración en ms antes de ocultarse (default: 4000ms)
-   *
-   * @example
-   * this.mostrarToastPersonalizado('success', 'Éxito', 'Acción completada');
-   * this.mostrarToastPersonalizado('error', 'Error', 'Algo salió mal', 5000);
-   */
   mostrarToastPersonalizado(
     tipo: 'success' | 'error' | 'warning' | 'info',
     mensaje: string,
     detalle: string = '',
-    duracion: number = 4000
+    duracion: number = 2000
   ): void {
-    // Actualizar propiedades del toast
     this.tipoToast.set(tipo);
     this.mensajeToast.set(mensaje);
     this.detalleToast.set(detalle);
     this.ocultandoToast.set(false);
     this.mostrarToast.set(true);
 
-    // Auto-ocultar después de la duración especificada
     setTimeout(() => {
       this.ocultarToast();
     }, duracion);
   }
 
-  /**
-   * Ocultar el toast con animación de salida
-   *
-   * Primero activa la animación de salida (ocultandoToast)
-   * Luego oculta el toast después de 300ms (duración de la animación)
-   */
   ocultarToast(): void {
     this.ocultandoToast.set(true);
 
-    // Esperar a que termine la animación antes de ocultarlo
     setTimeout(() => {
       this.mostrarToast.set(false);
       this.ocultandoToast.set(false);
     }, 300);
   }
 
-  /**
-   * Signal computed que genera la clase CSS para el toast según su tipo
-   * Reemplaza el antiguo método getToastClass() por una solución reactiva
-   *
-   * @returns Clase de Bootstrap para el toast (alert-success, alert-danger, etc.)
-   */
   toastClass = computed(() => {
     const tipo = this.tipoToast();
     const baseClass = 'alert';
@@ -371,12 +280,6 @@ export class DetalleViaje {
     }
   });
 
-  /**
-   * Signal computed que genera el icono según el tipo de toast
-   * Reemplaza el antiguo método getToastIcon() por una solución reactiva
-   *
-   * @returns Icono de Bootstrap Icons
-   */
   toastIcon = computed(() => {
     const tipo = this.tipoToast();
 
@@ -394,25 +297,7 @@ export class DetalleViaje {
     }
   });
 
-  // ========================================================================
-  // MÉTODOS DE PARTICIPACIÓN
-  // ========================================================================
-
-  /**
-   * Método para solicitar unirse a un viaje
-   *
-   * Flujo:
-   * 1. Validar que el usuario no sea el creador
-   * 2. Activar estado de carga
-   * 3. Llamar al servicio ParticipantService.requestToJoinTrip()
-   * 4. Si es exitoso: mostrar toast con el mensaje del API
-   * 5. Si falla: mostrar toast de error
-   * 6. Actualizar estado del botón
-   *
-   * @async
-   */
   async handleSolicitud() {
-    // ✅ Validación 1: Verificar que el usuario esté autenticado
     if (!this.usuarioActual) {
       this.mostrarToastPersonalizado(
         'warning',
@@ -423,7 +308,6 @@ export class DetalleViaje {
       return;
     }
 
-    // ✅ Validación 2: Verificar que el viaje exista
     if (!this.viaje?.id) {
       this.mostrarToastPersonalizado(
         'error',
@@ -433,7 +317,6 @@ export class DetalleViaje {
       return;
     }
 
-    // ✅ Validación 3: Verificar que no sea el creador
     if (this.esCreador) {
       this.mostrarToastPersonalizado(
         'warning',
@@ -443,47 +326,7 @@ export class DetalleViaje {
       return;
     }
 
-    // ✅ Validación 4: Prevenir solicitudes duplicadas
-    if (this.solicitudEnviada() || this.enviandoSolicitud()) {
-      this.mostrarToastPersonalizado(
-        'info',
-        'Solicitud pendiente',
-        'Ya has enviado una solicitud para este viaje'
-      );
-      return;
-    }
-
-    try {
-      // 🔄 Activar estado de carga (mostrar spinner)
-      this.enviandoSolicitud.set(true);
-
-      // 📡 Realizar la petición al servidor
-      const response = await firstValueFrom(
-        this.participantService.requestToJoinTrip(this.viaje.id)
-      );
-
-      // ✅ Si la respuesta es exitosa
-      // Mostrar el mensaje del API en un toast personalizado
-      this.mostrarToastPersonalizado('success', 'Solicitud enviada', response.message, 5000);
-
-      // 🎯 Marcar que la solicitud fue enviada
-      this.solicitudEnviada.set(true);
-
-      // 💬 Log para debugging
-      console.log('✅ Solicitud de participación exitosa:', response.data);
-    } catch (error: any) {
-      // ❌ Manejar error
-      const errorMsg = error?.message || 'Error al enviar la solicitud de participación';
-
-      console.error('❌ Error en handleSolicitud:', error);
-
-      this.mostrarToastPersonalizado('error', 'Error en la solicitud', errorMsg, 5000);
-    } finally {
-      // 🔄 Desactivar estado de carga
-      this.enviandoSolicitud.set(false);
-    }
-    // Evitar duplicados
-    if (this.solicitudStatus() === 'pending' || this.enviandoSolicitud()) {
+    if (this.enviandoSolicitud() || this.solicitudStatus() === 'pending') {
       this.mostrarToastPersonalizado(
         'info',
         'Solicitud pendiente',
@@ -500,15 +343,11 @@ export class DetalleViaje {
       );
 
       this.mostrarToastPersonalizado('success', 'Solicitud enviada', response.message, 5000);
-
-      // 🔹 Marca como pending en cuanto el back la acepta
       this.solicitudStatus.set('pending');
-
-      console.log('✅ Solicitud de participación exitosa:', response.data);
+      this.solicitudEnviada.set(true);
     } catch (error: any) {
       const errorMsg = error?.message || 'Error al enviar la solicitud de participación';
-      console.error('❌ Error en handleSolicitud:', error);
-      this.mostrarToastPersonalizado('error', 'Error en la solicitud', errorMsg, 5000);
+      this.mostrarToastPersonalizado('error', 'Error en la solicitud', errorMsg, 1000);
     } finally {
       this.enviandoSolicitud.set(false);
     }
@@ -526,13 +365,13 @@ export class DetalleViaje {
       await firstValueFrom(this.tripService.deleteTripById(this.viaje.id));
       toast.success('Viaje eliminado correctamente', {
         id: toastId,
-        duration: 5000,
+        duration: 1000,
       });
       this.router.navigate(['/home']);
-    } catch (error) {
+    } catch {
       toast.error('No se pudo eliminar el viaje.', {
         id: toastId,
-        duration: 5000,
+        duration: 1000,
       });
     }
   }
@@ -573,6 +412,7 @@ export class DetalleViaje {
   goToMyTrip() {
     this.router.navigate(['/gestion-viajes']);
   }
+
   getGoogleMapsUrl(lat: number, lng: number, zoom: number): string {
     return `https://www.google.com/maps/@${lat},${lng},${zoom}z`;
   }
