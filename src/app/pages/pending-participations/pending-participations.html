@@ -1,6 +1,4 @@
-<!-- TRAVEL MANAGEMENT - TEMPLATE -->
 <div class="container my-5">
-  <!-- HEADER -->
   <div class="mb-5">
     <div class="travel-header">
       <h1 class="mb-3">
@@ -13,7 +11,6 @@
     </div>
   </div>
 
-  <!-- NAVIGATION TABS -->
   <div class="mb-5">
     <ul class="nav nav-tabs nav-filled gap-2 tab-navigation" role="tablist">
       <li class="nav-item" role="presentation">
@@ -40,7 +37,6 @@
         >
           <i class="bi bi-check-circle"></i>
           <span class="d-none d-md-inline ms-2">Participantes Aceptados</span>
-          <!-- <span class="badge bg-success rounded-pill ms-2">{{ myCreatedTrips.length }}</span> -->
         </button>
       </li>
 
@@ -60,9 +56,6 @@
     </ul>
   </div>
 
-  <!-- ============================================================================
-       TAB 1: PENDING REQUESTS
-       ============================================================================ -->
   @if (activeTab === 'pending') { @if (isLoading) {
   <div class="card border-0 shadow-sm">
     <div class="card-body text-center p-5">
@@ -181,12 +174,7 @@
     <h5>No hay solicitudes pendientes</h5>
     <p class="text-muted">Cuando recibas solicitudes aparecerán aquí</p>
   </div>
-  } }
-
-  <!-- ============================================================================
-       TAB 2: ACCEPTED PARTICIPANTS
-       ============================================================================ -->
-  @else if (activeTab === 'accepted') { @if (isLoading) {
+  } } @else if (activeTab === 'accepted') { @if (isLoading) {
   <div class="card border-0 shadow-sm">
     <div class="card-body text-center p-5">
       <div class="spinner-border text-primary mb-3" role="status">
@@ -262,7 +250,7 @@
                   <div class="small fw-bold">{{ participant.username }}</div>
                   <small class="text-muted">⭐ {{ participant.participant_avg_score }}</small>
                 </div>
-                <!-- Botón eliminar: Responsive design con mayor espaciado -->
+
                 <button
                   class="btn btn-sm btn-outline-danger d-none d-md-block"
                   (click)="
@@ -277,7 +265,7 @@
                 >
                   <i class="bi bi-trash"></i>
                 </button>
-                <!-- Versión compacta para móvil -->
+
                 <button
                   class="btn btn-sm btn-outline-danger d-md-none"
                   (click)="
@@ -316,12 +304,7 @@
       Crear Viaje
     </a>
   </div>
-  } } }
-
-  <!-- ============================================================================
-       TAB 3: MY TRIPS (CREATED + JOINED)
-       ============================================================================ -->
-  @else if (activeTab === 'myTrips') { @if (isLoading) {
+  } } } @else if (activeTab === 'myTrips') { @if (isLoading) {
   <div class="card border-0 shadow-sm">
     <div class="card-body text-center p-5">
       <div class="spinner-border text-primary mb-3" role="status">
@@ -441,12 +424,7 @@
       </a>
     </div>
   </div>
-  } } }
-
-  <!-- ============================================================================
-     TOAST DE CONFIRMACIÓN - ELIMINAR PARTICIPANTE
-     ============================================================================ -->
-  @if (mostrarToastConfirmacion()) {
+  } } } @if (mostrarToastConfirmacion()) {
   <div
     class="toast-confirmation"
     [class.toast-confirming]="!ocultandoToastConfirmacion()"
