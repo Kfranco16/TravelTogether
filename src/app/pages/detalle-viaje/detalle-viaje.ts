@@ -5,13 +5,17 @@ import { Trip } from '../../interfaces/trip';
 import { DatePipe, NgClass } from '@angular/common';
 import { Iuser } from '../../interfaces/iuser';
 import { Router } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, switchMap } from 'rxjs';
 
 import { CardUsuario } from '../../components/card-usuario/card-usuario';
 import { AuthService } from '../../core/services/auth';
 import { ParticipantService } from '../../core/services/participant.service';
 import { ParticipationService } from '../../core/services/participations';
 import { toast } from 'ngx-sonner';
+import { ForoService } from '../../core/services/foro.service';
+
+import { forkJoin, of, from } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-detalle-viaje',
@@ -23,6 +27,18 @@ import { toast } from 'ngx-sonner';
 export class DetalleViaje {
   @Input() trip!: any;
   @Input() usuario: Iuser | null = null;
+
+  resumenMensajes: { id: number; author: string; content: string; created_at: string }[] = [];
+
+  ultimosMensajes: {
+    id: number;
+    author: string;
+    content: string;
+    created_at: string;
+  }[] = [];
+  cargandoResumenForo = false;
+
+  private foroService = inject(ForoService);
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -108,6 +124,58 @@ export class DetalleViaje {
   // ========================================================================
   // MÉTODOS DEL CICLO DE VIDA
   // ========================================================================
+
+  private cargarResumenForo(tripId: number): void {
+    this.cargandoResumenForo = true;
+
+    this.foroService
+      .getMessages(tripId, 1, 2)
+      .pipe(
+        switchMap((res) => {
+          const mensajes = Array.isArray(res.results?.results) ? res.results.results : [];
+
+          if (!mensajes.length) {
+            return of({ mensajes, diccionarioUsuarios: {} as Record<number, string> });
+          }
+
+          const idsUnicos = Array.from(
+            new Set(mensajes.map((m: any) => m.sender_id).filter((id: any) => !!id))
+          );
+
+          const peticionesUsuarios = idsUnicos.map((id) =>
+            from(this.authService.getUserById(id)).pipe(
+              catchError(() => of(null)) // si falla uno, no rompe todo
+            )
+          );
+
+          return forkJoin(peticionesUsuarios).pipe(
+            map((usuarios) => {
+              const diccionarioUsuarios: Record<number, string> = {};
+              usuarios.forEach((u: any, index) => {
+                const id = idsUnicos[index];
+                if (u) {
+                  diccionarioUsuarios[id] = u.username || `Usuario ${id}`;
+                }
+              });
+              return { mensajes, diccionarioUsuarios };
+            })
+          );
+        }),
+        catchError((err) => {
+          console.error('Error al cargar resumen del foro', err);
+          return of({ mensajes: [], diccionarioUsuarios: {} as Record<number, string> });
+        })
+      )
+      .subscribe(({ mensajes, diccionarioUsuarios }) => {
+        this.ultimosMensajes = mensajes.map((m: any) => ({
+          id: m.id,
+          author: diccionarioUsuarios[m.sender_id] || `Usuario ${m.sender_id}`,
+          content: m.message ?? '',
+          created_at: m.created_at,
+        }));
+        this.cargandoResumenForo = false;
+      });
+  }
 
   cargarImagenes(tripId: number) {
     this.tripService.getImagesByTripId(tripId).subscribe({
@@ -211,6 +279,10 @@ export class DetalleViaje {
           });
         },
       });
+
+      if (this.viaje?.id) {
+        this.cargarResumenForo(this.viaje.id);
+      }
 
       this.cargarImagenes(Number(id));
     } catch (error) {

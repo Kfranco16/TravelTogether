@@ -250,9 +250,6 @@ export class ForoService {
     page: number = 1,
     perPage: number = 10
   ): Observable<GetMessagesResponse> {
-    // =====================================================================
-    // PASO 1: Obtener el token de autenticación
-    // =====================================================================
     const token = localStorage.getItem('tt_token');
 
     if (!token) {
@@ -262,18 +259,10 @@ export class ForoService {
       }));
     }
 
-    // =====================================================================
-    // PASO 2: Construir headers con autorización
-    // =====================================================================
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
 
-    // =====================================================================
-    // PASO 3: Construir parámetros de query
-    // =====================================================================
-    // El "where" se construye con la condición: trip_id:{tripId}
-    // Ejemplo: trip_id:4
     const params = new HttpParams()
       .set('page', page.toString())
       .set('per_page', perPage.toString())
@@ -286,23 +275,19 @@ export class ForoService {
       whereClause: `trip_id:${tripId}`,
     });
 
-    // =====================================================================
-    // PASO 4: Realizar la petición HTTP GET
-    // =====================================================================
     return this.http
       .get<GetMessagesResponse>(`${environment.apiUrl}/messages/where`, {
         headers,
         params,
       })
       .pipe(
-        // Log de éxito
         tap((response) => {
           console.log(
             `✅ Mensajes obtenidos exitosamente:`,
             `Total: ${response.results.total}, Página: ${response.results.page}/${response.results.total_pages}`
           );
         }),
-        // Manejo de errores
+
         catchError((error) => {
           const errorMsg = error?.error?.message || 'Error al obtener mensajes del foro';
           console.error('❌ Error en getMessages:', errorMsg);

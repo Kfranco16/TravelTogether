@@ -299,16 +299,69 @@
         </div>
         }
 
-        <div class="card shadow-sm mb-3 rounded-4">
-          <div class="card-body">
-            <div class="fw-semibold mb-2">Foro del viaje</div>
-            <div class="small">Ultimos comentarios...</div>
+        <div class="card border-0 shadow-sm mb-3 rounded-4 foro-card">
+          <div
+            class="card-header border-0 rounded-top-4 px-3 py-2 foro-header d-flex justify-content-between align-items-center"
+          >
+            <div class="d-flex align-items-center gap-2 text-white">
+              <i class="bi bi-chat-dots-fill"></i>
+              <span class="fw-semibold">Foro del viaje</span>
+            </div>
+            <a
+              class="small text-white-50 text-decoration-none d-flex align-items-center gap-1"
+              [routerLink]="['/foro', viaje.id]"
+            >
+              Ver foro completo
+              <i class="bi bi-arrow-right-short"></i>
+            </a>
+          </div>
+
+          <div class="card-body foro-body">
+            @if (cargandoResumenForo) {
+            <div class="d-flex align-items-center gap-2 small text-muted">
+              <span
+                class="spinner-border spinner-border-sm text-light"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              <span class="text-light">Cargando últimos comentarios...</span>
+            </div>
+            } @else if (!ultimosMensajes.length) {
+            <div class="small text-light fst-italic">
+              Todavía no hay comentarios en este viaje. ¡Inicia la conversación!
+            </div>
+            } @else {
+            <div class="d-flex flex-column gap-2">
+              @for (msg of ultimosMensajes; track msg.id) {
+              <a
+                class="text-decoration-none"
+                [routerLink]="['/foro', viaje.id]"
+                [queryParams]="{ mensajeId: msg.id }"
+              >
+                <div class="foro-bubble">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="small fw-semibold foro-author">
+                      {{ msg.author }}
+                    </span>
+                    <span class="small foro-date">
+                      {{ msg.created_at | date : 'shortTime' }}
+                    </span>
+                  </div>
+                  <div class="small foro-text">
+                    {{ msg.content }}
+                  </div>
+                </div>
+              </a>
+              }
+            </div>
+            }
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
 } @else {
 <div class="card border-0 rounded-3 overflow-hidden mb-4 text-center p-5">
   <span class="spinner-border"></span>
