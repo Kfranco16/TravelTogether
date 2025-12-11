@@ -11,6 +11,69 @@
   color: #5223b9;
 }
 
+.hover-bg-light:hover {
+  background-color: #f8fafc;
+}
+/* Tarjeta con fondo muy claro y ligero toque de corporativos */
+.foro-card {
+  overflow: hidden;
+  background: linear-gradient(90deg, #a299ce 0%, #eef2ff 40%, #98b9e5 100%);
+  border-radius: 1rem;
+}
+
+/* Cabecera con el gradiente corporativo algo más claro */
+.foro-header {
+  background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+}
+
+/* Cuerpo sobre fondo blanco */
+.foro-body {
+  background: #ffffff;
+}
+
+/* Burbuja clara tipo chat */
+.foro-bubble {
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.12), rgba(139, 92, 246, 0.08));
+  border-radius: 14px 14px 14px 4px;
+  padding: 0.5rem 0.75rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  color: #1f2933;
+  backdrop-filter: blur(2px);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.foro-bubble:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.2), rgba(139, 92, 246, 0.12));
+}
+
+/* Autor usando el morado principal para destacar */
+.foro-author {
+  color: #5223b9;
+}
+
+/* Fecha en gris suave */
+.foro-date {
+  color: #6b7280;
+}
+
+/* Texto del mensaje con buen contraste */
+.foro-text {
+  color: #111827;
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Estados vacíos/cargando en tonos neutros */
+.foro-body .text-muted {
+  color: #6b7280 !important;
+}
+
 .viaje-card {
   position: relative;
   cursor: pointer;

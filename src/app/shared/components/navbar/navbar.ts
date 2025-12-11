@@ -5,14 +5,13 @@ import { Subscription, filter } from 'rxjs';
 
 import { AuthService } from '../../../core/services/auth';
 import { NotificationsService, NotificationDto } from '../../../core/services/notifications';
-import { Logo } from '../logo/logo';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.html',
   styleUrls: ['./navbar.css'],
   standalone: true,
-  imports: [CommonModule, RouterModule, Logo],
+  imports: [CommonModule, RouterModule],
 })
 export class Navbar implements OnInit, OnDestroy {
   private authService = inject(AuthService);
