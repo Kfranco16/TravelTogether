@@ -170,14 +170,14 @@
         <!-- FOOTER - INPUT Y ENVÍO -->
         <div class="card-footer modern-foro-footer">
           <!-- Información de paginación -->
-          @if (messages().length > 0 && paginationInfo().totalPages > 1) {
+          <!-- @if (messages().length > 0 && paginationInfo().totalPages > 1) {
           <div class="text-center mb-3">
             <small class="text-muted">
               Página {{ paginationInfo().page }} de {{ paginationInfo().totalPages }} · Total:
               {{ paginationInfo().total }} mensajes
             </small>
           </div>
-          }
+          } -->
 
           <!-- Input de mensaje -->
           @if (canWriteMessages()) {

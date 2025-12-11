@@ -130,7 +130,6 @@ export class ForoViaje implements OnInit {
     const contextStr = sessionStorage.getItem('forumContext');
 
     if (!contextStr) {
-      console.error('❌ No se encontró contexto de acceso en sessionStorage');
       this.accessDenied.set(true);
       this.errorMessage.set('Error: No se pudo validar tu acceso al foro');
       this.isLoading.set(false);
@@ -146,34 +145,23 @@ export class ForoViaje implements OnInit {
     try {
       const context = JSON.parse(contextStr) as ForumAccessContext;
 
-      // ================================================================
-      // PASO 2: Validar que el contexto sea válido
-      // ================================================================
+      // Validar que el contexto sea válido
       if (!context.tripId || !context.userId) {
         throw new Error('Contexto incompleto');
       }
 
-      // ================================================================
-      // PASO 3: Almacenar el contexto
-      // ================================================================
+      // Almacenar el contexto
       this.forumContext.set(context);
 
-      // ================================================================
-      // PASO 4: Usar el tripTitle del contexto
-      // ================================================================
+      // Usar el tripTitle del contexto
       this.tripTitle.set(context.tripTitle);
 
-      // ================================================================
-      // PASO 5: Cargar participantes del viaje
-      // ================================================================
+      // Cargar participantes del viaje
       this.loadTripParticipants(context.tripId);
 
-      // ================================================================
-      // PASO 6: Cargar mensajes del foro
-      // ================================================================
+      // Cargar mensajes del foro
       this.loadMessages(context.tripId);
     } catch (error) {
-      console.error('❌ Error al procesar contexto de acceso:', error);
       this.accessDenied.set(true);
       this.errorMessage.set('Error: Contexto de acceso inválido');
       this.isLoading.set(false);
@@ -207,17 +195,13 @@ export class ForoViaje implements OnInit {
   sendMessage(): void {
     const context = this.forumContext();
 
-    // =====================================================================
-    // VALIDACIÓN 1: Contexto válido
-    // =====================================================================
+    // Validación 1: Contexto válido
     if (!context) {
       toast.error('Error: Contexto de foro no disponible');
       return;
     }
 
-    // =====================================================================
-    // VALIDACIÓN 2: Usuario tiene permiso de escribir
-    // =====================================================================
+    // Validación 2: Usuario tiene permiso de escribir
     if (!context.canWriteMessages) {
       toast.error('No tienes permiso para escribir en este foro');
       return;
@@ -225,22 +209,16 @@ export class ForoViaje implements OnInit {
 
     const message = this.newMessage().trim();
 
-    // =====================================================================
-    // VALIDACIÓN 3: Mensaje no está vacío
-    // =====================================================================
+    // Validación 3: Mensaje no está vacío
     if (!message) {
       toast.error('El mensaje no puede estar vacío');
       return;
     }
 
-    // =====================================================================
-    // PASO 1: Activar estado de envío
-    // =====================================================================
+    // Activar estado de envío
     this.isSendingMessage.set(true);
 
-    // =====================================================================
-    // PASO 2: Llamar al servicio para enviar mensaje
-    // =====================================================================
+    // Llamar al servicio para enviar mensaje
     this.foroService
       .createMessage(
         context.userId, // senderId
@@ -251,11 +229,7 @@ export class ForoViaje implements OnInit {
       )
       .subscribe({
         next: (response) => {
-          console.log('✅ Mensaje enviado:', response.newMessage);
-
-          // ============================================================
-          // PASO 3: Agregar mensaje a lista local (optimistic update)
-          // ============================================================
+          // Agregar mensaje a lista local (optimistic update)
           if (response.newMessage && response.newMessage.length > 0) {
             let newMsg = response.newMessage[0];
             // Enriquecer el mensaje por si acaso no viene el objeto sender
@@ -263,15 +237,12 @@ export class ForoViaje implements OnInit {
             this.messages.update((msgs) => [newMsg, ...msgs]); // Agregar al inicio
           }
 
-          // ============================================================
-          // PASO 4: Limpiar input y mostrar éxito
-          // ============================================================
+          // Limpiar input y mostrar éxito
           this.newMessage.set('');
           this.isSendingMessage.set(false);
           toast.success('Mensaje enviado correctamente');
         },
         error: (error) => {
-          console.error('❌ Error al enviar mensaje:', error);
           this.isSendingMessage.set(false);
           toast.error('Error al enviar mensaje. Intenta de nuevo.');
         },
@@ -291,19 +262,15 @@ export class ForoViaje implements OnInit {
   mostrarConfirmacionEliminar(message: ForumMessage): void {
     const context = this.forumContext();
 
-    // =====================================================================
-    // VALIDACIÓN 1: Contexto válido
-    // =====================================================================
+    // Validación 1: Contexto válido
     if (!context) {
       toast.error('Error: Contexto de foro no disponible');
       return;
     }
 
-    // =====================================================================
-    // VALIDACIÓN 2: Verificar permisos de eliminación
-    // El creador puede eliminar cualquier mensaje (canDeleteOthersMessages)
+    // Validación 2: Verificar permisos de eliminación
+    // El creador puede eliminar cualquier mensaje
     // Los otros usuarios solo pueden eliminar sus propios mensajes
-    // =====================================================================
     const esCreador = context.userRole === 'creator';
     const esDelUsuario = message.sender_id === context.userId;
     const tienePermiso = esCreador || esDelUsuario;
@@ -313,9 +280,7 @@ export class ForoViaje implements OnInit {
       return;
     }
 
-    // =====================================================================
     // Preparar el toast de confirmación
-    // =====================================================================
     this.mensajePendiente.set(message);
     this.mensajeConfirmacion.set(`¿Eliminar este mensaje? Esta acción no se puede deshacer.`);
     this.ocultandoToastConfirmacion.set(false);
@@ -368,28 +333,17 @@ export class ForoViaje implements OnInit {
    * @param message - El mensaje a eliminar
    */
   private eliminarMensaje(message: ForumMessage): void {
-    // =====================================================================
-    // PASO 1: Eliminación optimista - remover del UI inmediatamente
-    // =====================================================================
+    // Eliminación optimista - remover del UI inmediatamente
     const previousMessages = this.messages();
     this.messages.update((msgs) => msgs.filter((msg) => msg.id !== message.id));
 
-    console.log('🗑️ Eliminando mensaje:', message.id);
-
-    // =====================================================================
-    // PASO 2: Llamar al servicio para eliminar en el API
-    // =====================================================================
+    // Llamar al servicio para eliminar en el API
     this.foroService.deleteMessage(message.id).subscribe({
       next: (response) => {
-        console.log('✅ Mensaje eliminado:', response.message);
         toast.success('Mensaje eliminado correctamente');
       },
       error: (error) => {
-        console.error('❌ Error al eliminar mensaje:', error);
-
-        // ============================================================
-        // PASO 3: Revertir cambios si la API falla
-        // ============================================================
+        // Revertir cambios si la API falla
         this.messages.set(previousMessages);
 
         const errorMsg = error?.message || 'Error al eliminar el mensaje';
@@ -422,8 +376,6 @@ export class ForoViaje implements OnInit {
   loadTripParticipants(tripId: number): void {
     this.participantService.getTripParticipations(tripId).subscribe({
       next: (response) => {
-        console.log('✅ Participantes cargados:', response.data);
-
         // Crear mapa de participantes para acceso rápido
         const newMap = new Map<number, { username: string; email: string }>();
         response.data.forEach((participant: TripParticipation) => {
@@ -434,10 +386,8 @@ export class ForoViaje implements OnInit {
         });
 
         this.participantsMap.set(newMap);
-        console.log('📋 Mapa de participantes construido:', newMap);
       },
       error: (error) => {
-        console.warn('⚠️ Error al cargar participantes:', error);
         // No es crítico - continuar sin mapa de participantes
       },
     });
@@ -457,23 +407,15 @@ export class ForoViaje implements OnInit {
 
     this.foroService.getMessages(tripId, page, perPage).subscribe({
       next: (response: GetMessagesResponse) => {
-        console.log('✅ Mensajes cargados:', response);
-
-        // ============================================================
         // Extraer mensajes de la estructura anidada
-        // ============================================================
         let loadedMessages = response.results.results || [];
 
-        // ============================================================
         // Enriquecer mensajes con info del usuario
-        // ============================================================
         loadedMessages = this.enrichMessages(loadedMessages);
 
         this.messages.set(loadedMessages);
 
-        // ============================================================
         // Actualizar información de paginación
-        // ============================================================
         this.paginationInfo.set({
           page: response.results.page || 1,
           perPage: response.results.per_page || 10,
@@ -482,10 +424,8 @@ export class ForoViaje implements OnInit {
         });
 
         this.isLoading.set(false);
-        /* toast.success(`${loadedMessages.length} mensajes cargados`); */
       },
       error: (error) => {
-        console.error('❌ Error al cargar mensajes:', error);
         this.isLoading.set(false);
         this.errorMessage.set('Error al cargar los mensajes del foro. Intenta de nuevo.');
         toast.error('Error al cargar mensajes');
@@ -655,23 +595,14 @@ export class ForoViaje implements OnInit {
    * @returns Nombre del usuario o "Anónimo"
    */
   getSenderName(message: ForumMessage): string {
-    console.log('📨 DEBUG getSenderName:', {
-      message_id: message.id,
-      sender_id: message.sender_id,
-      sender_object: message.sender,
-      username: message.sender?.username,
-    });
-
     // Ruta 1: Obtener del objeto sender embebido
     if (message.sender?.username) {
-      console.log('  → Nombre encontrado en sender embebido:', message.sender.username);
       return message.sender.username;
     }
 
     // Ruta 2: Verificar si es el creador del contexto
     const context = this.forumContext();
     if (context && message.sender_id === context.creatorId && context.creatorUsername) {
-      console.log('  → Nombre encontrado en contexto (creador):', context.creatorUsername);
       return context.creatorUsername;
     }
 
@@ -682,11 +613,10 @@ export class ForoViaje implements OnInit {
         if (usuarioStr) {
           const usuario = JSON.parse(usuarioStr);
           const username = usuario.username || usuario.user_name || 'Usuario';
-          console.log('  → Nombre encontrado en localStorage:', username);
           return username;
         }
       } catch (e) {
-        console.warn('  → Error al obtener datos de localStorage');
+        // Error al obtener datos de localStorage
       }
     }
 
@@ -695,13 +625,11 @@ export class ForoViaje implements OnInit {
     if (participants.has(message.sender_id)) {
       const participant = participants.get(message.sender_id);
       if (participant?.username) {
-        console.log('  → Nombre encontrado en mapa de participantes:', participant.username);
         return participant.username;
       }
     }
 
     // Ruta 5: Fallback final
-    console.log('  → No se encontró nombre, usando Anónimo');
     return 'Anónimo';
   }
 

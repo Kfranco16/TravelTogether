@@ -162,29 +162,19 @@ export class ForoService {
     messageText: string,
     groupId: number = 1
   ): Observable<CreateMessageResponse> {
-    // =====================================================================
-    // PASO 1: Obtener el token de autenticación
-    // =====================================================================
     const token = localStorage.getItem('tt_token');
 
     if (!token) {
-      console.error('❌ No hay token de autenticación disponible');
       return throwError(() => ({
         message: 'No hay token de autenticación',
       }));
     }
 
-    // =====================================================================
-    // PASO 2: Construir headers con autorización
-    // =====================================================================
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     });
 
-    // =====================================================================
-    // PASO 3: Construir el body de la solicitud
-    // =====================================================================
     const body: CreateMessageRequest = {
       message: messageText,
       sender_id: senderId,
@@ -193,24 +183,16 @@ export class ForoService {
       group_id: groupId,
     };
 
-    console.log('📤 Enviando mensaje:', body);
-
-    // =====================================================================
-    // PASO 4: Realizar la petición HTTP POST
-    // =====================================================================
     return this.http
       .post<CreateMessageResponse>(`${environment.apiUrl}/messages`, body, {
         headers,
       })
       .pipe(
-        // Log de éxito
         tap((response) => {
-          console.log('✅ Mensaje enviado exitosamente:', response.newMessage);
+          // Success logged implicitly
         }),
-        // Manejo de errores
         catchError((error) => {
           const errorMsg = error?.error?.message || 'Error al enviar el mensaje al foro';
-          console.error('❌ Error en createMessage:', errorMsg);
           return throwError(() => ({
             message: errorMsg,
             error,
@@ -253,7 +235,6 @@ export class ForoService {
     const token = localStorage.getItem('tt_token');
 
     if (!token) {
-      console.error('❌ No hay token de autenticación disponible');
       return throwError(() => ({
         message: 'No hay token de autenticación',
       }));
@@ -268,13 +249,6 @@ export class ForoService {
       .set('per_page', perPage.toString())
       .set('where', `trip_id:${tripId}`);
 
-    console.log('📥 Obteniendo mensajes:', {
-      tripId,
-      page,
-      perPage,
-      whereClause: `trip_id:${tripId}`,
-    });
-
     return this.http
       .get<GetMessagesResponse>(`${environment.apiUrl}/messages/where`, {
         headers,
@@ -282,15 +256,10 @@ export class ForoService {
       })
       .pipe(
         tap((response) => {
-          console.log(
-            `✅ Mensajes obtenidos exitosamente:`,
-            `Total: ${response.results.total}, Página: ${response.results.page}/${response.results.total_pages}`
-          );
+          // Success logged implicitly
         }),
-
         catchError((error) => {
           const errorMsg = error?.error?.message || 'Error al obtener mensajes del foro';
-          console.error('❌ Error en getMessages:', errorMsg);
           return throwError(() => ({
             message: errorMsg,
             error,
@@ -329,44 +298,29 @@ export class ForoService {
    * });
    */
   deleteMessage(messageId: number): Observable<{ message: ForumMessage[] }> {
-    // =====================================================================
-    // PASO 1: Obtener el token de autenticación
-    // =====================================================================
     const token = localStorage.getItem('tt_token');
 
     if (!token) {
-      console.error('❌ No hay token de autenticación disponible');
       return throwError(() => ({
         message: 'No hay token de autenticación',
       }));
     }
 
-    // =====================================================================
-    // PASO 2: Construir headers con autorización
-    // =====================================================================
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
     });
 
-    console.log('🗑️ Eliminando mensaje:', messageId);
-
-    // =====================================================================
-    // PASO 3: Realizar la petición HTTP DELETE
-    // =====================================================================
     return this.http
       .delete<{ message: ForumMessage[] }>(`${environment.apiUrl}/messages/${messageId}`, {
         headers,
       })
       .pipe(
-        // Log de éxito
         tap((response) => {
-          console.log('✅ Mensaje eliminado exitosamente:', response.message);
+          // Success logged implicitly
         }),
-        // Manejo de errores
         catchError((error) => {
           const errorMsg = error?.error?.message || 'Error al eliminar el mensaje';
-          console.error('❌ Error en deleteMessage:', errorMsg);
           return throwError(() => ({
             message: errorMsg,
             error,

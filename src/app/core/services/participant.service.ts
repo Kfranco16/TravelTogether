@@ -256,15 +256,12 @@ export class ParticipantService {
    * });
    */
   requestToJoinTrip(tripId: number): Observable<ParticipationRequestResponse> {
-    // Obtener el token del localStorage (agregado por auth.interceptor automáticamente)
     const token = localStorage.getItem('tt_token');
 
-    // Crear headers con autorización
     const headers = new HttpHeaders({
       Authorization: `Bearer ${token}`,
     });
 
-    // Construir el body de la petición
     const body = { tripId };
 
     return this.http
@@ -272,14 +269,11 @@ export class ParticipantService {
         headers,
       })
       .pipe(
-        // Limpiar cualquier error anterior
         tap((response) => {
           this.errorSignal.set(null);
         }),
-        // Manejar errores
         catchError((error) => {
           const errorMsg = error?.error?.message || 'Error al solicitar unirse al viaje';
-          console.error('❌ Error en requestToJoinTrip:', errorMsg);
           this.errorSignal.set(errorMsg);
           return throwError(() => ({
             message: errorMsg,

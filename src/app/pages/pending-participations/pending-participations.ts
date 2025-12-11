@@ -171,28 +171,18 @@ export class PendingParticipationsComponent implements OnInit {
    * 5. Guardar respuesta completa para debugging
    */
   async loadPendingParticipations(): Promise<MyCreatedTripsResponse | void> {
-    // 🔄 Activar estado de carga
     this.isLoading = true;
     this.errorMessage = null;
     this.successMessage = null;
 
     try {
-      // 📡 Llamar al servicio usando async/await
       const response = await firstValueFrom(this.participantService.getPendingParticipations());
 
       // Guardar el mensaje del servidor
       this.successMessage = response.message;
       this.pendingParticipations = response.data;
       this.debugResponseData = response;
-
-      // 📊 Toast de éxito
-      /* toast.success(`Se encontraron ${response.data.length} solicitudes pendientes`, {
-        description: this.successMessage,
-      }); */
     } catch (error: any) {
-      // ❌ Manejo de error
-      console.error('❌ Error al cargar solicitudes:', error);
-
       const errorMsg = error?.message || 'Error al obtener solicitudes pendientes';
       this.errorMessage = errorMsg;
 
@@ -200,7 +190,6 @@ export class PendingParticipationsComponent implements OnInit {
         description: 'Por favor, intenta de nuevo más tarde',
       });
     } finally {
-      // 🔄 Desactivar estado de carga (SIEMPRE)
       this.isLoading = false;
     }
   }
@@ -262,7 +251,6 @@ export class PendingParticipationsComponent implements OnInit {
       await this.loadMyCreatedTrips();
     } catch (error: any) {
       const errorMsg = error?.message || 'Error al aprobar participante';
-      console.error('❌ Error:', errorMsg);
       toast.error(errorMsg);
     }
   }
@@ -283,7 +271,6 @@ export class PendingParticipationsComponent implements OnInit {
       await this.loadPendingParticipations();
     } catch (error: any) {
       const errorMsg = error?.message || 'Error al rechazar participante';
-      console.error('❌ Error:', errorMsg);
       toast.error(errorMsg);
     }
   }
@@ -311,13 +298,7 @@ export class PendingParticipationsComponent implements OnInit {
       this.successMessage = response.message;
       this.myCreatedTrips = response.data;
       this.debugResponseData = response;
-
-      /*  toast.success(`Se encontraron ${response.data.length} viaje(s) creado(s)`, {
-        description: this.successMessage,
-      }); */
     } catch (error: any) {
-      console.error('❌ Error al cargar viajes:', error);
-
       const errorMsg = error?.message || 'Error al obtener viajes creados';
       this.errorMessage = errorMsg;
 
@@ -354,8 +335,6 @@ export class PendingParticipationsComponent implements OnInit {
         description: this.successMessage,
       }); */
     } catch (error: any) {
-      console.error('❌ Error al cargar participaciones:', error);
-
       const errorMsg = error?.message || 'Error al obtener tus viajes';
       this.errorMessage = errorMsg;
 
@@ -401,12 +380,8 @@ export class PendingParticipationsComponent implements OnInit {
       // Guardar en el Map local
       responses.forEach((response) => {
         if (response.data.length > 0) {
-          const tripId = response.data[0].participation_id; // Obtener tripId de la respuesta
-          console.log('viajes capturados', tripId);
-
           // Mapear usando el trip_id del array myCreatedTrips
           const trip = this.myCreatedTrips.find((t) => {
-            // Buscar coincidencia por estructura de datos
             return response.data.some((p: any) => p.user_id !== this.userId);
           });
 
@@ -415,10 +390,7 @@ export class PendingParticipationsComponent implements OnInit {
           }
         }
       });
-
-      /* toast.success('Participantes cargados correctamente'); */
     } catch (error: any) {
-      console.error('❌ Error al cargar participaciones:', error);
       const errorMsg = error?.message || 'Error al cargar participantes';
       this.errorMessage = errorMsg;
       toast.error(errorMsg);
@@ -577,13 +549,10 @@ export class PendingParticipationsComponent implements OnInit {
       toast.success('Participante eliminado correctamente', {
         description: response.message,
       });
-
-      console.log('✅ Participante eliminado:', response.data);
     } catch (error: any) {
       // Revertir cambios en caso de error
       this.tripParticipationsMap.set(tripId, participations);
 
-      console.error('❌ Error al eliminar participante:', error);
       const errorMsg = error?.message || 'Error al eliminar participante';
       this.errorMessage = errorMsg;
 
@@ -628,13 +597,10 @@ export class PendingParticipationsComponent implements OnInit {
       toast.success('Participación cancelada correctamente', {
         description: response.message,
       });
-
-      console.log('✅ Participación cancelada:', response.data);
     } catch (error: any) {
       // Revertir cambios en caso de error
       this.userParticipations = originalParticipations;
 
-      console.error('❌ Error al cancelar participación:', error);
       const errorMsg = error?.message || 'Error al cancelar participación';
       this.errorMessage = errorMsg;
 
@@ -697,9 +663,6 @@ export class PendingParticipationsComponent implements OnInit {
    * Contiene toda la información necesaria para crear el ForumAccessContext
    */
   accederAlForo(participation: UserParticipation): void {
-    // =====================================================================
-    // PASO 1: Crear el contexto de acceso al foro
-    // =====================================================================
     const forumContext: ForumAccessContext = createForumAccessContext(
       this.userId!, // userId - Ya validado en ngOnInit
       participation.trip_id, // tripId
@@ -711,18 +674,10 @@ export class PendingParticipationsComponent implements OnInit {
       participation.status as 'pending' | 'accepted' | 'rejected' // participationStatus
     );
 
-    // =====================================================================
-    // PASO 2: Guardar el contexto en sessionStorage
-    // =====================================================================
-    // Este contexto será recuperado por el foro-viaje component
-    // para validar y mostrar/ocultar funcionalidades según permisos
+    // Guardar el contexto en sessionStorage para el componente foro-viaje
     sessionStorage.setItem('forumContext', JSON.stringify(forumContext));
 
-    // =====================================================================
-    // PASO 3: Navegar al foro
-    // =====================================================================
-    // El forumAccessGuard en app.routes.ts validará que el acceso sea permitido
-    // Si hay problemas, el guard redirigirá de vuelta al dashboard
+    // Navegar al foro (guard validará acceso)
     this.router.navigate(['/foro', participation.trip_id]);
   }
 
@@ -744,24 +699,12 @@ export class PendingParticipationsComponent implements OnInit {
   }
 
   /**
-   * Verificar si una participación está aceptada
-   * Se usa para mostrar/ocultar el botón de cancelar participación
-   *
-   * @param participation - Participación a verificar
-   */
-  isParticipationAccepted(participation: UserParticipation): boolean {
-    return participation.status === 'accepted';
-  }
-
-  /**
    * Verificar si se puede cancelar la participación
-   * Solo visible si:
-   * 1. La participación está aceptada
-   * 2. El usuario NO es el creador del viaje (no es myTrip)
+   * Solo visible si el usuario NO es el creador del viaje
    *
    * @param participation - Participación a verificar
    */
   canCancelParticipation(participation: UserParticipation): boolean {
-    return /* this.isParticipationAccepted(participation) && */ !this.isMyTrip(participation);
+    return !this.isMyTrip(participation);
   }
 }
