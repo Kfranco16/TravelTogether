@@ -214,66 +214,74 @@ export class CrearEditarViaje implements AfterViewInit {
     });
 
     try {
-      const tripResponse = await toast.promise(
+      await toast.promise(
         (async () => {
-          let tripResp: any;
-
           if (this.modoEdicion && this.tripId) {
-            tripResp = await lastValueFrom(this.tripService.updateTrip(this.tripId, baseTripData));
-            toast.success('Viaje actualizado con éxito');
+            await lastValueFrom(this.tripService.updateTrip(this.tripId, baseTripData));
 
             this.router.navigate(['/viaje', this.tripId]);
             return;
-          } else {
-            baseTripData.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
-            tripResp = await this.tripService.createTrip(baseTripData);
-            const tripId = tripResp.trip.id;
+          }
 
-            if (this.selectedCoverPhoto) {
-              try {
-                await this.tripService.uploadImage(
-                  this.selectedCoverPhoto,
-                  'Foto de portada',
-                  tripId,
-                  tripResp.trip.creator_id,
-                  false
-                );
-              } catch (e) {
-                console.error('Error subiendo portada:', e);
-              }
-            }
+          baseTripData.created_at = new Date().toISOString().slice(0, 19).replace('T', ' ');
+          const resp: any = await this.tripService.createTrip(baseTripData);
+          const tripId = resp.trip?.id as number;
 
-            if (this.selectedMainPhoto) {
-              try {
-                await this.tripService.uploadImage(
-                  this.selectedMainPhoto,
-                  'Foto principal',
-                  tripId,
-                  tripResp.trip.creator_id,
-                  true
-                );
-              } catch (e) {
-                console.error('Error subiendo principal:', e);
-              }
+          if (this.selectedCoverPhoto) {
+            try {
+              await this.tripService.uploadImage(
+                this.selectedCoverPhoto,
+                'Foto de portada',
+                tripId,
+                resp.trip.creator_id,
+                false
+              );
+            } catch (e) {
+              console.error('Error subiendo portada:', e);
             }
           }
 
-          return tripResp;
+          if (this.selectedMainPhoto) {
+            try {
+              await this.tripService.uploadImage(
+                this.selectedMainPhoto,
+                'Foto principal',
+                tripId,
+                resp.trip.creator_id,
+                true
+              );
+            } catch (e) {
+              console.error('Error subiendo principal:', e);
+            }
+          }
+
+          this.router.navigate(['/viaje', tripId]);
         })(),
         {
           loading: this.modoEdicion ? 'Actualizando viaje...' : 'Creando viaje...',
-
+          success: () =>
+            this.modoEdicion ? 'Viaje actualizado con éxito' : 'Viaje creado con éxito',
           error: 'Ha ocurrido un error al guardar el viaje',
         }
       );
     } catch (err) {
-      toast.warning('Error al crear/actualizar viaje o subir imágenes');
+      let mensaje = 'Error al crear/actualizar viaje o subir imágenes';
+
       if (err instanceof HttpErrorResponse) {
+        const backendMsg =
+          (err.error && (err.error.message || err.error.error || err.error)) || err.message;
+
+        if (backendMsg) {
+          mensaje = backendMsg;
+        }
+
         console.error('Status:', err.status);
         console.error('StatusText:', err.statusText);
         console.error('URL:', err.url);
         console.error('Backend error:', err.error);
       }
+
+      toast.error(mensaje);
     }
   }
 }

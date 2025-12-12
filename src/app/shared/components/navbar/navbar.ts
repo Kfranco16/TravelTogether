@@ -131,7 +131,6 @@ export class Navbar implements OnInit, OnDestroy {
 
     this.notificationsService.getAll(token).subscribe({
       next: (list) => {
-        console.log('RAW notifs', list); // añade esto para ver lo que llega
         this.notificaciones = list.filter(
           (n) => n.receiver_id === currentUser.id && n.is_read === 0
         );

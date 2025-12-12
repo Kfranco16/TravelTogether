@@ -78,16 +78,12 @@ export class CardUsuario {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
     try {
-      console.log('Viaje:', this.trip);
       const userId = this.usuario?.id;
       const token = localStorage.getItem('tt_token') || '';
-      console.log('ID del usuario:', userId);
-      console.log('Token a usar:', token);
 
       if (userId) {
         this.authService.getUserRating(userId, token).subscribe({
           next: (rating: number) => {
-            console.log('Valoración recibida:', rating);
             this.usuarioValoracion = rating;
           },
           error: (error) => {
