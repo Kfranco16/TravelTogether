@@ -120,15 +120,12 @@ export class ForoViaje implements OnInit {
           this.isSendingMessage.set(false);
           toast.success('Mensaje enviado correctamente');
 
-          // NOTIFICACIONES PARA TODOS LOS PARTICIPANTES DEL VIAJE
           const token = localStorage.getItem('token') ?? '';
           if (token) {
-            // usamos los participantes ya cargados en participantsMap
             const participantsMap = this.participantsMap();
             const tripTitle = context.tripTitle;
 
             participantsMap.forEach((_info, userId) => {
-              // opcional: no notificar al que escribe
               if (userId === context.userId) {
                 return;
               }
