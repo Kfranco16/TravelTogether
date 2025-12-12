@@ -120,21 +120,33 @@ export class ForoViaje implements OnInit {
           this.isSendingMessage.set(false);
           toast.success('Mensaje enviado correctamente');
 
-          if (context.userId !== context.creatorId) {
-            const notiBody = {
-              title: 'Nuevo mensaje en el foro',
-              message: `${
-                context.userId === context.creatorId ? 'Has' : 'Han'
-              } escrito en el foro de "${context.tripTitle}".`,
-              type: 'message',
-              is_read: 0,
-              sender_id: context.userId,
-              receiver_id: context.creatorId,
-            };
-            const token = localStorage.getItem('token') ?? '';
-            this.notificationsService.create(notiBody, token).subscribe({
-              next: () => {},
-              error: () => {},
+          // NOTIFICACIONES PARA TODOS LOS PARTICIPANTES DEL VIAJE
+          const token = localStorage.getItem('token') ?? '';
+          if (token) {
+            // usamos los participantes ya cargados en participantsMap
+            const participantsMap = this.participantsMap();
+            const tripTitle = context.tripTitle;
+
+            participantsMap.forEach((_info, userId) => {
+              // opcional: no notificar al que escribe
+              if (userId === context.userId) {
+                return;
+              }
+
+              const notiBody = {
+                title: 'Nuevo mensaje en el foro',
+                message: `Han escrito en el foro de "${tripTitle}".`,
+                type: 'message',
+                sender_id: context.userId,
+                receiver_id: userId,
+              };
+
+              this.notificationsService.create(notiBody, token).subscribe({
+                next: () => {},
+                error: (err) => {
+                  console.error('Error creando notificación de foro para', userId, err);
+                },
+              });
             });
           }
         },

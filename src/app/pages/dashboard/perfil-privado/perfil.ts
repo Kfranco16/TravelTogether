@@ -9,11 +9,12 @@ import { TripService } from '../../../core/services/viajes';
 import { RatingsService } from '../../../core/services/ratings';
 import { Iuser } from '../../../interfaces/iuser';
 import { NotificationsService, NotificationDto } from '../../../core/services/notifications';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-perfil',
   standalone: true,
-  imports: [CommonModule, FormsModule, DatePipe],
+  imports: [CommonModule, FormsModule, DatePipe, RouterLink],
   templateUrl: './perfil.html',
   styleUrls: ['./perfil.css'],
 })
@@ -267,8 +268,9 @@ export class Perfil {
       return;
     }
 
+    // Limpiar notificaciones según la sección
     if (section === 'misViajes' && this.notificaciones.length > 0) {
-      const toDelete = this.notificaciones.filter((n) => n.type === 'trip');
+      const toDelete = this.notificaciones.filter((n) => n.type === 'trip' || n.type === 'group');
       if (toDelete.length === 0) {
         this.notif[section] = false;
         this.hasNotifications = Object.values(this.notif).some((v) => v);
@@ -281,7 +283,25 @@ export class Perfil {
             this.notificaciones = this.notificaciones.filter((x) => x.id !== n.id);
             this.actualizarFlagsDesdeNotifications();
           },
-          error: (err) => console.error('Error eliminando notificación de tipo trip', err),
+          error: (err) => console.error('Error eliminando notificación de tipo trip/group', err),
+        });
+      });
+    } else if (section === 'foros' && this.notificaciones.length > 0) {
+      // Reutiliza la lógica para foros: borrar solo notificaciones de tipo 'message'
+      const toDelete = this.notificaciones.filter((n) => n.type === 'message');
+      if (toDelete.length === 0) {
+        this.notif[section] = false;
+        this.hasNotifications = Object.values(this.notif).some((v) => v);
+        return;
+      }
+
+      toDelete.forEach((n) => {
+        this.notificationsService.delete(n.id, token).subscribe({
+          next: () => {
+            this.notificaciones = this.notificaciones.filter((x) => x.id !== n.id);
+            this.actualizarFlagsDesdeNotifications();
+          },
+          error: (err) => console.error('Error eliminando notificación de tipo message', err),
         });
       });
     } else {
@@ -411,7 +431,6 @@ export class Perfil {
         this.user = fullUser as Iuser;
         this.showDeletePhotoModal = false;
       })
-
       .catch((err) => {
         console.error('Error subiendo foto de usuario', err);
       });

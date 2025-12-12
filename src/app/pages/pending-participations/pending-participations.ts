@@ -134,43 +134,54 @@ export class PendingParticipationsComponent implements OnInit {
 
   async approveParticipation(participationId: number): Promise<void> {
     try {
-      // 1) Apruebas la participación
       const response = await firstValueFrom(
         this.participantService.approveParticipant(participationId)
       );
       toast.success('Participante aprobado correctamente');
 
-      // 2) Recargas datos de gestión
       await this.loadPendingParticipations();
       await this.loadMyCreatedTrips();
 
-      // 3) Creas la notificación para el participante aprobado
       const token = this.authService.gettoken() || '';
-      if (token) {
-        // Busca la participación aprobada para obtener info de usuario y viaje
-        const approved = this.pendingParticipations.find(
-          (p) => p.participation_id === participationId
-        );
+      if (!token) {
+        return;
+      }
 
-        if (approved) {
+      const approved = this.pendingParticipations.find(
+        (p) => p.participation_id === participationId
+      );
+
+      if (!approved) {
+        return;
+      }
+
+      const tripId = approved.trip_id;
+      const tripName = approved.trip_name;
+
+      const tripParticipationsResponse = await firstValueFrom(
+        this.participantService.getTripParticipations(tripId)
+      );
+
+      const participants: TripParticipation[] = tripParticipationsResponse.data ?? [];
+
+      participants
+        .filter((p) => p.user_id !== this.userId)
+        .forEach((p) => {
           const notification = {
-            title: 'Has sido aceptado en un viaje',
-            message: `Tu solicitud para "${approved.trip_name}" ha sido aceptada.`,
+            title: 'Nuevo mensaje en el foro',
+            message: `Han escrito en el foro de "${tripName}".`,
             type: 'message',
-            sender_id: approved.creator_id, // ajusta según tu dto real
-            receiver_id: approved.participant_user_id, // ajusta nombre de campo si es distinto
+            sender_id: this.userId!,
+            receiver_id: p.user_id,
           };
 
           this.notificationsService.create(notification, token).subscribe({
-            next: () => {
-              // opcional: log o toast
-            },
+            next: () => {},
             error: (err) => {
-              console.error('Error creando notificación de foro', err);
+              console.error(`Error creando notificación de foro para el usuario ${p.user_id}`, err);
             },
           });
-        }
-      }
+        });
     } catch (error: any) {
       const errorMsg = error?.message || 'Error al aprobar participante';
       toast.error(errorMsg);

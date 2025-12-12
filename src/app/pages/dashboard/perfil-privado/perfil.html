@@ -43,14 +43,15 @@
         <span class="tt-dot"></span>
       </button>
       } @if (notif.foros) {
-      <button
-        type="button"
+      <a
         class="tt-mobile-notif-row"
-        (click)="goToSection('foros', '/dashboard/foros')"
+        [routerLink]="['/gestion-viajes']"
+        [queryParams]="{ tab: 'myTrips', from: 'forum' }"
+        (click)="onSectionOpen('foros')"
       >
         <span><i class="bi bi-bell"></i> Tienes mensajes nuevos</span>
         <span class="tt-dot"></span>
-      </button>
+      </a>
       }
     </div>
   </div>
