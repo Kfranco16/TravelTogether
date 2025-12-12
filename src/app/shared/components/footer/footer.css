@@ -26,3 +26,15 @@
     color: #9ca3af;
   }
 }
+
+@media (min-width: 992px) {
+  footer {
+    padding-bottom: 2.5rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  footer {
+    visibility: hidden;
+  }
+}

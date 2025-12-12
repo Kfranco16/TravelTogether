@@ -11,55 +11,57 @@
     </div>
   </div>
 
+  <!-- TABS -->
   <div class="mb-5">
-    <ul class="nav nav-tabs nav-filled gap-2 tab-navigation" role="tablist">
+    <ul class="nav nav-tabs tab-navigation flex-column flex-md-row w-100" role="tablist">
       @if (!soloForos) {
-      <li class="nav-item" role="presentation">
+      <li class="nav-item flex-fill" role="presentation">
         <button
-          class="nav-link"
+          class="nav-link py-2 w-100 d-flex align-items-center justify-content-center gap-2"
           [class.active]="activeTab === 'pending'"
           (click)="switchTab('pending')"
           type="button"
           role="tab"
         >
           <i class="bi bi-clock-history"></i>
-          <span class="d-none d-md-inline ms-2">Solicitudes Pendientes</span>
-          <span class="badge bg-danger rounded-pill ms-2">{{ pendingParticipations.length }}</span>
+          <span>Solicitudes Pendientes</span>
+          <span class="badge bg-danger rounded-pill ms-1">{{ pendingParticipations.length }}</span>
         </button>
       </li>
 
-      <li class="nav-item" role="presentation">
+      <li class="nav-item flex-fill" role="presentation">
         <button
-          class="nav-link"
+          class="nav-link py-2 w-100 d-flex align-items-center justify-content-center gap-2"
           [class.active]="activeTab === 'accepted'"
           (click)="switchTab('accepted')"
           type="button"
           role="tab"
         >
           <i class="bi bi-check-circle"></i>
-          <span class="d-none d-md-inline ms-2">Participantes Aceptados</span>
+          <span>Participantes Aceptados</span>
         </button>
       </li>
       }
 
-      <li class="nav-item" role="presentation">
+      <li class="nav-item flex-fill" role="presentation">
         <button
-          class="nav-link"
+          class="nav-link py-2 w-100 d-flex align-items-center justify-content-center gap-2"
           [class.active]="activeTab === 'myTrips'"
           (click)="switchTab('myTrips')"
           type="button"
           role="tab"
         >
           <i class="bi bi-suitcase"></i>
-          <span class="d-none d-md-inline ms-2">
+          <span>
             {{ soloForos ? 'Foros' : 'Mis Viajes' }}
           </span>
-          <span class="badge bg-info rounded-pill ms-2">{{ userParticipations.length }}</span>
+          <span class="badge bg-info rounded-pill ms-1">{{ userParticipations.length }}</span>
         </button>
       </li>
     </ul>
   </div>
 
+  <!-- TAB: PENDIENTES -->
   @if (activeTab === 'pending') { @if (isLoading) {
   <div class="card border-0 shadow-sm">
     <div class="card-body text-center p-5">
@@ -90,8 +92,10 @@
         Total: {{ pendingParticipations.length }} solicitud(es)
       </h5>
     </div>
+
     <div class="card-body p-0">
-      <div class="table-responsive">
+      <!-- Desktop: tabla original -->
+      <div class="table-responsive d-none d-md-block">
         <table class="table table-hover mb-0">
           <thead class="table-light">
             <tr>
@@ -143,7 +147,10 @@
                 </small>
               </td>
               <td>
-                <span class="badge bg-info">⭐ {{ participation.participant_avg_score }}</span>
+                <span class="badge bg-info"
+                  ><i class="bi bi-star-fill text-warning"></i>
+                  {{ participation.participant_avg_score }}</span
+                >
               </td>
               <td>
                 <div class="btn-group gap-1" role="group">
@@ -168,6 +175,82 @@
           </tbody>
         </table>
       </div>
+
+      <div class="d-block d-md-none p-2">
+        @for (participation of pendingParticipations; track participation.participation_id) {
+        <div class="card mb-3 border-0 shadow-sm pending-card bg-light">
+          <div class="card-body">
+            <div class="text-center mb-3">
+              @if (participation.participant_image_url) {
+              <img
+                [src]="participation.participant_image_url"
+                alt="Avatar"
+                class="rounded-circle mb-2"
+                style="width: 42px; height: 42px; object-fit: cover"
+              />
+              } @else {
+              <div
+                class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white mx-auto mb-2"
+                style="width: 42px; height: 42px"
+              >
+                <i class="bi bi-person"></i>
+              </div>
+              }
+              <div class="fw-bold">{{ participation.participant_username }}</div>
+              <small class="text-muted d-block">{{ participation.participant_email }}</small>
+            </div>
+
+            <div class="small mb-2 text-center text-sm-start">
+              <span class="text-muted d-block">Viaje</span>
+              <span class="fw-semibold d-block">
+                <i class="bi bi-geo-alt"></i>
+                {{ participation.trip_name }}
+              </span>
+            </div>
+
+            <div class="row small mb-3 align-items-center">
+              <div class="col-6">
+                <span class="text-muted d-block">Fecha</span>
+                <span>
+                  <i class="bi bi-calendar"></i>
+                  {{ participation.request_date | date : 'dd/MM/yyyy' }}
+                </span>
+              </div>
+              <div class="col-6 text-end">
+                <span class="text-muted d-block">Puntuación / Estado</span>
+                <div class="d-inline-flex flex-column align-items-end gap-1 pending-badges">
+                  <span class="badge bg-info badge-compact">
+                    <i class="bi bi-star-fill text-warning"></i>
+                    {{ participation.participant_avg_score }}
+                  </span>
+                  <span
+                    class="badge badge-compact"
+                    [ngClass]="getStatusBadgeClass(participation.status)"
+                  >
+                    {{ translateStatus(participation.status) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-center gap-2">
+              <button
+                class="btn btn-sm btn-success px-3"
+                (click)="approveParticipation(participation.participation_id)"
+              >
+                <i class="bi bi-check-lg"></i> Aceptar
+              </button>
+              <button
+                class="btn btn-sm btn-outline-danger px-3"
+                (click)="rejectParticipation(participation.participation_id)"
+              >
+                <i class="bi bi-x-circle"></i> Rechazar
+              </button>
+            </div>
+          </div>
+        </div>
+        }
+      </div>
     </div>
   </div>
   } @else {
@@ -178,7 +261,10 @@
     <h5>No hay solicitudes pendientes</h5>
     <p class="text-muted">Cuando recibas solicitudes aparecerán aquí</p>
   </div>
-  } } @else if (activeTab === 'accepted') { @if (isLoading) {
+  } }
+
+  <!-- TAB: ACCEPTED (sin cambios de lógica) -->
+  @else if (activeTab === 'accepted') { @if (isLoading) {
   <div class="card border-0 shadow-sm">
     <div class="card-body text-center p-5">
       <div class="spinner-border text-primary mb-3" role="status">
@@ -308,7 +394,10 @@
       Crear Viaje
     </a>
   </div>
-  } } } @else if (activeTab === 'myTrips') { @if (isLoading) {
+  } } }
+
+  <!-- TAB: MY TRIPS (sin cambios de lógica) -->
+  @else if (activeTab === 'myTrips') { @if (isLoading) {
   <div class="card border-0 shadow-sm">
     <div class="card-body text-center p-5">
       <div class="spinner-border text-primary mb-3" role="status">
