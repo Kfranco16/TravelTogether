@@ -66,7 +66,6 @@ export class Perfil {
             this.usuarioValoracion = rating;
           },
           error: (error) => {
-            console.error('No se pudo obtener la valoración:', error);
             this.usuarioValoracion = null;
           },
         });
