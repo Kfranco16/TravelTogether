@@ -1,15 +1,29 @@
-import { Component, inject, Input, Pipe, PipeTransform, signal, computed } from '@angular/core';
+import {
+  Component,
+  inject,
+  Input,
+  Pipe,
+  PipeTransform,
+  signal,
+  computed,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
+import { Router } from '@angular/router';
+import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
+
 import { CardUsuario } from '../card-usuario/card-usuario';
 import { Minilogin } from '../minilogin/minilogin';
-import { Router } from '@angular/router';
+
 import { AuthService } from '../../core/services/auth';
-import { Iuser } from '../../interfaces/iuser';
-import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { TripService } from '../../core/services/viajes';
 import { NotificationsService } from '../../core/services/notifications';
 import { ParticipantService } from '../../core/services/participant.service';
 import { ParticipationService } from '../../core/services/participations';
-import { firstValueFrom } from 'rxjs';
+import { FavoritesService } from '../../core/services/favorites';
+
+import { Iuser } from '../../interfaces/iuser';
+import { firstValueFrom, Subject, takeUntil } from 'rxjs';
 
 @Pipe({ name: 'capitalizeFirst', standalone: true })
 export class CapitalizeFirstPipe implements PipeTransform {
@@ -25,13 +39,16 @@ export class CapitalizeFirstPipe implements PipeTransform {
   templateUrl: './card-viaje.html',
   styleUrl: './card-viaje.css',
 })
-export class CardViaje {
+export class CardViaje implements OnInit, OnDestroy {
   @Input() trip!: any;
 
   private tripService = inject(TripService);
   private notificationsService = inject(NotificationsService);
   private participantService = inject(ParticipantService);
   private participationService = inject(ParticipationService);
+  private favoritesService = inject(FavoritesService);
+
+  private destroy$ = new Subject<void>();
 
   usuario: Iuser | null = null;
   currentUser: Iuser | null = null;
@@ -57,9 +74,13 @@ export class CardViaje {
   }
 
   ngOnInit() {
+    // Normalizar flags de favorito por si vienen “ensuciados”
+    this.trip.isFavorite = !!this.trip.isFavorite;
+    this.trip.favoriteId = this.trip.favoriteId ?? null;
+
     this.cargarImagenes(Number(this.trip?.id));
 
-    this.authService.user$.subscribe((globalUser) => {
+    this.authService.user$.pipe(takeUntil(this.destroy$)).subscribe((globalUser) => {
       this.currentUser = globalUser;
 
       if (globalUser && this.trip?.creator_id === globalUser.id) {
@@ -72,25 +93,45 @@ export class CardViaje {
 
       if (globalUser && this.trip?.id) {
         const token = this.authService.gettoken();
-        this.tripService.isFavoriteByTrip(this.trip.id, token!).subscribe({
-          next: (favorites) => {
-            if (favorites && favorites.length > 0) {
-              this.trip.isFavorite = true;
-              this.trip.favoriteId = favorites[0].id;
-            } else {
-              this.trip.isFavorite = false;
-              this.trip.favoriteId = null;
-            }
-          },
-          error: () => {
-            this.trip.isFavorite = false;
-            this.trip.favoriteId = null;
-          },
-        });
+        if (token) {
+          // Opción 1: obtener los favoritos del usuario y filtrar por trip.id
+          this.favoritesService
+            .getFavoritesByUser(globalUser.id, token)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe({
+              next: (favorites) => {
+                const fav = favorites.find((f: any) => f.trip.id === this.trip.id);
+                if (fav) {
+                  this.trip.isFavorite = true;
+                  this.trip.favoriteId = fav.id;
+                } else {
+                  this.trip.isFavorite = false;
+                  this.trip.favoriteId = null;
+                }
+              },
+              error: () => {
+                this.trip.isFavorite = false;
+                this.trip.favoriteId = null;
+              },
+            });
 
-        this.checkSolicitudEnviada(this.trip.id, globalUser.id);
+          // Si en el futuro cambias el back para que /favorites/trip/:id
+          // devuelva sólo el favorito del usuario actual, podrías usar:
+          // this.favoritesService.isFavoriteByTrip(this.trip.id, token).subscribe(...)
+
+          this.checkSolicitudEnviada(this.trip.id, globalUser.id);
+        }
+      } else {
+        // Si no hay usuario logueado, asegurarse de que no se marque como favorito
+        this.trip.isFavorite = false;
+        this.trip.favoriteId = null;
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private checkSolicitudEnviada(tripId: number, userId: number): void {
@@ -127,7 +168,6 @@ export class CardViaje {
     this.tripService.getImagesByTripId(tripId).subscribe({
       next: (data: any) => {
         const fotos: any[] = data?.results?.results || [];
-
         const fotoPortada = fotos.find((f) => f.main_img == '0' || f.main_img == 0);
 
         this.portadaImageUrl = fotoPortada?.url || 'images/coverDefault.jpg';
@@ -197,12 +237,15 @@ export class CardViaje {
     }
 
     const token = this.authService.gettoken();
+    if (!token) return;
 
     if (!trip.isFavorite) {
-      this.tripService.addFavorite(trip.id, token!).subscribe({
-        next: (favorite) => {
+      this.favoritesService.addFavorite(trip.id, token).subscribe({
+        next: (favorite: any) => {
+          // según tu servicio, addFavorite devuelve un Favorite; ajusta si el backend envía {data: ...}
+          const fav = (favorite as any).data ? (favorite as any).data[0] : favorite;
           trip.isFavorite = true;
-          trip.favoriteId = favorite.data[0].id;
+          trip.favoriteId = fav.id;
         },
         error: () => {
           trip.isFavorite = false;
@@ -210,7 +253,7 @@ export class CardViaje {
       });
     } else {
       if (!trip.favoriteId) return;
-      this.tripService.removeFavoriteById(trip.favoriteId, token!).subscribe({
+      this.favoritesService.removeFavoriteById(trip.favoriteId, token).subscribe({
         next: () => {
           trip.isFavorite = false;
           trip.favoriteId = null;

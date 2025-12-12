@@ -178,6 +178,21 @@
     </div> -->
   </section>
 
+  <section>
+    <a
+      class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
+      [routerLink]="['/foros']"
+      [queryParams]="{ tab: 'latest', from: 'menu' }"
+      (click)="onSectionOpen('foros')"
+    >
+      <span class="d-flex flex-column">
+        <span>Foros</span>
+        <span class="small text-muted"
+          >Resuelve dudas y comparte experiencias con otros viajeros</span
+        >
+      </span>
+    </a>
+  </section>
   <section class="tt-next-trip-card tt-next-trip-card-main">
     <div class="tt-next-trip-left d-flex gap-3 tt-next-trip-main-left">
       <div
