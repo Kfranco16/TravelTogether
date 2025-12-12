@@ -39,6 +39,7 @@ export class Navbar implements OnInit, OnDestroy {
     favoritos: false,
     notificaciones: false,
     gestionViajes: false,
+    foro: false,
   };
 
   ngOnInit(): void {
@@ -89,6 +90,7 @@ export class Navbar implements OnInit, OnDestroy {
       gestionViajes: false,
       favoritos: false,
       notificaciones: false,
+      foro: false,
     };
     this.hasNotifications = false;
   }
@@ -103,16 +105,14 @@ export class Navbar implements OnInit, OnDestroy {
     for (const n of this.notificaciones) {
       switch (n.type) {
         case 'message':
-          this.notif.gestionViajes = true;
+          this.notif.foro = true;
           break;
         case 'trip':
+        case 'group':
           this.notif.gestionViajes = true;
           break;
         case 'favorites':
           this.notif.favoritos = true;
-          break;
-        case 'group':
-          this.notif.gestionViajes = true;
           break;
       }
     }
@@ -131,6 +131,7 @@ export class Navbar implements OnInit, OnDestroy {
 
     this.notificationsService.getAll(token).subscribe({
       next: (list) => {
+        console.log('RAW notifs', list); // añade esto para ver lo que llega
         this.notificaciones = list.filter(
           (n) => n.receiver_id === currentUser.id && n.is_read === 0
         );
