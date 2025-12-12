@@ -4,13 +4,13 @@ import { AuthService } from '../../../core/services/auth';
 import { Iuser } from '../../../interfaces/iuser';
 
 @Component({
-  selector: 'app-datos',
+  selector: 'app-editar-perfil',
   standalone: true,
   imports: [Registro],
   templateUrl: './editar-perfil.html',
   styleUrls: ['./editar-perfil.css'],
 })
-export class Datos {
+export class EditarPerfil {
   currentUser: Iuser | null = null;
 
   constructor(private authService: AuthService) {}

@@ -13,6 +13,7 @@ import { ValoracionesPendientesComponent } from './pages/ratings/ratings';
 import { ViewRatings } from './pages/ratings/view-ratings/view-ratings';
 import { PendingParticipationsComponent } from './pages/pending-participations/pending-participations';
 import { ForoViaje } from './pages/foro-viaje/foro-viaje';
+
 export const routes: Routes = [
   // RUTAS PÚBLICAS
   { path: '', component: Landing },
@@ -63,7 +64,7 @@ export const routes: Routes = [
       {
         path: 'editar-perfil',
         loadComponent: () =>
-          import('./pages/dashboard/editar-perfil/editar-perfil').then((m) => m.Datos),
+          import('./pages/dashboard/editar-perfil/editar-perfil').then((m) => m.EditarPerfil),
       },
       /* {
         path: 'reservas',
