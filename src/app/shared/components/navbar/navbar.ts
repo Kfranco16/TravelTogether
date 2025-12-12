@@ -156,7 +156,9 @@ export class Navbar implements OnInit, OnDestroy {
         if (noti.type === 'trip') {
           this.router.navigate(['/gestion-viajes']);
         } else if (noti.type === 'message') {
-          this.router.navigate(['/gestion-viajes']);
+          this.router.navigate(['/gestion-viajes'], {
+            queryParams: { tab: 'myTrips', from: 'forum' },
+          });
         } else if (noti.type === 'favorites') {
           this.router.navigate(['/dashboard/favoritos']);
         } else if (noti.type === 'group') {

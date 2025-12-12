@@ -3,7 +3,7 @@
     <div class="travel-header">
       <h1 class="mb-3">
         <i class="bi bi-map"></i>
-        Gestión de Viajes
+        {{ pageTitle }}
       </h1>
       <p class="lead text-muted">
         Administra tus solicitudes, participantes y viajes en un solo lugar
@@ -13,6 +13,7 @@
 
   <div class="mb-5">
     <ul class="nav nav-tabs nav-filled gap-2 tab-navigation" role="tablist">
+      @if (!soloForos) {
       <li class="nav-item" role="presentation">
         <button
           class="nav-link"
@@ -39,6 +40,7 @@
           <span class="d-none d-md-inline ms-2">Participantes Aceptados</span>
         </button>
       </li>
+      }
 
       <li class="nav-item" role="presentation">
         <button
@@ -49,7 +51,9 @@
           role="tab"
         >
           <i class="bi bi-suitcase"></i>
-          <span class="d-none d-md-inline ms-2">Mis Viajes</span>
+          <span class="d-none d-md-inline ms-2">
+            {{ soloForos ? 'Foros' : 'Mis Viajes' }}
+          </span>
           <span class="badge bg-info rounded-pill ms-2">{{ userParticipations.length }}</span>
         </button>
       </li>

@@ -14,7 +14,10 @@ import {
   createForumAccessContext,
 } from '../../core/interfaces/forum-access-context';
 import { toast } from 'ngx-sonner';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, take } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { NotificationsService } from '../../core/services/notifications';
+import { AuthService } from '../../core/services/auth';
 
 @Component({
   selector: 'app-pending-participations',
@@ -24,8 +27,11 @@ import { firstValueFrom } from 'rxjs';
   styleUrl: './pending-participations.css',
 })
 export class PendingParticipationsComponent implements OnInit {
+  private route = inject(ActivatedRoute);
   private participantService = inject(ParticipantService);
   private router = inject(Router);
+  private notificationsService = inject(NotificationsService);
+  private authService = inject(AuthService);
 
   pendingParticipations: PendingParticipationInfo[] = [];
   myCreatedTrips: MyCreatedTrip[] = [];
@@ -36,7 +42,9 @@ export class PendingParticipationsComponent implements OnInit {
   successMessage: string | null = null;
   debugResponseData: any = null;
   activeTab: 'pending' | 'accepted' | 'myTrips' = 'pending';
+  soloForos = false;
 
+  pageTitle = 'Gestión de Viajes';
   tripParticipationsMap = new Map<number, TripParticipation[]>();
 
   mostrarToastConfirmacion = signal<boolean>(false);
@@ -47,15 +55,29 @@ export class PendingParticipationsComponent implements OnInit {
   tipoEliminacion = signal<'acceptedParticipant' | 'userParticipation' | null>(null);
 
   ngOnInit(): void {
-    const usuarioStr = localStorage.getItem('usuario');
-    if (usuarioStr) {
-      const usuario = JSON.parse(usuarioStr);
-      this.userId = usuario.id || null;
-    }
+    // si necesitas userId para el foro, recógelo de tu AuthService aquí
+    this.authService.user$.pipe(take(1)).subscribe((current) => {
+      this.userId = current?.id ?? null;
+    });
 
-    this.loadPendingParticipations();
-    this.loadMyCreatedTrips();
-    this.loadMyParticipations();
+    this.route.queryParams.subscribe((params) => {
+      const tab = params['tab'];
+      const from = params['from'];
+
+      if (tab === 'myTrips' && from === 'forum') {
+        this.activeTab = 'myTrips';
+        this.soloForos = true;
+        this.pageTitle = 'Foros';
+      } else {
+        this.soloForos = false;
+        this.pageTitle = 'Gestión de Viajes';
+
+        this.activeTab =
+          tab === 'accepted' || tab === 'myTrips' || tab === 'pending' ? tab : 'pending';
+      }
+
+      this.switchTab(this.activeTab);
+    });
   }
 
   async loadPendingParticipations(): Promise<MyCreatedTripsResponse | void> {
@@ -112,12 +134,43 @@ export class PendingParticipationsComponent implements OnInit {
 
   async approveParticipation(participationId: number): Promise<void> {
     try {
+      // 1) Apruebas la participación
       const response = await firstValueFrom(
         this.participantService.approveParticipant(participationId)
       );
       toast.success('Participante aprobado correctamente');
+
+      // 2) Recargas datos de gestión
       await this.loadPendingParticipations();
       await this.loadMyCreatedTrips();
+
+      // 3) Creas la notificación para el participante aprobado
+      const token = this.authService.gettoken() || '';
+      if (token) {
+        // Busca la participación aprobada para obtener info de usuario y viaje
+        const approved = this.pendingParticipations.find(
+          (p) => p.participation_id === participationId
+        );
+
+        if (approved) {
+          const notification = {
+            title: 'Has sido aceptado en un viaje',
+            message: `Tu solicitud para "${approved.trip_name}" ha sido aceptada.`,
+            type: 'message',
+            sender_id: approved.creator_id, // ajusta según tu dto real
+            receiver_id: approved.participant_user_id, // ajusta nombre de campo si es distinto
+          };
+
+          this.notificationsService.create(notification, token).subscribe({
+            next: () => {
+              // opcional: log o toast
+            },
+            error: (err) => {
+              console.error('Error creando notificación de foro', err);
+            },
+          });
+        }
+      }
     } catch (error: any) {
       const errorMsg = error?.message || 'Error al aprobar participante';
       toast.error(errorMsg);
@@ -131,6 +184,8 @@ export class PendingParticipationsComponent implements OnInit {
       );
       toast.success('Participante rechazado correctamente');
       await this.loadPendingParticipations();
+
+      // Si también quieres notificación al rechazar, puedes hacer algo parecido aquí.
     } catch (error: any) {
       const errorMsg = error?.message || 'Error al rechazar participante';
       toast.error(errorMsg);
@@ -188,8 +243,16 @@ export class PendingParticipationsComponent implements OnInit {
   switchTab(tab: 'pending' | 'accepted' | 'myTrips'): void {
     this.activeTab = tab;
 
-    if (tab === 'accepted' && this.myCreatedTrips.length > 0) {
-      this.loadAllTripParticipations();
+    if (tab === 'pending') {
+      this.loadPendingParticipations();
+    } else if (tab === 'accepted') {
+      this.loadMyCreatedTrips().then(() => {
+        if (this.myCreatedTrips.length > 0) {
+          this.loadAllTripParticipations();
+        }
+      });
+    } else if (tab === 'myTrips') {
+      this.loadMyParticipations();
     }
   }
 

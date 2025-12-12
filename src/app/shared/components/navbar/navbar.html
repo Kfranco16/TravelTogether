@@ -97,6 +97,17 @@
                 @if (notif.favoritos) { <span class="tt-dot" aria-hidden="true"></span> }
               </a>
             </li>
+            <a
+              class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
+              [routerLink]="['/gestion-viajes']"
+              [queryParams]="{ tab: 'myTrips', from: 'forum' }"
+              (click)="onSectionOpen('gestionViajes')"
+            >
+              <span>Foros</span>
+              @if (notif.gestionViajes) {
+              <span class="tt-dot" aria-hidden="true"></span>
+              }
+            </a>
 
             <li><hr class="dropdown-divider" /></li>
 

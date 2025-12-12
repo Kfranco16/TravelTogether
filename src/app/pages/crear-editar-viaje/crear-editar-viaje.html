@@ -410,13 +410,13 @@
 
     <div class="row">
       <div class="mb-3 col-12 col-md-6">
-        <label class="form-label fw-semibold">Nº mínimo de participantes</label>
+        <label class="form-label fw-semibold">Nº máximo de participantes</label>
         <input type="number" min="1" formControlName="min_participants" class="form-control" />
         @if (tripForm.get('min_participants')?.invalid && tripForm.get('min_participants')?.touched)
         {
         <div class="text-danger small mt-1">
           <i class="bi bi-exclamation-circle me-1"></i>
-          El número mínimo de participantes es obligatorio.
+          El número máximo de participantes es obligatorio.
         </div>
         }
       </div>

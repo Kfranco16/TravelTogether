@@ -9,7 +9,6 @@ import { TripService } from '../../core/services/viajes';
 import { NotificationsService } from '../../core/services/notifications';
 import { ParticipantService } from '../../core/services/participant.service';
 import { ParticipationService } from '../../core/services/participations';
-import { toast } from 'ngx-sonner';
 import { firstValueFrom } from 'rxjs';
 
 @Pipe({ name: 'capitalizeFirst', standalone: true })
@@ -272,68 +271,30 @@ export class CardViaje {
       this.solicitudStatus.set('pending');
       this.solicitudEnviada.set(true);
       this.trip.solicitado = true;
+
+      if (this.currentUser && this.trip?.creator_id) {
+        const token = this.authService.gettoken();
+        if (token) {
+          const notiBody = {
+            title: 'Nueva solicitud de viaje',
+            message: `${this.currentUser.username} ha solicitado unirse a tu viaje "${this.trip.title}".`,
+            type: 'trip',
+            is_read: 0,
+            sender_id: this.currentUser.id,
+            receiver_id: this.trip.creator_id,
+          };
+          this.notificationsService.create(notiBody, token).subscribe({
+            next: () => {},
+            error: () => {},
+          });
+        }
+      }
     } catch (error: any) {
       const errorMsg = error?.message || 'Error al enviar la solicitud de participación';
       this.mostrarToastPersonalizado('error', 'Error en la solicitud', errorMsg, 5000);
     } finally {
       this.enviandoSolicitud.set(false);
     }
-  }
-
-  toggleSolicitud() {
-    if (!this.currentUser?.id) return;
-
-    if (!this.currentUser) {
-      this.mostrarToastPersonalizado(
-        'warning',
-        'Sesión requerida',
-        'Debes iniciar sesión para solicitar unirte a un viaje'
-      );
-      setTimeout(() => this.router.navigate(['/login']), 1500);
-      return;
-    }
-
-    if (!this.trip?.id) {
-      this.mostrarToastPersonalizado(
-        'error',
-        'Viaje no disponible',
-        'El viaje no existe o no se cargó correctamente'
-      );
-      return;
-    }
-
-    if (this.currentUser.id === this.trip.creator_id) {
-      this.mostrarToastPersonalizado(
-        'warning',
-        'No permitido',
-        'No puedes solicitar unirte a tu propio viaje'
-      );
-      return;
-    }
-
-    if (this.solicitudEnviada() || this.enviandoSolicitud()) {
-      this.mostrarToastPersonalizado(
-        'info',
-        'Solicitud pendiente',
-        'Ya has enviado una solicitud para este viaje'
-      );
-      return;
-    }
-
-    this.handleSolicitud();
-
-    if (!this.currentUser?.id) return;
-
-    this.trip.solicitado = true;
-    const token = this.authService.gettoken();
-    const notiBody = {
-      title: 'Nueva solicitud de viaje',
-      message: `${this.currentUser.username} ha solicitado unirse a tu viaje "${this.trip.title}".`,
-      type: 'trip',
-      is_read: 0,
-      sender_id: this.currentUser.id,
-      receiver_id: this.trip.creator_id,
-    };
   }
 
   mostrarToastPersonalizado(
@@ -374,7 +335,6 @@ export class CardViaje {
       case 'warning':
         return `${baseClass} alert-warning`;
       case 'info':
-        return `${baseClass} alert-info`;
       default:
         return `${baseClass} alert-info`;
     }

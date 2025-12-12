@@ -20,6 +20,7 @@ export interface ParticipationRequestResponse {
 }
 
 export interface PendingParticipationInfo {
+  creator_id: any;
   participation_id: number;
   status: string;
   request_date: string;

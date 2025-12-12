@@ -12,6 +12,7 @@ import { ParticipantService } from '../../core/services/participant.service';
 import { ParticipationService } from '../../core/services/participations';
 import { toast } from 'ngx-sonner';
 import { ForoService } from '../../core/services/foro.service';
+import { NotificationsService } from '../../core/services/notifications';
 import { map, catchError } from 'rxjs/operators';
 
 @Component({
@@ -34,6 +35,7 @@ export class DetalleViaje {
   private tripService = inject(TripService);
   private participantService = inject(ParticipantService);
   private participationService = inject(ParticipationService);
+  private notificationsService = inject(NotificationsService);
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -274,7 +276,6 @@ export class DetalleViaje {
       case 'warning':
         return `${baseClass} alert-warning`;
       case 'info':
-        return `${baseClass} alert-info`;
       default:
         return `${baseClass} alert-info`;
     }
@@ -291,7 +292,6 @@ export class DetalleViaje {
       case 'warning':
         return 'bi-exclamation-triangle-fill';
       case 'info':
-        return 'bi-info-circle-fill';
       default:
         return 'bi-info-circle-fill';
     }
@@ -345,6 +345,24 @@ export class DetalleViaje {
       this.mostrarToastPersonalizado('success', 'Solicitud enviada', response.message, 5000);
       this.solicitudStatus.set('pending');
       this.solicitudEnviada.set(true);
+
+      if (this.usuarioActual && this.viaje?.creator_id) {
+        const token = this.authService.gettoken();
+        if (token) {
+          const notiBody = {
+            title: 'Nueva solicitud de viaje',
+            message: `${this.usuarioActual.username} ha solicitado unirse a tu viaje "${this.viaje.title}".`,
+            type: 'trip',
+            is_read: 0,
+            sender_id: this.usuarioActual.id,
+            receiver_id: this.viaje.creator_id,
+          };
+          this.notificationsService.create(notiBody, token).subscribe({
+            next: () => {},
+            error: () => {},
+          });
+        }
+      }
     } catch (error: any) {
       const errorMsg = error?.message || 'Error al enviar la solicitud de participación';
       this.mostrarToastPersonalizado('error', 'Error en la solicitud', errorMsg, 1000);
