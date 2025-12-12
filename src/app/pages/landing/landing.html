@@ -1,5 +1,3 @@
-<!--  Bloque 1 CÓMO FUNCIONA -->
-
 <div
   class="container-fluid hero-bg px-4 py-5 text-center text-white opacity-55"
   style="position: relative"
@@ -10,19 +8,16 @@
   [style.transition]="'background-image 1s ease-in-out'"
   [style.backgroundImage]="'url(' + heroImages()[currentImageIndex()].url + ')'"
 >
-  <!-- Overlay para asegurarnos de que el contenido sea legible sobre la imagen -->
   <div
     class="hero-overlay"
     style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.35); z-index: 0"
   ></div>
 
-  <!-- Contenido (por encima del background y el overlay) -->
-
   <div class="container px-4 py-5 text-center" style="position: relative; z-index: 1">
     @if(!isAuthenticated){
 
     <h1 class="display-5 fw-bold text-shadow-1px text-shadow">
-      Viajar en Grupo Nunca Fue Tan Fácil
+      VIAJAR EN GRUPO NUNCA FUE TAN FÁCIL
     </h1>
     <div class="col-lg-8 mx-auto">
       <h5 class="mb-4 text-shadow">
@@ -44,9 +39,7 @@
     </div>
     }
 
-    <!-- Tres iconos tipo panorámico -->
     <div class="row g-4 pt-4 row-cols-1 row-cols-lg-3">
-      <!-- Icono 1 -->
       @if (!isAuthenticated){
       <div class="feature col text-white hidden">
         <div
@@ -65,7 +58,6 @@
         </h5>
       </div>
 
-      <!-- Icono 2 -->
       <div class="feature col text-white">
         <div
           class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3 rounded-circle"
@@ -83,7 +75,6 @@
         </h5>
       </div>
 
-      <!-- Icono 3 -->
       <div class="feature col text-white">
         <div
           class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3 rounded-circle"
@@ -115,11 +106,7 @@
     <div class="col-md-6">
       <div class="input-group">
         <span class="input-group-text"><i class="bi bi-search"></i></span>
-        <!-- 
-          - (input) captura cada tecla que el usuario escribe
-          - onBusquedaChange() ejecuta el filtrado en tiempo real
-          - [value]="busquedaInput()" vincula el valor actual del signal
-        -->
+
         <input
           type="text"
           class="form-control"
@@ -130,9 +117,6 @@
       </div>
     </div>
 
-    <!-- SELECT DE TIPO DE VIAJE: Filtra por categoría de viaje (Aventura, Cultural, etc) -->
-
-    <!-- SELECT DE DURACIÓN: Filtra por duración del viaje (Corta, Media, Larga) -->
     <div class="col-md-2">
       <select
         class="form-select"
@@ -147,9 +131,6 @@
       </select>
     </div>
 
-    <!-- RANGO DE PRECIOS: Dropdown con rangos predefinidos -->
-    <!-- Este dropdown reemplaza el botón "Más filtros" anterior -->
-    <!-- Permite filtrar viajes por rangos de precio predefinidos de forma profesional -->
     <div class="col-md-2">
       <select
         class="form-select"
@@ -168,9 +149,7 @@
         <option value="2000+">$2000+</option>
       </select>
     </div>
-    <!-- ORDENAMIENTO: Dropdown para ordenar viajes por precio o fecha -->
-    <!-- Este dropdown permite al usuario ordenar los resultados filtrados -->
-    <!-- Opciones: Sin orden, Por precio (menor a mayor), Por fecha (próximas primero) -->
+
     <div class="col-md-2">
       <select class="form-select" (change)="onOrdenamientoChange($event)" [value]="ordenamiento()">
         <!-- Opción por defecto sin ordenamiento -->
@@ -183,23 +162,14 @@
     </div>
   </div>
 
-  <!-- ========== Galería de Viajes ========== -->
-  <!-- 
-    Sección que muestra los viajes filtrados en una cuadrícula responsiva
-    - Usa @for para iterar sobre viajesVisibles
-    - track trip.id optimiza el rendering (Angular best practice)
-    - Si hay filtros activos, muestra solo viajes coincidentes
-  -->
   <section class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     @if (isLoadingTrips) {
     <div class="col-12 text-center py-5">
       <p>Cargando viajes...</p>
-      <!-- Optional spinner component -->
-      <!-- <app-spinner></app-spinner> -->
     </div>
 
     } @else if (hasTripsError) {
-    <div class="col-12 text-center py-5 text-danger">
+    <div class="col-12 text-center py-5 text-danger align-items-center">
       <p>Error al cargar los viajes. Por favor, inténtalo de nuevo más tarde.</p>
     </div>
 
@@ -213,15 +183,6 @@
     } }
   </section>
 
-  <!-- ========== FIN Galería de Viajes ========== -->
-
-  <!-- ========== Botón Mostrar Más ========== -->
-  <!-- 
-    Este botón solo aparece si hay más viajes disponibles (hayMasViajes getter)
-    - Incrementa la paginación y carga 6 viajes más
-    - Funciona tanto con viajes sin filtrar como con viajes filtrados
-    - Se oculta automáticamente cuando se muestran todos los viajes
-  -->
   @if (hayMasViajes) {
   <div class="text-center mt-4">
     <button
@@ -241,15 +202,11 @@
   <hr />
 </div>
 
-<!--  Bloque 4: PRUEBA SOCIAL - Testimonios   -->
-
 <div class="container">
   @if (!isAuthenticated){
   <h2 class="pb-2 border-bottom text-center">Lo que Nuestros Viajeros Dicen</h2>
 
   <div class="position-relative">
-    <!-- Flecha Izquierda -->
-
     <button
       class="btn testimonials-arrow position-absolute start-0 top-50 translate-middle-y d-none d-lg-block shadow bg-white rounded-circle"
       (click)="mostrarTestimoniosAnteriores()"
@@ -259,19 +216,14 @@
     </button>
 
     <div class="row g-4 py-5 row-cols-1 row-cols-lg-3 px-5">
-      <!-- <div class="carousel-wrapper">
-      <div class="carousel-inner"> -->
-      <!-- Usamos @for para iterar sobre nuestro signal de testimonios -->
       @for (testimonio of testimonios().slice(testimonioActual(), testimonioActual() + 3); track
       testimonio.nombre) {
       <div class="col">
         <div class="card h-100 shadow">
           <div class="card-body">
-            <!-- Usamos interpolación para mostrar los datos del signal -->
             <p class="card-text">"{{ testimonio.texto }}"</p>
           </div>
           <div class="card-footer bg-transparent border-top-0 d-flex align-items-center">
-            <!-- Usamos property binding para el 'src' y 'alt' de la imagen -->
             <img
               [src]="'https://i.pravatar.cc/40?img=' + testimonio.avatarId"
               class="rounded-circle me-3"
@@ -287,8 +239,6 @@
       }
     </div>
 
-    <!-- Flecha Derecha -->
-
     <button
       class="btn testimonials-arrow position-absolute end-0 top-50 translate-middle-y d-none d-lg-block shadow bg-white rounded-circle"
       (click)="mostrarSiguientesTestimonios()"
@@ -299,13 +249,9 @@
   </div>
   <hr />
   }@if(isAuthenticated) {
-  <!-- ========== CARRUSEL DE RECOMENDACIONES PARA VIAJEROS ========== -->
-  <!-- Sección exclusiva con 8 recomendaciones en carrusel horizontal dinámico -->
-  <!-- Navegación con botones y indicadores de posición -->
 
   <div class="container">
     <div class="container">
-      <!-- Encabezado -->
       <div class="row justify-content-center text-center mb-5">
         <div class="col-lg-7">
           <h2 class="display-6 fw-bold mb-3">Prepárate para tu Próximo Viaje</h2>
@@ -316,9 +262,7 @@
         </div>
       </div>
 
-      <!-- Carrusel Container -->
       <div class="position-relative carousel-container-wrapper">
-        <!-- Botón Anterior (Solo Escritorio) -->
         <button
           class="btn testimonials-arrow position-absolute start-0 top-50 translate-middle-y d-none d-lg-block shadow bg-white rounded-circle"
           (click)="moverCarrusel('izquierda')"
@@ -328,7 +272,6 @@
           <i class="bi bi-chevron-left fs-4"></i>
         </button>
 
-        <!-- Botón Siguiente (Solo Escritorio) -->
         <button
           class="btn testimonials-arrow position-absolute end-0 top-50 translate-middle-y d-none d-lg-block shadow bg-white rounded-circle"
           (click)="moverCarrusel('derecha')"
@@ -338,10 +281,8 @@
           <i class="bi bi-chevron-right fs-4"></i>
         </button>
 
-        <!-- Wrapper del Scroll (Aquí ocurre la magia) -->
         <div class="carousel-wrapper" #carouselContainer (scroll)="alHacerScroll($event)">
           <div class="carousel-inner">
-            <!-- Iteramos sobre TODAS las recomendaciones -->
             @for (recomendacion of recomendacionesViajeros(); track recomendacion.id) {
             <div class="carousel-card">
               <div class="card h-100 border-0 shadow-sm card-recommendation">
@@ -380,7 +321,6 @@
 
         <!-- Indicadores (Dots) -->
         <div class="d-flex justify-content-center gap-2 mt-5">
-          <!-- Generamos los dots dinámicamente según la cantidad de items -->
           @for (item of recomendacionesViajeros(); track item.id; let i = $index) {
           <button
             class="carousel-indicator"

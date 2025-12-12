@@ -1,36 +1,33 @@
-import { Component, inject, signal, Input, SimpleChanges } from '@angular/core';
+import { Component, inject, Input, SimpleChanges } from '@angular/core';
 import { AuthService } from '../../core/services/auth';
 import { Iuser } from '../../interfaces/iuser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { DatePipe } from '@angular/common';
+import { TripService } from '../../core/services/viajes';
+import { Trip } from '../../interfaces/trip';
 
 @Component({
   selector: 'app-perfil',
-  imports: [],
+  imports: [RouterLink, DatePipe],
   templateUrl: './perfil.html',
   styleUrl: './perfil.css',
 })
 export class Perfil {
-  /*  route = inject(ActivatedRoute); */
-  // @Input() id: number = 0;
-  // userService = inject(AuthService);
-  // user: Iuser = {
-  //   id: 0,
-  //   username: '',
-  //   email: '',
-  //   image: '',
-  //   phone: '',
-  //   bio: '',
-  //   interests: [],
-  //   role: '',
-  //   is_active: 0,
-  //   created_at: '',
-  //   updated_at: '',
-  // };
+  // si en algún momento quieres guardar portadas personalizadas por id de viaje
+  portadas: Record<number, { url: string; alt: string }> = {};
 
   usuario: Iuser | null = null;
-  constructor(private router: Router, private authService: AuthService) {}
 
+  constructor(
+    private router: Router,
+    private authService: AuthService,
+    private tripService: TripService
+  ) {}
+
+  userTrips: Trip[] = [];
   private route = inject(ActivatedRoute);
+
+  isLoadingTrips = false;
 
   usuarioValoracion: number | null = null;
 
@@ -41,7 +38,7 @@ export class Perfil {
         next: (rating: number) => {
           this.usuarioValoracion = rating;
         },
-        error: (error) => {
+        error: () => {
           this.usuarioValoracion = null;
         },
       });
@@ -50,14 +47,20 @@ export class Perfil {
 
   async ngOnInit() {
     const id = this.route.snapshot.paramMap.get('id');
-
     const token = localStorage.getItem('tt_token') || '';
+
     try {
       if (id) {
-        this.usuario = await this.authService.getUserById(Number(id));
+        const profileUserId = Number(id);
+
+        // usuario cuyo perfil estamos viendo
+        this.usuario = await this.authService.getUserById(profileUserId);
+
+        // cargar viajes creados por ese usuario (creator_id = profileUserId)
+        this.loadUserTrips(profileUserId);
       }
 
-      // Normalizar intereses: siempre convertir a array
+      // Normalizar intereses: siempre convertir a array si viene como string
       if (this.usuario && typeof this.usuario.interests === 'string') {
         this.usuario.interests = this.usuario.interests.split(',').map((i: string) => i.trim());
         this.authService.getUserRating(this.usuario.id, token).subscribe({
@@ -65,7 +68,7 @@ export class Perfil {
             console.log('Valoración recibida:', rating);
             this.usuarioValoracion = rating;
           },
-          error: (error) => {
+          error: () => {
             this.usuarioValoracion = null;
           },
         });
@@ -73,6 +76,23 @@ export class Perfil {
     } catch (error) {
       console.log(error, 'ERROR AL OBTENER EL USUARIO');
     }
+  }
+
+  loadUserTrips(profileUserId: number): void {
+    this.isLoadingTrips = true;
+
+    this.tripService.getTripsByCreator(profileUserId).subscribe({
+      next: (response: { results: Trip[] }) => {
+        console.log('viajes del perfil', response);
+        this.userTrips = response?.results || [];
+        this.isLoadingTrips = false;
+      },
+      error: (err) => {
+        console.error('Error cargando viajes del usuario', err);
+        this.userTrips = [];
+        this.isLoadingTrips = false;
+      },
+    });
   }
 
   irAValoraciones() {

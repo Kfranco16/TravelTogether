@@ -160,16 +160,16 @@ export class TripService {
     return this.uploadImage(file, 'avatar', null, userId, true);
   }
 
-  getTripsByCreator(userId: number): Observable<any> {
+  getTripsByCreator(creatorId: number): Observable<{ results: Trip[] }> {
     const token = localStorage.getItem('authToken') || '';
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
 
     const params = new HttpParams()
-      .set('creator_id', String(userId))
-      .set('per_page', '50')
-      .set('page', '1');
+      .set('creator_id', String(creatorId))
+      .set('page', '1')
+      .set('per_page', '10');
 
-    return this.http.get<any>(`${environment.apiUrl}/trips`, {
+    return this.http.get<{ results: Trip[] }>(`${environment.apiUrl}/trips`, {
       headers,
       params,
     });
@@ -179,14 +179,14 @@ export class TripService {
     const token = localStorage.getItem('tt_token') || '';
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
     const params = new HttpParams().set('user_id', String(userId));
-    return this.http.get<any[]>('http://localhost:3000/api/bookings', { headers, params });
+    return this.http.get<any[]>(`${environment.apiUrl}/api/bookings`, { headers, params });
   }
 
   getFavoritos(userId: number): Observable<any[]> {
     const token = localStorage.getItem('tt_token') || '';
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
     const params = new HttpParams().set('user_id', String(userId));
-    return this.http.get<any[]>(environment.apiUrl + '/favorites', { headers, params });
+    return this.http.get<any[]>(`${environment.apiUrl}/favorites`, { headers, params });
   }
 
   loadAllTrips(token?: string, forceRefresh: boolean = false): Observable<Trip[]> {
