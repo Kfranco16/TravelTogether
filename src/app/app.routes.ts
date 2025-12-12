@@ -33,7 +33,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   { path: 'valoraciones/:id', component: ViewRatings, canActivate: [authGuard] },
-  // 🎯 RUTA TEMPORAL: Para debugging de solicitudes de participación
+
   {
     path: 'gestion-viajes',
     component: PendingParticipationsComponent,
@@ -61,8 +61,9 @@ export const routes: Routes = [
           import('./pages/dashboard/perfil-privado/perfil').then((m) => m.Perfil),
       },
       {
-        path: 'datos',
-        loadComponent: () => import('./pages/dashboard/datos/datos').then((m) => m.Datos),
+        path: 'editar-perfil',
+        loadComponent: () =>
+          import('./pages/dashboard/editar-perfil/editar-perfil').then((m) => m.Datos),
       },
       /* {
         path: 'reservas',
@@ -85,5 +86,5 @@ export const routes: Routes = [
     ],
   },
 
-  { path: '**', redirectTo: '' },
+  { path: '**', redirectTo: '', component: Landing },
 ];

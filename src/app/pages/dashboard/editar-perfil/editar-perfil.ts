@@ -7,8 +7,8 @@ import { Iuser } from '../../../interfaces/iuser';
   selector: 'app-datos',
   standalone: true,
   imports: [Registro],
-  templateUrl: './datos.html',
-  styleUrl: './datos.css',
+  templateUrl: './editar-perfil.html',
+  styleUrls: ['./editar-perfil.css'],
 })
 export class Datos {
   currentUser: Iuser | null = null;

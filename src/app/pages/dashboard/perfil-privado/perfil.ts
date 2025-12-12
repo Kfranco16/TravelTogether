@@ -268,7 +268,6 @@ export class Perfil {
       return;
     }
 
-    // Limpiar notificaciones según la sección
     if (section === 'misViajes' && this.notificaciones.length > 0) {
       const toDelete = this.notificaciones.filter((n) => n.type === 'trip' || n.type === 'group');
       if (toDelete.length === 0) {
@@ -287,7 +286,6 @@ export class Perfil {
         });
       });
     } else if (section === 'foros' && this.notificaciones.length > 0) {
-      // Reutiliza la lógica para foros: borrar solo notificaciones de tipo 'message'
       const toDelete = this.notificaciones.filter((n) => n.type === 'message');
       if (toDelete.length === 0) {
         this.notif[section] = false;
@@ -324,7 +322,7 @@ export class Perfil {
   }
 
   goToEditProfile(): void {
-    this.router.navigate(['/dashboard/datos']);
+    this.router.navigate(['/dashboard/editar-perfil']);
   }
 
   goToFavoritesPage(): void {
