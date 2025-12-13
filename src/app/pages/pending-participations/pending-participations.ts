@@ -553,4 +553,8 @@ export class PendingParticipationsComponent implements OnInit {
   canCancelParticipation(participation: UserParticipation): boolean {
     return !this.isMyTrip(participation);
   }
+
+  goToUserProfile(userId: number): void {
+    this.router.navigate(['/perfil', userId]);
+  }
 }

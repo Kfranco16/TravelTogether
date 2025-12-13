@@ -79,7 +79,6 @@ export class Perfil {
 
     this.tripService.getTripsByCreator(profileUserId).subscribe({
       next: (response: { results: Trip[] }) => {
-        console.log('viajes del perfil', response);
         this.userTrips = response?.results || [];
         this.isLoadingTrips = false;
 
