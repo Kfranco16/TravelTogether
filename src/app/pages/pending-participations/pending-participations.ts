@@ -16,7 +16,7 @@ import {
 import { toast } from 'ngx-sonner';
 import { firstValueFrom, take } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { NotificationsService } from '../../core/services/notifications';
+import { NotificationsService, NotificationDto } from '../../core/services/notifications';
 import { AuthService } from '../../core/services/auth';
 
 @Component({
@@ -47,6 +47,9 @@ export class PendingParticipationsComponent implements OnInit {
   pageTitle = 'Gestión de Viajes';
   tripParticipationsMap = new Map<number, TripParticipation[]>();
 
+  // trips que tienen mensajes nuevos de foro
+  tripsWithNewMessages = new Set<number>();
+
   mostrarToastConfirmacion = signal<boolean>(false);
   mensajeConfirmacion = signal<string>('');
   participationIdPendiente = signal<number | null>(null);
@@ -55,9 +58,14 @@ export class PendingParticipationsComponent implements OnInit {
   tipoEliminacion = signal<'acceptedParticipant' | 'userParticipation' | null>(null);
 
   ngOnInit(): void {
-    // si necesitas userId para el foro, recógelo de tu AuthService aquí
     this.authService.user$.pipe(take(1)).subscribe((current) => {
       this.userId = current?.id ?? null;
+
+      const token = this.authService.gettoken() || '';
+      if (token && this.userId) {
+        // cargamos notificaciones de foro del usuario para saber qué trips tienen mensajes nuevos
+        this.loadForumNotifications(token, this.userId);
+      }
     });
 
     this.route.queryParams.subscribe((params) => {
@@ -77,6 +85,56 @@ export class PendingParticipationsComponent implements OnInit {
       }
 
       this.switchTab(this.activeTab);
+    });
+  }
+
+  /**
+   * Carga las notificaciones de tipo "message" (foro) del usuario
+   * usando el endpoint /notifications/where de tu back.
+   * Usamos is_read:0 como "no leída".
+   */
+  private loadForumNotifications(token: string, userId: number): void {
+    const where = `type:message and is_read:0 and receiver_id:${userId}`;
+
+    this.notificationsService.getWhere(where, token, 1, 100).subscribe({
+      next: (notifications) => {
+        this.tripsWithNewMessages.clear();
+        notifications
+          .filter((n) => n.trip_id != null)
+          .forEach((n) => this.tripsWithNewMessages.add(n.trip_id!));
+      },
+      error: (err) => console.error('Error cargando notificaciones de foro', err),
+    });
+  }
+
+  /**
+   * Busca notificaciones de foro para ese trip y las borra en el back.
+   * Después elimina el tripId del Set para que desaparezca el badge/color.
+   */
+  private markForumNotificationsAsRead(tripId: number, userId: number, token: string): void {
+    const where = `type:message and is_read:0 and trip_id:${tripId} and receiver_id:${userId}`;
+
+    this.notificationsService.getWhere(where, token, 1, 20).subscribe({
+      next: (notifications: NotificationDto[]) => {
+        if (!notifications.length) {
+          this.tripsWithNewMessages.delete(tripId);
+          return;
+        }
+
+        notifications.forEach((n) => {
+          this.notificationsService.delete(n.id, token).subscribe({
+            next: () => {
+              this.tripsWithNewMessages.delete(tripId);
+            },
+            error: (err) => {
+              console.error('Error borrando notificación de foro', err);
+            },
+          });
+        });
+      },
+      error: (err) => {
+        console.error('Error obteniendo notificaciones de foro para marcar leídas', err);
+      },
     });
   }
 
@@ -173,6 +231,7 @@ export class PendingParticipationsComponent implements OnInit {
             type: 'message',
             sender_id: this.userId!,
             receiver_id: p.user_id,
+            trip_id: tripId, // vinculamos la notificación al viaje
           };
 
           this.notificationsService.create(notification, token).subscribe({
@@ -195,8 +254,6 @@ export class PendingParticipationsComponent implements OnInit {
       );
       toast.success('Participante rechazado correctamente');
       await this.loadPendingParticipations();
-
-      // Si también quieres notificación al rechazar, puedes hacer algo parecido aquí.
     } catch (error: any) {
       const errorMsg = error?.message || 'Error al rechazar participante';
       toast.error(errorMsg);
@@ -467,6 +524,12 @@ export class PendingParticipationsComponent implements OnInit {
     }
   }
 
+  // ======== saber si un trip tiene mensajes nuevos ========
+  hasNewMessages(tripId: number): boolean {
+    return this.tripsWithNewMessages.has(tripId);
+  }
+
+  // ======== acceder al foro y borrar notificación ========
   accederAlForo(participation: UserParticipation): void {
     const forumContext: ForumAccessContext = createForumAccessContext(
       this.userId!,
@@ -480,6 +543,12 @@ export class PendingParticipationsComponent implements OnInit {
     );
 
     sessionStorage.setItem('forumContext', JSON.stringify(forumContext));
+
+    const token = this.authService.gettoken() || '';
+    if (token && this.userId) {
+      this.markForumNotificationsAsRead(participation.trip_id, this.userId, token);
+    }
+
     this.router.navigate(['/foro', participation.trip_id]);
   }
 

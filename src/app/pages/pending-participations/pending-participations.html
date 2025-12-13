@@ -484,10 +484,17 @@
         </div>
         <div class="card-footer bg-light">
           @if (participation.status === 'accepted' || isMyTrip(participation)) {
-          <button class="btn btn-sm btn-gradient w-100" (click)="accederAlForo(participation)">
+          <button
+            class="btn btn-sm w-100"
+            [ngClass]="hasNewMessages(participation.trip_id) ? 'btn-warning' : 'btn-gradient'"
+            (click)="accederAlForo(participation)"
+          >
             <i class="bi bi-chat-dots"></i>
-            Acceder al Foro
+            Acceder al Foro @if (hasNewMessages(participation.trip_id)) {
+            <span class="badge bg-danger ms-2">Nuevo</span>
+            }
           </button>
+
           } @else {
           <button class="btn btn-sm btn-outline-secondary w-100" disabled>
             <i class="bi bi-lock"></i>

@@ -105,6 +105,7 @@ export class Navbar implements OnInit, OnDestroy {
     for (const n of this.notificaciones) {
       switch (n.type) {
         case 'message':
+          // solo encendemos foro si hay alguna notificación de foro sin leer
           this.notif.foro = true;
           break;
         case 'trip':
@@ -117,7 +118,8 @@ export class Navbar implements OnInit, OnDestroy {
       }
     }
 
-    this.notif.notificaciones = true;
+    // hay campana general si hay cualquier tipo de notificación
+    this.notif.notificaciones = this.notificaciones.length > 0;
     this.hasNotifications = Object.values(this.notif).some((v) => v);
   }
 
@@ -131,6 +133,7 @@ export class Navbar implements OnInit, OnDestroy {
 
     this.notificationsService.getAll(token).subscribe({
       next: (list) => {
+        // solo guardamos las no leídas (is_read === 0 o el valor que uses como "no leída")
         this.notificaciones = list.filter(
           (n) => n.receiver_id === currentUser.id && n.is_read === 0
         );
@@ -144,10 +147,26 @@ export class Navbar implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Click en una notificación individual del dropdown.
+   * Opción B:
+   * - trip / group / favorites: se borra aquí y se navega.
+   * - message (foro): NO se borra, solo navegamos al listado de foros.
+   *   Se borrará cuando pulses el botón del foro concreto.
+   */
   onNotificationClick(noti: NotificationDto): void {
     const token = this.authService.gettoken() || '';
     if (!token) return;
 
+    if (noti.type === 'message') {
+      // NO borrar, solo navegar a la sección de foros
+      this.router.navigate(['/gestion-viajes'], {
+        queryParams: { tab: 'myTrips', from: 'forum' },
+      });
+      return;
+    }
+
+    // resto de tipos: mantenemos el comportamiento actual
     this.notificationsService.delete(noti.id, token).subscribe({
       next: () => {
         this.notificaciones = this.notificaciones.filter((n) => n.id !== noti.id);
@@ -155,10 +174,6 @@ export class Navbar implements OnInit, OnDestroy {
 
         if (noti.type === 'trip') {
           this.router.navigate(['/gestion-viajes']);
-        } else if (noti.type === 'message') {
-          this.router.navigate(['/gestion-viajes'], {
-            queryParams: { tab: 'myTrips', from: 'forum' },
-          });
         } else if (noti.type === 'favorites') {
           this.router.navigate(['/dashboard/favoritos']);
         } else if (noti.type === 'group') {
@@ -171,6 +186,12 @@ export class Navbar implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Apertura de secciones del menú de notificaciones.
+   * Opción B:
+   * - En 'gestionViajes' YA NO se borran las notificaciones de foro (type: 'message').
+   *   Solo se borran trip/group si quieres mantener ese comportamiento.
+   */
   onSectionOpen(section: keyof typeof this.notif): void {
     const token = this.authService.gettoken() || '';
     if (!token) {
@@ -180,9 +201,9 @@ export class Navbar implements OnInit, OnDestroy {
     }
 
     if (section === 'gestionViajes' && this.notificaciones.length > 0) {
-      const toDelete = this.notificaciones.filter(
-        (n) => n.type === 'trip' || n.type === 'message' || n.type === 'group'
-      );
+      // solo trip y group, NO message (foro)
+      const toDelete = this.notificaciones.filter((n) => n.type === 'trip' || n.type === 'group');
+
       if (toDelete.length === 0) {
         this.notif[section] = false;
         this.hasNotifications = Object.values(this.notif).some((v) => v);
@@ -208,7 +229,6 @@ export class Navbar implements OnInit, OnDestroy {
 
   onLogout(): void {
     this.authService.logout();
-
     this.router.navigate(['/login']);
   }
 }

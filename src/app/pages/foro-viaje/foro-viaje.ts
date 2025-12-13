@@ -136,6 +136,7 @@ export class ForoViaje implements OnInit {
                 type: 'message',
                 sender_id: context.userId,
                 receiver_id: userId,
+                trip_id: context.tripId,
               };
 
               this.notificationsService.create(notiBody, token).subscribe({

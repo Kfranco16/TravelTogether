@@ -12,13 +12,14 @@ export interface NotificationDto {
   created_at: string;
   sender_id: number;
   receiver_id: number;
+  trip_id?: number;
 }
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
-  private baseUrl = `${environment.apiUrl}/notifications`;
+  public baseUrl = `${environment.apiUrl}/notifications`;
 
-  constructor(private http: HttpClient) {}
+  constructor(public http: HttpClient) {}
 
   create(
     notification: {
@@ -27,6 +28,7 @@ export class NotificationsService {
       type: string;
       sender_id: number;
       receiver_id: number;
+      trip_id?: number;
     },
     token: string
   ): Observable<NotificationDto> {
@@ -45,5 +47,32 @@ export class NotificationsService {
   delete(id: number, token: string): Observable<void> {
     const headers = { Authorization: `Bearer ${token}` };
     return this.http.delete<void>(`${this.baseUrl}/${id}`, { headers });
+  }
+
+  getUnread(token: string): Observable<NotificationDto[]> {
+    const headers = { Authorization: `Bearer ${token}` };
+    return this.http.get<any>(this.baseUrl, { headers }).pipe(
+      map((res) => (res.results?.results ?? []) as NotificationDto[]),
+      map((notifications) => notifications.filter((n) => n.is_read === 0))
+    );
+  }
+
+  getWhere(
+    whereString: string,
+    token: string,
+    page = 1,
+    perPage = 20
+  ): Observable<NotificationDto[]> {
+    const headers = { Authorization: `Bearer ${token}` };
+
+    const url =
+      `${this.baseUrl}/where` +
+      `?page=${page}` +
+      `&per_page=${perPage}` +
+      `&where=${encodeURIComponent(whereString)}`;
+
+    return this.http
+      .get<any>(url, { headers })
+      .pipe(map((res) => (res.results?.results ?? []) as NotificationDto[]));
   }
 }
