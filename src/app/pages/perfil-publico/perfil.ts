@@ -13,7 +13,6 @@ import { Trip } from '../../interfaces/trip';
   styleUrl: './perfil.css',
 })
 export class Perfil {
-  // si en algún momento quieres guardar portadas personalizadas por id de viaje
   portadas: Record<number, { url: string; alt: string }> = {};
 
   usuario: Iuser | null = null;
@@ -53,14 +52,11 @@ export class Perfil {
       if (id) {
         const profileUserId = Number(id);
 
-        // usuario cuyo perfil estamos viendo
         this.usuario = await this.authService.getUserById(profileUserId);
 
-        // cargar viajes creados por ese usuario (creator_id = profileUserId)
         this.loadUserTrips(profileUserId);
       }
 
-      // Normalizar intereses: siempre convertir a array si viene como string
       if (this.usuario && typeof this.usuario.interests === 'string') {
         this.usuario.interests = this.usuario.interests.split(',').map((i: string) => i.trim());
         this.authService.getUserRating(this.usuario.id, token).subscribe({
@@ -86,11 +82,37 @@ export class Perfil {
         console.log('viajes del perfil', response);
         this.userTrips = response?.results || [];
         this.isLoadingTrips = false;
+
+        this.userTrips.forEach((trip) => {
+          if (trip.id) {
+            this.cargarPortadaDeTrip(trip.id, trip.title);
+          }
+        });
       },
       error: (err) => {
         console.error('Error cargando viajes del usuario', err);
         this.userTrips = [];
         this.isLoadingTrips = false;
+      },
+    });
+  }
+
+  private cargarPortadaDeTrip(tripId: number, tripTitle: string): void {
+    this.tripService.getImagesByTripId(tripId).subscribe({
+      next: (data: any) => {
+        const fotos: any[] = data?.results?.results || [];
+        const fotoPortada = fotos.find((f) => f.main_img == '0' || f.main_img == 0);
+
+        this.portadas[tripId] = {
+          url: fotoPortada?.url || 'images/coverDefault.jpg',
+          alt: fotoPortada?.description || tripTitle || 'Imagen de portada',
+        };
+      },
+      error: () => {
+        this.portadas[tripId] = {
+          url: 'images/coverDefault.jpg',
+          alt: tripTitle || 'Imagen de portada',
+        };
       },
     });
   }

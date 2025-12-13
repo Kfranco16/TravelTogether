@@ -43,6 +43,11 @@ export class Perfil {
 
   pendingRatingsCount = 0;
 
+  portadaImageUrl: string = 'images/coverDefault.jpg';
+  portadaImageAlt: string = 'Imagen de portada';
+
+  realNextTripImage?: string | null = null;
+
   hasNotifications = false;
   notificaciones: NotificationDto[] = [];
   notif = {
@@ -191,6 +196,26 @@ export class Perfil {
 
     const diffMs = next.startDate.getTime() - today.getTime();
     this.daysToNextTrip = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+    if (this.nextTrip && this.nextTrip.id) {
+      this.cargarImagenes(this.nextTrip.id);
+    }
+  }
+
+  private cargarImagenes(tripId: number): void {
+    this.tripsService.getImagesByTripId(tripId).subscribe({
+      next: (data: any) => {
+        const fotos: any[] = data?.results?.results || [];
+        const fotoPortada = fotos.find((f) => f.main_img == '0' || f.main_img == 0);
+
+        this.portadaImageUrl = fotoPortada?.url || 'images/coverDefault.jpg';
+        this.portadaImageAlt = fotoPortada?.description || 'Imagen de portada';
+      },
+      error: () => {
+        this.portadaImageUrl = 'images/coverDefault.jpg';
+        this.portadaImageAlt = 'Imagen de portada';
+      },
+    });
   }
 
   public goToSection(section: keyof typeof this.notif, path: string): void {
@@ -424,7 +449,7 @@ export class Perfil {
 
         this.user = updated;
       })
-      .then(async (updated) => {
+      .then(async () => {
         const fullUser = await this.auth.getUserById(this.user!.id);
         this.user = fullUser as Iuser;
         this.showDeletePhotoModal = false;

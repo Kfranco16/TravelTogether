@@ -2,7 +2,7 @@ import { Component, inject, Input, signal, computed } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TripService } from '../../core/services/viajes';
 import { Trip } from '../../interfaces/trip';
-import { DatePipe, NgClass } from '@angular/common';
+import { DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { Iuser } from '../../interfaces/iuser';
 import { Router } from '@angular/router';
 import { firstValueFrom, switchMap, forkJoin, of, from } from 'rxjs';
@@ -18,7 +18,7 @@ import { map, catchError } from 'rxjs/operators';
 @Component({
   selector: 'app-detalle-viaje',
   standalone: true,
-  imports: [DatePipe, CardUsuario, RouterLink, NgClass],
+  imports: [DatePipe, CardUsuario, RouterLink, NgClass, DecimalPipe],
   templateUrl: './detalle-viaje.html',
   styleUrl: './detalle-viaje.css',
 })

@@ -132,7 +132,9 @@
                   >{{ trip.start_date | date : 'd MMM' }} -
                   {{ trip.end_date | date : 'd MMM' }}</span
                 >
-                <span class="badge bg-success">{{ trip.estimated_cost }}€ /persona</span>
+                <span class="badge bg-success">
+                  {{ trip.estimated_cost | number : '1.0-0' }}€ /persona
+                </span>
               </div>
             </div>
           </div>
@@ -337,7 +339,8 @@
             </div>
             <div class="my-2">
               <i class="bi bi-currency-euro"></i> <b> Coste por persona:</b>
-              {{ trip.estimated_cost }}€
+
+              {{ trip.estimated_cost | number : '1.0-0' }}€ /persona
             </div>
             <div>
               <i class="bi bi-people"></i> <b> Máximo de viajeros:</b> {{ trip.min_participants }}
@@ -405,7 +408,7 @@
                 <span class="text-light">Cargando últimos comentarios...</span>
               </div>
               } @else if (!ultimosMensajes.length) {
-              <div class="small text-light fst-italic">
+              <div class="small text-black fst-italic">
                 Todavía no hay comentarios en este viaje. ¡Inicia la conversación!
               </div>
               } @else {

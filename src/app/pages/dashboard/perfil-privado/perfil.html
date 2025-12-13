@@ -196,35 +196,33 @@
 
   <section class="tt-next-trip-card tt-next-trip-card-main">
     <div class="tt-next-trip-left d-flex gap-3 tt-next-trip-main-left">
-      <div
-        class="tt-next-trip-thumb"
-        (click)="nextTrip && irADetalleViaje()"
-        style="flex-shrink: 0"
-      >
+      <div class="tt-next-trip-thumb" (click)="irADetalleViaje()" style="flex-shrink: 0">
         <img
           class="tt-next-trip-thumb-img"
-          [src]="nextTrip?.image || nextTrip?.portada || 'images/coverDefault.jpg'"
-          [alt]="nextTripDestination || 'Próximo viaje'"
+          [src]="
+            portadaImageUrl || nextTrip?.image || nextTrip?.portada || 'images/coverDefault.jpg'
+          "
+          [alt]="portadaImageAlt || nextTripDestination || 'Próximo viaje'"
         />
       </div>
+    </div>
 
-      <div class="tt-next-trip-text">
-        <p class="tt-next-trip-label">Mi próximo viaje</p>
+    <div class="tt-next-trip-text">
+      <p class="tt-next-trip-label">Mi próximo viaje</p>
 
-        <h2 class="tt-next-trip-destination" (click)="nextTrip && irADetalleViaje()">
-          {{ nextTripDestination || 'Aún no tienes un viaje reservado' }}
-        </h2>
+      <h2 class="tt-next-trip-destination" (click)="nextTrip && irADetalleViaje()">
+        {{ nextTripDestination || 'Aún no tienes un viaje reservado' }}
+      </h2>
 
-        @if (nextTripDate) {
-        <p class="tt-next-trip-date">
-          {{ nextTripDate | date : "d 'de' MMMM, y" : 'es' }}
-        </p>
-        } @else {
-        <p class="tt-next-trip-date tt-next-trip-date--muted">
-          Cuando reserves tu próximo viaje aparecerá aquí.
-        </p>
-        }
-      </div>
+      @if (nextTripDate) {
+      <p class="tt-next-trip-date">
+        {{ nextTripDate | date : "d 'de' MMMM, y" : 'es' }}
+      </p>
+      } @else {
+      <p class="tt-next-trip-date tt-next-trip-date--muted">
+        Cuando reserves tu próximo viaje aparecerá aquí.
+      </p>
+      }
     </div>
 
     <div class="tt-next-trip-right">

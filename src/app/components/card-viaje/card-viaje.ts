@@ -242,7 +242,6 @@ export class CardViaje implements OnInit, OnDestroy {
     if (!trip.isFavorite) {
       this.favoritesService.addFavorite(trip.id, token).subscribe({
         next: (favorite: any) => {
-          // según tu servicio, addFavorite devuelve un Favorite; ajusta si el backend envía {data: ...}
           const fav = (favorite as any).data ? (favorite as any).data[0] : favorite;
           trip.isFavorite = true;
           trip.favoriteId = fav.id;
