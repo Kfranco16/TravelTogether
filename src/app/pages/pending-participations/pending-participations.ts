@@ -47,7 +47,6 @@ export class PendingParticipationsComponent implements OnInit {
   pageTitle = 'Gestión de Viajes';
   tripParticipationsMap = new Map<number, TripParticipation[]>();
 
-  // trips que tienen mensajes nuevos de foro
   tripsWithNewMessages = new Set<number>();
 
   mostrarToastConfirmacion = signal<boolean>(false);
@@ -63,7 +62,6 @@ export class PendingParticipationsComponent implements OnInit {
 
       const token = this.authService.gettoken() || '';
       if (token && this.userId) {
-        // cargamos notificaciones de foro del usuario para saber qué trips tienen mensajes nuevos
         this.loadForumNotifications(token, this.userId);
       }
     });
@@ -88,11 +86,6 @@ export class PendingParticipationsComponent implements OnInit {
     });
   }
 
-  /**
-   * Carga las notificaciones de tipo "message" (foro) del usuario
-   * usando el endpoint /notifications/where de tu back.
-   * Usamos is_read:0 como "no leída".
-   */
   private loadForumNotifications(token: string, userId: number): void {
     const where = `type:message and is_read:0 and receiver_id:${userId}`;
 
@@ -107,10 +100,6 @@ export class PendingParticipationsComponent implements OnInit {
     });
   }
 
-  /**
-   * Busca notificaciones de foro para ese trip y las borra en el back.
-   * Después elimina el tripId del Set para que desaparezca el badge/color.
-   */
   private markForumNotificationsAsRead(tripId: number, userId: number, token: string): void {
     const where = `type:message and is_read:0 and trip_id:${tripId} and receiver_id:${userId}`;
 
@@ -231,7 +220,7 @@ export class PendingParticipationsComponent implements OnInit {
             type: 'message',
             sender_id: this.userId!,
             receiver_id: p.user_id,
-            trip_id: tripId, // vinculamos la notificación al viaje
+            trip_id: tripId,
           };
 
           this.notificationsService.create(notification, token).subscribe({
@@ -524,12 +513,10 @@ export class PendingParticipationsComponent implements OnInit {
     }
   }
 
-  // ======== saber si un trip tiene mensajes nuevos ========
   hasNewMessages(tripId: number): boolean {
     return this.tripsWithNewMessages.has(tripId);
   }
 
-  // ======== acceder al foro y borrar notificación ========
   accederAlForo(participation: UserParticipation): void {
     const forumContext: ForumAccessContext = createForumAccessContext(
       this.userId!,
