@@ -107,7 +107,7 @@ export class ForoViaje implements OnInit {
     this.isSendingMessage.set(true);
 
     this.foroService
-      .createMessage(context.userId, context.creatorId, context.tripId, message, 1)
+      .createMessage(context.userId, context.creatorId, context.tripId, message)
       .subscribe({
         next: (response) => {
           if (response.newMessage && response.newMessage.length > 0) {

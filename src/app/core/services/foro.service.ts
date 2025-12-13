@@ -31,12 +31,10 @@ export interface ForumMessage {
   sender_id: number;
   receiver_id: number;
   trip_id: number;
-  group_id: number;
 
   sender?: ForumUser;
   receiver?: ForumUser;
   trip?: ForumTrip;
-  group?: ForumGroup;
 }
 
 export interface CreateMessageRequest {
@@ -44,7 +42,6 @@ export interface CreateMessageRequest {
   sender_id: number;
   receiver_id: number;
   trip_id: number;
-  group_id: number;
 }
 
 export interface CreateMessageResponse {
@@ -81,8 +78,7 @@ export class ForoService {
     senderId: number,
     receiverId: number,
     tripId: number,
-    messageText: string,
-    groupId: number = 1
+    messageText: string
   ): Observable<CreateMessageResponse> {
     const token = localStorage.getItem('tt_token');
 
@@ -102,7 +98,6 @@ export class ForoService {
       sender_id: senderId,
       receiver_id: receiverId,
       trip_id: tripId,
-      group_id: groupId,
     };
 
     return this.http
