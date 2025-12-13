@@ -442,7 +442,9 @@ export class PendingParticipationsComponent implements OnInit {
   }
 
   getAcceptedParticipants(trip: MyCreatedTrip) {
-    return trip.all_related_participants.filter((p) => p.status === 'accepted');
+    return (trip.accepted_participants ?? []).filter(
+      (p) => p.status === 'accepted' && p.id !== trip.creator_id
+    );
   }
 
   isMyTrip(participation: UserParticipation): boolean {

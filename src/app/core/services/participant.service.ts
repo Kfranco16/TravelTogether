@@ -47,26 +47,36 @@ export interface UpdateParticipationStatusResponse {
 
 export interface AcceptedParticipant {
   id: number;
-  username: string;
   email: string;
   status: 'accepted' | 'pending' | 'rejected';
-  is_creator: number;
-  participant_avg_score: number;
+  username: string;
+  is_creator: 0 | 1;
+  participant_avg_score: number | null;
   participant_image_url: string | null;
 }
 
 export interface MyCreatedTrip {
   trip_id: number;
-  title: string;
   origin: string;
   destination: string;
+  title: string;
   description: string;
+  creator_id: number;
   start_date: string;
   end_date: string;
   estimated_cost: string;
-  all_related_participants: AcceptedParticipant[];
+  min_participants: number;
+  transport: string;
+  accommodation: string;
+  itinerary: string;
+  status: string;
+  latitude: string;
+  longitude: string;
+  created_at: string;
+  trip_image_url: string;
   current_participants: number;
   capacity: number;
+  accepted_participants?: AcceptedParticipant[];
 }
 
 export interface MyCreatedTripsResponse {
