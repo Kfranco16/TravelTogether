@@ -227,6 +227,7 @@ export class ForoViaje implements OnInit {
     this.participantService.getTripParticipations(tripId).subscribe({
       next: (response) => {
         const newMap = new Map<number, { username: string; email: string }>();
+
         response.data.forEach((participant: TripParticipation) => {
           newMap.set(participant.user_id, {
             username: participant.username,
@@ -235,6 +236,11 @@ export class ForoViaje implements OnInit {
         });
 
         this.participantsMap.set(newMap);
+
+        const currentMessages = this.messages();
+        if (currentMessages.length > 0) {
+          this.messages.set(this.enrichMessages(currentMessages));
+        }
       },
       error: () => {},
     });
