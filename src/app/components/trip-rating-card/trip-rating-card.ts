@@ -1,9 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { CardUsuario } from '../../components/card-usuario/card-usuario';
-import { Iuser } from '../../interfaces/iuser';
-import { Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../core/services/auth';
 
 export interface TripUser {
   userId: number;
@@ -34,11 +32,8 @@ export interface TripRatingCard {
 })
 export class TripRatingCardComponent {
   @Input() trip!: TripRatingCard;
-  @Input() usuario!: Iuser;
   @Input() currentUserId!: number;
   @Input() isPendingSection: boolean = false;
-
-  constructor(private authService: AuthService, private router: Router) {}
 
   @Output() rate = new EventEmitter<{
     tripId: number;
@@ -48,28 +43,16 @@ export class TripRatingCardComponent {
     isOrganizer: boolean;
   }>();
 
-  get allCompanions(): TripUser[] {
-    const base = this.trip.companions.filter(
-      (c) => Number(c.userId) !== Number(this.trip.organizer.userId)
-    );
+  constructor(private router: Router) {}
 
-    const alreadyIn = base.some((c) => c.userId === this.currentUserId);
+  // Organizer directo desde el padre
+  get organizer(): TripUser {
+    return this.trip.organizer;
+  }
 
-    if (
-      !alreadyIn &&
-      this.currentUserId &&
-      this.currentUserId !== Number(this.trip.organizer.userId)
-    ) {
-      base.push({
-        userId: this.currentUserId,
-        username: 'Tú',
-        avatarUrl: this.usuario?.image ?? '',
-        isRated: true,
-        rating: null,
-      });
-    }
-
-    return base;
+  // Compañeros directos desde el padre, sin añadir al logueado a mano
+  get companions(): TripUser[] {
+    return this.trip.companions;
   }
 
   onRateOrganizer() {
@@ -82,16 +65,6 @@ export class TripRatingCardComponent {
     });
   }
 
-  irADetalleUsuario(companion: any) {
-    if (companion && companion.userId) {
-      this.router.navigate([`perfil/${companion.userId}`]);
-    }
-  }
-
-  irDetalleViaje() {
-    this.router.navigate([`viaje/${this.trip.tripId}`]);
-  }
-
   onRateCompanion(companion: TripUser) {
     this.rate.emit({
       tripId: this.trip.tripId,
@@ -100,5 +73,15 @@ export class TripRatingCardComponent {
       avatarUrl: companion.avatarUrl,
       isOrganizer: false,
     });
+  }
+
+  irADetalleUsuario(companion: TripUser) {
+    if (companion && companion.userId) {
+      this.router.navigate([`perfil/${companion.userId}`]);
+    }
+  }
+
+  irDetalleViaje() {
+    this.router.navigate([`viaje/${this.trip.tripId}`]);
   }
 }
