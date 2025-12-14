@@ -45,10 +45,18 @@ export class TripRatingCardComponent {
 
   constructor(private router: Router) {}
 
+<<<<<<< HEAD
+=======
+  // Organizer directo desde el padre
+>>>>>>> origin/develop
   get organizer(): TripUser {
     return this.trip.organizer;
   }
 
+<<<<<<< HEAD
+=======
+  // Compañeros directos desde el padre, sin añadir al logueado a mano
+>>>>>>> origin/develop
   get companions(): TripUser[] {
     return this.trip.companions;
   }
