@@ -143,8 +143,9 @@
                 class="btn btn-sm btn-solicitud w-50 text-nowrap"
                 type="button"
                 [ngClass]="{
-                  'btn-morado text-white': !solicitudStatus() && !esCreador,
-                  'btn-secondary text-white': esCreador,
+                  'btn-morado text-white':
+                    !solicitudStatus() && !esCreador && !isTripClosedByDate(),
+                  'btn-secondary text-white': esCreador || isTripClosedByDate(),
                   'btn-warning text-dark': solicitudStatus() === 'pending',
                   'btn-success text-white': solicitudStatus() === 'accepted',
                   'btn-danger text-white': solicitudStatus() === 'rejected'
@@ -154,7 +155,8 @@
                   enviandoSolicitud() ||
                   solicitudStatus() === 'pending' ||
                   solicitudStatus() === 'accepted' ||
-                  esCreador
+                  esCreador ||
+                  isTripClosedByDate()
                 "
                 (click)="handleSolicitud()"
               >
@@ -165,7 +167,7 @@
                   aria-hidden="true"
                 ></span>
                 Cargando estado... } @else if (esCreador) { Tu viaje } @else if
-                (enviandoSolicitud()) {
+                (isTripClosedByDate()) { Viaje cerrado } @else if (enviandoSolicitud()) {
                 <span
                   class="spinner-border spinner-border-sm me-2"
                   role="status"
