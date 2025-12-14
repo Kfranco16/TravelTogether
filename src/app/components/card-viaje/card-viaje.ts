@@ -170,6 +170,20 @@ export class CardViaje implements OnInit, OnDestroy {
     });
   }
 
+  isTripInProgress(): boolean {
+    if (!this.trip?.start_date || !this.trip?.end_date) return false;
+
+    const today = new Date();
+    const start = new Date(this.trip.start_date);
+    const end = new Date(this.trip.end_date);
+
+    const todayMs = today.setHours(0, 0, 0, 0);
+    const startMs = start.setHours(0, 0, 0, 0);
+    const endMs = end.setHours(0, 0, 0, 0);
+
+    return todayMs >= startMs && todayMs <= endMs;
+  }
+
   isTripClosedByDate(): boolean {
     if (!this.trip?.end_date) return false;
     const today = new Date();
@@ -206,11 +220,15 @@ export class CardViaje implements OnInit, OnDestroy {
 
   getBadgeClass(status: string): string {
     if (this.isTripClosedByDate()) {
-      return 'bg-secondary';
+      return 'bg-secondary'; // cerrado
+    }
+
+    if (this.isTripInProgress()) {
+      return 'bg-primary'; // viaje en curso
     }
 
     if (this.isLastDays()) {
-      return 'bg-danger';
+      return 'bg-danger'; // últimos días
     }
 
     switch (status) {
@@ -226,6 +244,10 @@ export class CardViaje implements OnInit, OnDestroy {
   getBadgeText(status: string): string {
     if (this.isTripClosedByDate()) {
       return 'Cerrado';
+    }
+
+    if (this.isTripInProgress()) {
+      return 'Viaje en curso';
     }
 
     if (this.isLastDays()) {

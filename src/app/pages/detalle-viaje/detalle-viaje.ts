@@ -144,6 +144,31 @@ export class DetalleViaje {
     });
   }
 
+  isTripClosedByDate(): boolean {
+    if (!this.viaje?.end_date) return false;
+    const today = new Date();
+    const end = new Date(this.viaje.end_date);
+
+    const todayMs = today.setHours(0, 0, 0, 0);
+    const endMs = end.setHours(0, 0, 0, 0);
+
+    return endMs < todayMs;
+  }
+
+  isTripInProgress(): boolean {
+    if (!this.viaje?.start_date || !this.viaje?.end_date) return false;
+
+    const today = new Date();
+    const start = new Date(this.viaje.start_date);
+    const end = new Date(this.viaje.end_date);
+
+    const todayMs = today.setHours(0, 0, 0, 0);
+    const startMs = start.setHours(0, 0, 0, 0);
+    const endMs = end.setHours(0, 0, 0, 0);
+
+    return todayMs >= startMs && todayMs <= endMs;
+  }
+
   private checkSolicitudEnviada(tripId: number, userId: number): void {
     this.cargandoSolicitudStatus.set(true);
 
