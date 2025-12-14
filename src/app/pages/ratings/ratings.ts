@@ -5,27 +5,11 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { ParticipationService } from '../../core/services/participations';
 import { RatingsService } from '../../core/services/ratings';
 import { AuthService } from '../../core/services/auth';
-import { TripRatingCardComponent } from '../../components/trip-rating-card/trip-rating-card';
-
-interface TripUser {
-  userId: number;
-  username: string;
-  avatarUrl: string;
-  isRated: boolean;
-  rating: number | null;
-}
-
-interface TripRatingCard {
-  tripId: number;
-  tripName: string;
-  destination: string;
-  startDate: string;
-  endDate: string;
-  cost: number;
-  imageUrl: string;
-  organizer: TripUser;
-  companions: TripUser[];
-}
+import {
+  TripRatingCardComponent,
+  TripRatingCard,
+  TripUser,
+} from '../../components/trip-rating-card/trip-rating-card';
 
 @Component({
   selector: 'app-valoraciones-pendientes',
@@ -78,43 +62,6 @@ export class ValoracionesPendientesComponent implements OnInit {
     private ratingsService: RatingsService,
     private authService: AuthService
   ) {}
-
-  private buildMyTripRatings(myRatings: any[]) {
-    const ratingsByTrip = new Map<number, any[]>();
-    for (const r of myRatings) {
-      const arr = ratingsByTrip.get(r.trip_id) ?? [];
-      arr.push(r);
-      ratingsByTrip.set(r.trip_id, arr);
-    }
-
-    this.myTripRatings = this.ratedTrips.map((trip) => {
-      const tripRatings = ratingsByTrip.get(trip.tripId) ?? [];
-
-      const card = this.allCards.find((c) => c.tripId === trip.tripId);
-      const usersIndex = new Map<number, string>();
-      if (card) {
-        usersIndex.set(card.organizer.userId, card.organizer.username);
-        for (const c of card.companions) {
-          usersIndex.set(c.userId, c.username);
-        }
-      }
-
-      const rated = tripRatings.map((r) => ({
-        ratedUserId: r.rated_user_id,
-        username: usersIndex.get(r.rated_user_id) ?? `Usuario ${r.rated_user_id}`,
-        score: r.score,
-        comment: r.comment,
-      }));
-
-      return {
-        tripId: trip.tripId,
-        tripName: trip.tripName,
-        destination: trip.destination,
-        startDate: trip.startDate,
-        rated,
-      };
-    });
-  }
 
   ngOnInit(): void {
     const currentUser: { id: number; username?: string; image_url?: string } | null =
@@ -170,7 +117,6 @@ export class ValoracionesPendientesComponent implements OnInit {
           this.allCards = [...createdCards, ...filteredJoined];
 
           this.recalculateSections(myRatings);
-          console.log(this.allCards);
           this.buildMyTripRatings(myRatings);
         })
       )
@@ -186,34 +132,37 @@ export class ValoracionesPendientesComponent implements OnInit {
 
     return this.participationService.getParticipantsByTripIdWithImages(tripId).pipe(
       map((participants: any[]) => {
-        const acceptedParticipants = participants.filter(
-          (p: any) => p.status === 'accepted' && p.user_id !== trip.creator_id
+        const organizerRow = participants.find(
+          (p: any) => p.user_id === trip.creator_id && p.status === 'accepted'
         );
-
-        const companions: TripUser[] = acceptedParticipants.map((p: any) => {
-          const isRated = myRatings.some(
-            (r: any) => r.trip_id === tripId && r.rated_user_id === p.user_id
-          );
-
-          return {
-            userId: p.user_id,
-            username: p.username,
-            avatarUrl: p.user_image_url ?? '',
-            isRated,
-            rating: parseFloat(p.user_avg_score) || null,
-          };
-        });
 
         const organizer: TripUser = {
           userId: trip.creator_id,
-          username: currentUser.username ?? 'Yo',
-          avatarUrl: currentUser.image_url ?? trip.trip_creator_url ?? '',
+          username: organizerRow?.username ?? currentUser.username ?? 'Organizador',
+          avatarUrl:
+            organizerRow?.user_image_url ?? trip.trip_creator_url ?? currentUser.image_url ?? '',
           isRated: true,
-          rating: null,
+          rating: organizerRow ? parseFloat(organizerRow.user_avg_score) || null : null,
         };
 
+        const companions: TripUser[] = participants
+          .filter((p: any) => p.status === 'accepted' && p.user_id !== trip.creator_id)
+          .map((p: any) => {
+            const isRated = myRatings.some(
+              (r: any) => r.trip_id === tripId && r.rated_user_id === p.user_id
+            );
+
+            return {
+              userId: p.user_id,
+              username: p.username,
+              avatarUrl: p.user_image_url ?? '',
+              isRated,
+              rating: parseFloat(p.user_avg_score) || null,
+            };
+          });
+
         return {
-          tripId: tripId,
+          tripId,
           tripName: trip.title,
           destination: trip.destination,
           startDate: trip.start_date,
@@ -237,8 +186,8 @@ export class ValoracionesPendientesComponent implements OnInit {
           imageUrl: trip.trip_image_url,
           organizer: {
             userId: trip.creator_id,
-            username: currentUser.username ?? 'Yo',
-            avatarUrl: currentUser.image_url ?? '',
+            username: currentUser.username ?? 'Organizador',
+            avatarUrl: currentUser.image_url ?? trip.trip_creator_url ?? '',
             isRated: true,
             rating: null,
           },
@@ -253,26 +202,23 @@ export class ValoracionesPendientesComponent implements OnInit {
 
     return this.participationService.getParticipantsByTripIdWithImages(tripId).pipe(
       map((participants: any[]) => {
-        const organizerParticipant = participants.find(
+        const organizerRow = participants.find(
           (p: any) => p.user_id === trip.creator_id && p.status === 'accepted'
         );
 
         const organizer: TripUser = {
           userId: trip.creator_id,
-          username: organizerParticipant?.username ?? 'Organizador',
-          avatarUrl: organizerParticipant?.user_image_url ?? trip.creator_image_url ?? '',
+          username: organizerRow?.username ?? 'Organizador',
+          avatarUrl: organizerRow?.user_image_url ?? trip.creator_image_url ?? '',
           isRated: false,
-          rating: organizerParticipant
-            ? parseFloat(organizerParticipant.user_avg_score) || null
-            : null,
+          rating: organizerRow ? parseFloat(organizerRow.user_avg_score) || null : null,
         };
 
         const companions: TripUser[] = participants
           .filter(
             (p: any) =>
-              p.status === 'accepted' &&
               p.user_id !== trip.creator_id &&
-              p.user_id !== this.currentUserId
+              (p.status === 'accepted' || p.user_id === this.currentUserId)
           )
           .map((p: any) => ({
             userId: p.user_id,
@@ -283,7 +229,7 @@ export class ValoracionesPendientesComponent implements OnInit {
           }));
 
         return {
-          tripId: tripId,
+          tripId,
           tripName: trip.trip_name,
           destination: trip.destination,
           startDate: trip.start_date,
@@ -331,7 +277,7 @@ export class ValoracionesPendientesComponent implements OnInit {
     const cardsWithCompanions = this.allCards;
 
     this.pendingRatings = cardsWithCompanions.filter((card) => {
-      const end = new Date(card.endDate);
+      const end = new Date(card.endDate as any);
       if (end >= today) return false;
 
       const myRatedUsers = myRatedUsersPerTrip.get(card.tripId) ?? new Set();
@@ -363,7 +309,7 @@ export class ValoracionesPendientesComponent implements OnInit {
         };
       })
       .filter((t) => {
-        const end = new Date(t.endDate as string);
+        const end = new Date(t.endDate as any);
         const isPast = end < today;
         const hasCompanions = t.companionsCount > 0;
 
@@ -381,6 +327,43 @@ export class ValoracionesPendientesComponent implements OnInit {
       if (pendingIds.has(card.tripId)) return false;
       if (ratedIds.has(card.tripId)) return false;
       return true;
+    });
+  }
+
+  private buildMyTripRatings(myRatings: any[]) {
+    const ratingsByTrip = new Map<number, any[]>();
+    for (const r of myRatings) {
+      const arr = ratingsByTrip.get(r.trip_id) ?? [];
+      arr.push(r);
+      ratingsByTrip.set(r.trip_id, arr);
+    }
+
+    this.myTripRatings = this.ratedTrips.map((trip) => {
+      const tripRatings = ratingsByTrip.get(trip.tripId) ?? [];
+
+      const card = this.allCards.find((c) => c.tripId === trip.tripId);
+      const usersIndex = new Map<number, string>();
+      if (card) {
+        usersIndex.set(card.organizer.userId, card.organizer.username);
+        for (const c of card.companions) {
+          usersIndex.set(c.userId, c.username);
+        }
+      }
+
+      const rated = tripRatings.map((r) => ({
+        ratedUserId: r.rated_user_id,
+        username: usersIndex.get(r.rated_user_id) ?? `Usuario ${r.rated_user_id}`,
+        score: r.score,
+        comment: r.comment,
+      }));
+
+      return {
+        tripId: trip.tripId,
+        tripName: trip.tripName,
+        destination: trip.destination,
+        startDate: trip.startDate,
+        rated,
+      };
     });
   }
 
