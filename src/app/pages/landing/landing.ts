@@ -363,8 +363,10 @@ export class Landing {
     const duracion = this.calcularDuracionViaje(trip);
 
     switch (filtroDuracion) {
+      case 'expres':
+        return duracion >= 0 && duracion <= 1;
       case 'corta':
-        return duracion >= 1 && duracion <= 7;
+        return duracion >= 2 && duracion <= 7;
       case 'media':
         return duracion >= 8 && duracion <= 14;
       case 'larga':
