@@ -144,9 +144,9 @@ export class Perfil {
   }
 
   private loadCreatedTrips(userId: number): void {
-    this.tripsService.getTripsByCreator(userId).subscribe({
+    this.tripsService.getTripsByUser(userId).subscribe({
       next: (res: any) => {
-        this.createdTrips = res?.trips || res?.results || [];
+        this.createdTrips = res?.results || [];
 
         if (!this.tripsCount) {
           this.tripsCount = this.createdTrips.length;
@@ -155,7 +155,7 @@ export class Perfil {
         this.calculateNextTrip();
       },
       error: (err: any) => {
-        console.error('Error cargando viajes creados por el usuario', err);
+        console.error('Error cargando viajes del usuario (creados o participados)', err);
       },
     });
   }

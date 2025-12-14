@@ -175,6 +175,26 @@ export class TripService {
     });
   }
 
+  getTripsByUser(
+    userId: number,
+    page: number = 1,
+    perPage: number = 10
+  ): Observable<{ results: Trip[] }> {
+    const token = localStorage.getItem('authToken') || localStorage.getItem('tt_token') || '';
+    const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
+
+    const params = new HttpParams()
+      .set('user_id', String(userId))
+      .set('role', 'any')
+      .set('page', String(page))
+      .set('per_page', String(perPage));
+
+    return this.http.get<{ results: Trip[] }>(`${environment.apiUrl}/trips`, {
+      headers,
+      params,
+    });
+  }
+
   getMisReservas(userId: number): Observable<any[]> {
     const token = localStorage.getItem('tt_token') || '';
     const headers = token ? new HttpHeaders({ Authorization: `Bearer ${token}` }) : undefined;
