@@ -48,6 +48,30 @@ export class TripRatingCardComponent {
     isOrganizer: boolean;
   }>();
 
+  get allCompanions(): TripUser[] {
+    const base = this.trip.companions.filter(
+      (c) => Number(c.userId) !== Number(this.trip.organizer.userId)
+    );
+
+    const alreadyIn = base.some((c) => c.userId === this.currentUserId);
+
+    if (
+      !alreadyIn &&
+      this.currentUserId &&
+      this.currentUserId !== Number(this.trip.organizer.userId)
+    ) {
+      base.push({
+        userId: this.currentUserId,
+        username: 'Tú',
+        avatarUrl: this.usuario?.image ?? '',
+        isRated: true,
+        rating: null,
+      });
+    }
+
+    return base;
+  }
+
   onRateOrganizer() {
     this.rate.emit({
       tripId: this.trip.tripId,
@@ -59,11 +83,7 @@ export class TripRatingCardComponent {
   }
 
   irADetalleUsuario(companion: any) {
-    console.log('Click ejecutado, companion:', companion);
-    console.log('companion.userId:', companion?.userId);
-
     if (companion && companion.userId) {
-      console.log('Navegando a:', companion.userId);
       this.router.navigate([`perfil/${companion.userId}`]);
     }
   }

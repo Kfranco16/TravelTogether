@@ -22,7 +22,6 @@
           <span class="badge bg-warning text-dark">
             {{ trip.startDate | date : 'd MMM' }} - {{ trip.endDate | date : 'd MMM' }}
           </span>
-          <!-- <span class="badge bg-success">{{ trip.cost }}€ /persona</span> -->
         </div>
 
         <div class="fw-semibold mb-2">Organizador:</div>
@@ -56,7 +55,6 @@
 
                 <div>
                   @if (trip.organizer.userId === currentUserId) {
-
                   <button
                     class="btn btn-outline-secondary btn-morado btn-sm fw-semibold shadow text-white"
                     disabled
@@ -92,8 +90,9 @@
         </div>
 
         <div class="fw-semibold mb-3 mt-3">Compañeros de viaje:</div>
+
         <div class="row">
-          @for (companion of trip.companions; track companion.userId) {
+          @for (companion of allCompanions; track companion.userId) {
           <div class="col-md-6 mb-3">
             <div class="card rounded-4 overflow-hidden border-0 shadow-sm h-100">
               <div
@@ -123,6 +122,7 @@
 
                 <div>
                   @if (companion.userId === currentUserId) {
+
                   <button
                     class="btn btn-outline-secondary btn-morado btn-sm fw-semibold shadow text-white"
                     disabled

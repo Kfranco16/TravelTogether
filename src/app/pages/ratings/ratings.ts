@@ -146,12 +146,20 @@ export class ValoracionesPendientesComponent implements OnInit {
           const createdCardRequests = created.map((t: any) =>
             this.mapCreatedTripToCardWithImages(t, currentUser, myRatings)
           );
-
           const joinedCardRequests = joined.map((t: any) => this.mapJoinedTripToCardWithImages(t));
 
+          const createdCards$ =
+            createdCardRequests.length > 0
+              ? forkJoin(createdCardRequests).pipe(catchError(() => of([])))
+              : of([]);
+          const joinedCards$ =
+            joinedCardRequests.length > 0
+              ? forkJoin(joinedCardRequests).pipe(catchError(() => of([])))
+              : of([]);
+
           return forkJoin({
-            createdCards: forkJoin(createdCardRequests).pipe(catchError(() => of([]))),
-            joinedCards: forkJoin(joinedCardRequests).pipe(catchError(() => of([]))),
+            createdCards: createdCards$,
+            joinedCards: joinedCards$,
             myRatings: of(myRatings),
           });
         }),
@@ -162,6 +170,7 @@ export class ValoracionesPendientesComponent implements OnInit {
           this.allCards = [...createdCards, ...filteredJoined];
 
           this.recalculateSections(myRatings);
+          console.log(this.allCards);
           this.buildMyTripRatings(myRatings);
         })
       )
@@ -273,17 +282,6 @@ export class ValoracionesPendientesComponent implements OnInit {
             rating: parseFloat(p.user_avg_score) || null,
           }));
 
-        const currentUser = this.authService.getCurrentUser();
-        if (currentUser) {
-          companions.push({
-            userId: currentUser.id,
-            username: currentUser.username ?? 'Yo',
-            avatarUrl: currentUser.image ?? '',
-            isRated: true,
-            rating: null,
-          });
-        }
-
         return {
           tripId: tripId,
           tripName: trip.trip_name,
@@ -330,7 +328,7 @@ export class ValoracionesPendientesComponent implements OnInit {
       myRatedUsersPerTrip.get(r.trip_id)!.add(r.rated_user_id);
     }
 
-    const cardsWithCompanions = this.allCards.filter((card) => card.companions.length > 0);
+    const cardsWithCompanions = this.allCards;
 
     this.pendingRatings = cardsWithCompanions.filter((card) => {
       const end = new Date(card.endDate);
@@ -341,13 +339,12 @@ export class ValoracionesPendientesComponent implements OnInit {
       const myRatedCount = myRatedUsers.size;
 
       return myRatedCount < usersToRate;
-
-      this.pendingRatingsCount = this.pendingRatings.length;
     });
+
+    this.pendingRatingsCount = this.pendingRatings.length;
 
     this.ratedTrips = cardsWithCompanions
       .map((card) => {
-        const myRatedUsers = myRatedUsersPerTrip.get(card.tripId) ?? new Set();
         const users = [card.organizer, ...card.companions];
         const totalUsers = users.length;
         const usersToRate = card.companions.length;
@@ -385,10 +382,6 @@ export class ValoracionesPendientesComponent implements OnInit {
       if (ratedIds.has(card.tripId)) return false;
       return true;
     });
-  }
-
-  openRatingsDetail(tripId: number) {
-    console.log('Ver valoraciones dadas en viaje', tripId);
   }
 
   openModal(
