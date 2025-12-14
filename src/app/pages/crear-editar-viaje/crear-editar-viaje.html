@@ -103,6 +103,13 @@
       <div class="mb-3 col-12 col-md-6">
         <label class="form-label fw-semibold">Fecha de inicio</label>
         <input type="date" formControlName="start_date" class="form-control" [attr.min]="today" />
+        @if (tripForm.get('start_date')?.errors?.['dateError'] &&
+        tripForm.get('start_date')?.touched) {
+        <div class="text-danger small mt-1">
+          <i class="bi bi-exclamation-circle me-1"></i>
+          La fecha de inicio no puede ser anterior a hoy.
+        </div>
+        }
       </div>
 
       <div class="mb-3 col-12 col-md-6">
@@ -111,16 +118,15 @@
           type="date"
           formControlName="end_date"
           class="form-control"
-          [attr.min]="tripForm.get('start_date')?.value || null"
+          [attr.min]="tripForm.get('start_date')?.value || today"
         />
+        @if (tripForm.get('end_date')?.errors?.['dateError'] && tripForm.get('end_date')?.touched) {
+        <div class="text-danger small mt-1">
+          <i class="bi bi-exclamation-circle me-1"></i>
+          La fecha de fin no puede ser anterior a hoy ni a la fecha de inicio.
+        </div>
+        }
       </div>
-
-      @if (tripForm.get('end_date')?.invalid && tripForm.get('end_date')?.touched) {
-      <div class="text-danger small mt-1">
-        <i class="bi bi-exclamation-circle me-1"></i>
-        La fecha es obligatoria.
-      </div>
-      }
     </div>
 
     <div class="bg-light border-start border-3 border-primary ps-3 mb-4 mt-4">
@@ -416,7 +422,7 @@
         {
         <div class="text-danger small mt-1">
           <i class="bi bi-exclamation-circle me-1"></i>
-          El número máximo de participantes es obligatorio.
+          El número máximo de participantes debe ser de al menos 2 personas.
         </div>
         }
       </div>

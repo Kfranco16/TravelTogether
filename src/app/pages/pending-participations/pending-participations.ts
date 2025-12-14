@@ -76,7 +76,7 @@ export class PendingParticipationsComponent implements OnInit {
         this.pageTitle = 'Foros';
       } else {
         this.soloForos = false;
-        this.pageTitle = 'Gestión de Viajes';
+        this.pageTitle = 'Gestión de mis viajes';
 
         this.activeTab =
           tab === 'accepted' || tab === 'myTrips' || tab === 'pending' ? tab : 'pending';

@@ -164,6 +164,16 @@
   color: #9ca3af;
   margin: 0 0 0.4rem;
 }
+.tt-stats-wrapper {
+  max-width: 1200px;
+  margin: 2rem auto 0;
+}
+
+.tt-stats-title {
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin-left: 0.25rem;
+}
 
 .tt-next-trip-card {
   margin-top: 2rem;

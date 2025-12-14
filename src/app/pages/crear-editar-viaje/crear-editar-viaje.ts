@@ -53,37 +53,41 @@ export class CrearEditarViaje implements AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.tripForm = this.fb.group({
-      title: ['', Validators.required],
-      origin: ['', Validators.required],
-      destination: ['', Validators.required],
-      start_date: ['', Validators.required],
-      end_date: ['', Validators.required],
-      description: ['', Validators.required],
-      itinerary: ['', [Validators.required, Validators.pattern(/D[ií]a/i)]],
+    this.tripForm = this.fb.group(
+      {
+        title: ['', Validators.required],
+        origin: ['', Validators.required],
+        destination: ['', Validators.required],
+        start_date: ['', Validators.required],
+        end_date: ['', Validators.required],
+        description: ['', Validators.required],
+        itinerary: ['', [Validators.required, Validators.pattern(/D[ií]a/i)]],
 
-      flights: [false],
-      tickets: [false],
-      visits: [false],
-      full_board: [false],
-      travel_insurance: [false],
-      tour_guide: [false],
-      informative_material: [false],
-      breakfast: [false],
-      visas: [false],
-      assistance24: [false],
-
-      min_participants: ['', [Validators.required, Validators.min(1)]],
-      estimated_cost: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
-      transport: ['', Validators.required],
-      accommodation: ['', Validators.required],
-      requirements: ['', Validators.required],
-      cover_photo: [null],
-      main_photo: [null],
-      gallery_photos: [null],
-      latitude: [''],
-      longitude: [''],
-    });
+        flights: [false],
+        tickets: [false],
+        visits: [false],
+        full_board: [false],
+        travel_insurance: [false],
+        tour_guide: [false],
+        informative_material: [false],
+        breakfast: [false],
+        visas: [false],
+        assistance24: [false],
+        min_participants: ['', [Validators.required, Validators.min(2), Validators.max(50)]],
+        estimated_cost: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+        transport: ['', Validators.required],
+        accommodation: ['', Validators.required],
+        requirements: ['', Validators.required],
+        cover_photo: [null],
+        main_photo: [null],
+        gallery_photos: [null],
+        latitude: [''],
+        longitude: [''],
+      },
+      {
+        validators: [this.fechaNoPasadaValidator()],
+      }
+    );
 
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
@@ -93,6 +97,68 @@ export class CrearEditarViaje implements AfterViewInit {
         this.cargarViaje(+id);
       }
     });
+  }
+
+  private fechaNoPasadaValidator() {
+    return (group: FormGroup) => {
+      const startCtrl = group.get('start_date');
+      const endCtrl = group.get('end_date');
+
+      if (!startCtrl || !endCtrl) return null;
+
+      const startValue = startCtrl.value;
+      const endValue = endCtrl.value;
+      if (!startValue) return null;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const startDate = new Date(startValue);
+      const endDate = endValue ? new Date(endValue) : null;
+
+      const errors: any = {};
+
+      if (startDate.getTime() < today.getTime()) {
+        errors.startInPast = true;
+      }
+
+      if (endDate && endDate.getTime() < today.getTime()) {
+        errors.endInPast = true;
+      }
+
+      if (endDate && endDate.getTime() < startDate.getTime()) {
+        errors.endBeforeStart = true;
+      }
+
+      const startHasError = errors.startInPast || errors.endBeforeStart;
+      const endHasError = errors.endInPast || errors.endBeforeStart;
+
+      if (startHasError) {
+        startCtrl.setErrors({
+          ...(startCtrl.errors || {}),
+          dateError: true,
+        });
+      } else {
+        if (startCtrl.errors) {
+          const { dateError, ...rest } = startCtrl.errors;
+          startCtrl.setErrors(Object.keys(rest).length ? rest : null);
+        }
+      }
+
+      if (endHasError) {
+        endCtrl.setErrors({
+          ...(endCtrl.errors || {}),
+          dateError: true,
+        });
+      } else {
+        if (endCtrl.errors) {
+          const { dateError, ...rest } = endCtrl.errors;
+          endCtrl.setErrors(Object.keys(rest).length ? rest : null);
+        }
+      }
+
+      return Object.keys(errors).length ? errors : null;
+    };
   }
 
   cargarViaje(id: number) {
@@ -129,7 +195,6 @@ export class CrearEditarViaje implements AfterViewInit {
   }
 
   async ngAfterViewInit() {
-    // 1. API Google Maps
     if (!(window as any).google || !(window as any).google.maps) {
       const script = document.createElement('script');
 
@@ -141,7 +206,7 @@ export class CrearEditarViaje implements AfterViewInit {
         script.onload = resolve;
       });
     }
-    // 2. API Places Autocomplete
+
     const { Autocomplete } = await (window as any).google.maps.importLibrary('places');
     const autocomplete = new Autocomplete(this.destinationInput.nativeElement, {
       types: ['(cities)'],
@@ -174,7 +239,7 @@ export class CrearEditarViaje implements AfterViewInit {
   }
 
   async onSubmit() {
-    this.apiErrorMessage = null; // limpia mensaje anterior
+    this.apiErrorMessage = null;
 
     if (this.tripForm.invalid) {
       this.tripForm.markAllAsTouched();
@@ -223,7 +288,6 @@ export class CrearEditarViaje implements AfterViewInit {
         (async () => {
           if (this.modoEdicion && this.tripId) {
             await lastValueFrom(this.tripService.updateTrip(this.tripId, baseTripData));
-
             this.router.navigate(['/viaje', this.tripId]);
             return;
           }
@@ -276,7 +340,6 @@ export class CrearEditarViaje implements AfterViewInit {
         const backendMsg =
           (err.error && (err.error.message || err.error.error || err.error)) || err.message;
 
-        // si tu backend envía también el campo afectado, por ejemplo { field: 'title', message: '...' }
         const backendField = (err.error && err.error.field) as string | undefined;
 
         if (backendMsg) {

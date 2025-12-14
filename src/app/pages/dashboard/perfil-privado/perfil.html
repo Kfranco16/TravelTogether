@@ -127,37 +127,65 @@
     </div>
   </header>
 
-  <section class="tt-stats-grid">
-    <article class="tt-stat-card">
-      <div class="tt-stat-icon">
-        <i class="bi bi-calendar-event"></i>
-      </div>
-      <div class="fs-8">
-        <p class="tt-stat-label">Miembro desde:</p>
-        <p class="tt-stat-value">
-          @if (user?.created_at) {
-          {{ user?.created_at | date : 'dd MMMM, y' : 'es' }}
-          } @else { — }
-        </p>
-      </div>
-    </article>
+  <div class="tt-stats-wrapper">
+    <h2 class="tt-stats-title mb-3">Mis estadísticas</h2>
 
-    <article class="tt-stat-card">
-      <div class="tt-stat-icon">
-        <i class="bi bi-geo-alt"></i>
-      </div>
-      <p class="tt-stat-label">Viajes creados</p>
-      <p class="tt-stat-value">{{ tripsCount ?? 0 }}</p>
-    </article>
+    <section class="tt-stats-grid">
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-calendar-event"></i>
+        </div>
+        <div class="fs-8">
+          <p class="tt-stat-label">Miembro desde:</p>
+          <p class="tt-stat-value">
+            @if (user?.created_at) {
+            {{ user?.created_at | date : 'dd MMMM, y' : 'es' }}
+            } @else { — }
+          </p>
+        </div>
+      </article>
 
-    <article class="tt-stat-card">
-      <div class="tt-stat-icon tt-stat-icon-heart">
-        <i class="bi bi-heart"></i>
-      </div>
-      <p class="tt-stat-label" (click)="goToFavoritesPage()">Viajes en favoritos</p>
-      <p class="tt-stat-value">{{ favoritesCount ?? 0 }}</p>
-    </article>
-  </section>
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-geo-alt"></i>
+        </div>
+        <p class="tt-stat-label">Mis viajes totales</p>
+        <p class="tt-stat-value">{{ tripsCount ?? 0 }}</p>
+      </article>
+
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <p class="tt-stat-label">Mis viajes como organizador</p>
+        <p class="tt-stat-value">{{ organizerTripsCount }}</p>
+      </article>
+
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-hourglass-split"></i>
+        </div>
+        <p class="tt-stat-label">Viajes pendientes de aceptar</p>
+        <p class="tt-stat-value">{{ pendingTripsCount }}</p>
+      </article>
+
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-check2-circle"></i>
+        </div>
+        <p class="tt-stat-label">Mis viajes realizados</p>
+        <p class="tt-stat-value">{{ completedTripsCount }}</p>
+      </article>
+
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon tt-stat-icon-heart">
+          <i class="bi bi-heart"></i>
+        </div>
+        <p class="tt-stat-label" (click)="goToFavoritesPage()">Viajes en favoritos</p>
+        <p class="tt-stat-value">{{ favoritesCount ?? 0 }}</p>
+      </article>
+    </section>
+  </div>
 
   <section class="tt-next-trip-card mb-3 tt-rate-card">
     <div class="tt-next-trip-left" (click)="goToValorarPage()">
@@ -175,12 +203,7 @@
       <div class="tt-next-trip-thumb" (click)="irADetalleViaje()" style="flex-shrink: 0">
         <img
           class="tt-next-trip-thumb-img"
-          [src]="
-            portadaImageUrl ||
-            nextTrip.trip_image_url ||
-            nextTrip?.portada ||
-            'images/coverDefault.jpg'
-          "
+          [src]="portadaImageUrl || 'images/coverDefault.jpg'"
           [alt]="portadaImageAlt || nextTripDestination || 'Próximo viaje'"
         />
       </div>

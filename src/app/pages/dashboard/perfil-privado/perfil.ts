@@ -34,6 +34,13 @@ export class Perfil {
   stars = [1, 2, 3, 4, 5];
 
   tripsCount: number | null = null;
+
+  organizerTripsCount: number = 0;
+
+  completedTripsCount: number = 0;
+
+  pendingTripsCount: number = 0;
+
   favoritesCount: number | null = null;
 
   createdTrips: any[] = [];
@@ -87,6 +94,9 @@ export class Perfil {
     this.nextTripDestination = null;
     this.nextTripDate = null;
     this.daysToNextTrip = null;
+    this.organizerTripsCount = 0;
+    this.completedTripsCount = 0;
+    this.pendingTripsCount = 0;
 
     try {
       const fullUser = await this.auth.getUserById(userId);
@@ -153,16 +163,40 @@ export class Perfil {
   }
 
   private loadCreatedTrips(userId: number): void {
-    this.participationService.getMyCreatedTrips().subscribe({
+    this.participationService.getMyParticipations().subscribe({
       next: (res: any) => {
-        this.createdTrips = res.data || [];
+        this.createdTrips = res?.data || [];
+
+        // total de participaciones, TODO!
         this.tripsCount = this.createdTrips.length;
+
+        const today = new Date();
+
+        // viajes YA realizados: aceptados y con fecha anterior a hoy
+        this.completedTripsCount = this.createdTrips.filter((trip: any) => {
+          if (trip.status !== 'accepted' || !trip.end_date) return false;
+          const end = new Date(trip.end_date);
+          return end.getTime() < today.getTime();
+        }).length;
+
+        // mis viajes SOLO como organizador
+        this.organizerTripsCount = this.createdTrips.filter(
+          (trip: any) => trip.creator_id === userId
+        ).length;
+        // viajes pendientes de aceptar
+        this.pendingTripsCount = this.createdTrips.filter(
+          (trip: any) => trip.status === 'pending'
+        ).length;
+
         this.calculateNextTrip();
       },
       error: (err: any) => {
-        console.error('Error cargando viajes creados por mí', err);
+        console.error('Error cargando mis viajes (participaciones)', err);
         this.createdTrips = [];
         this.tripsCount = 0;
+        this.completedTripsCount = 0;
+        this.organizerTripsCount = 0;
+        this.pendingTripsCount = 0;
         this.calculateNextTrip();
       },
     });
@@ -181,7 +215,9 @@ export class Perfil {
 
     const today = new Date();
 
-    const futureTrips = this.createdTrips
+    const acceptedTrips = this.createdTrips.filter((trip: any) => trip.status === 'accepted');
+
+    const futureTrips = acceptedTrips
       .map((trip: any) => ({
         ...trip,
         startDate: new Date(trip.start_date || trip.startDate),
@@ -203,14 +239,14 @@ export class Perfil {
     const next = futureTrips[0];
     this.nextTrip = next;
 
-    this.nextTripDestination = next.destination || next.city || next.title || 'Próximo viaje';
+    this.nextTripDestination = next.destination || next.trip_name || next.origin || 'Próximo viaje';
     this.nextTripDate = next.startDate.toISOString();
 
     const diffMs = next.startDate.getTime() - today.getTime();
     this.daysToNextTrip = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
     this.portadaImageUrl = next.trip_image_url || 'images/coverDefault.jpg';
-    this.portadaImageAlt = next.title || 'Imagen de portada';
+    this.portadaImageAlt = next.trip_name || next.destination || 'Imagen de portada';
   }
 
   private cargarImagenes(tripId: number): void {
@@ -366,8 +402,8 @@ export class Perfil {
   }
 
   irADetalleViaje(): void {
-    if (this.nextTrip && this.nextTrip.id) {
-      this.router.navigate([`/viaje/${this.nextTrip.id}`]);
+    if (this.nextTrip && this.nextTrip.trip_id) {
+      this.router.navigate([`/viaje/${this.nextTrip.trip_id}`]);
     }
   }
 
