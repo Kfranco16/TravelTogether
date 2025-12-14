@@ -168,31 +168,7 @@
         dejado tu opinión a tus compañeros.
       </p>
     </div>
-
-    <!-- <div class="tt-next-trip-right tt-rate-card-right">
-      <div class="tt-next-trip-badge">
-        <p class="tt-next-trip-caption">
-          {{ pendingRatingsCount !== null ? 'viajes por valorar' : 'sin valoraciones pendientes' }}
-        </p>
-      </div>
-    </div> -->
   </section>
-
-  <!-- <section>
-    <a
-      class="dropdown-item tt-dd-link d-flex justify-content-between align-items-center"
-      [routerLink]="['/foros']"
-      [queryParams]="{ tab: 'latest', from: 'menu' }"
-      (click)="onSectionOpen('foros')"
-    >
-      <span class="d-flex flex-column">
-        <span>Foros</span>
-        <span class="small text-muted"
-          >Resuelve dudas y comparte experiencias con otros viajeros</span
-        >
-      </span>
-    </a>
-  </section> -->
 
   <section class="tt-next-trip-card tt-next-trip-card-main">
     <div class="tt-next-trip-left d-flex gap-3 tt-next-trip-main-left">
@@ -200,7 +176,10 @@
         <img
           class="tt-next-trip-thumb-img"
           [src]="
-            portadaImageUrl || nextTrip?.image || nextTrip?.portada || 'images/coverDefault.jpg'
+            portadaImageUrl ||
+            nextTrip.trip_image_url ||
+            nextTrip?.portada ||
+            'images/coverDefault.jpg'
           "
           [alt]="portadaImageAlt || nextTripDestination || 'Próximo viaje'"
         />

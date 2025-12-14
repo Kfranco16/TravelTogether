@@ -96,15 +96,17 @@ export class Registro implements OnInit {
         toast.success('Registrado correctamente');
         this.router.navigate(['/dashboard/perfil']);
       } catch (err: any) {
-        const backendMsg = err?.error?.message;
-        if (
-          backendMsg?.toLowerCase().includes('existe') ||
-          backendMsg?.toLowerCase().includes('ya registrado')
-        ) {
-          toast.error(backendMsg);
-        } else {
-          toast.error('Error en el registro, revisa los datos.');
-        }
+        const backendMsg = err?.error?.message || 'Error en el registro, revisa los datos.';
+
+        ['email', 'username'].forEach((field) => {
+          const control = this.userForm.get(field);
+          if (control) {
+            control.setErrors({ serverError: backendMsg });
+            control.markAsTouched();
+          }
+        });
+
+        toast.error(backendMsg);
       }
     } else {
       try {

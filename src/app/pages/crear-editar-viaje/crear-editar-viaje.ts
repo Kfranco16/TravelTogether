@@ -40,6 +40,9 @@ export class CrearEditarViaje implements AfterViewInit {
   selectedCoverPhoto: File | null = null;
   selectedMainPhoto: File | null = null;
 
+  apiErrorMessage: string | null = null;
+  today: string = new Date().toISOString().split('T')[0];
+
   constructor(
     private fb: FormBuilder,
     private tripService: TripService,
@@ -171,6 +174,8 @@ export class CrearEditarViaje implements AfterViewInit {
   }
 
   async onSubmit() {
+    this.apiErrorMessage = null; // limpia mensaje anterior
+
     if (this.tripForm.invalid) {
       this.tripForm.markAllAsTouched();
       return;
@@ -271,8 +276,21 @@ export class CrearEditarViaje implements AfterViewInit {
         const backendMsg =
           (err.error && (err.error.message || err.error.error || err.error)) || err.message;
 
+        // si tu backend envía también el campo afectado, por ejemplo { field: 'title', message: '...' }
+        const backendField = (err.error && err.error.field) as string | undefined;
+
         if (backendMsg) {
           mensaje = backendMsg;
+          this.apiErrorMessage = backendMsg;
+        }
+
+        if (backendField && this.tripForm.get(backendField)) {
+          const control = this.tripForm.get(backendField)!;
+          control.setErrors({
+            ...(control.errors || {}),
+            serverError: backendMsg || 'Error en este campo',
+          });
+          control.markAsTouched();
         }
 
         console.error('Status:', err.status);

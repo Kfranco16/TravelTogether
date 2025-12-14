@@ -102,7 +102,7 @@
     <div class="row">
       <div class="mb-3 col-12 col-md-6">
         <label class="form-label fw-semibold">Fecha de inicio</label>
-        <input type="date" formControlName="start_date" class="form-control" />
+        <input type="date" formControlName="start_date" class="form-control" [attr.min]="today" />
       </div>
 
       <div class="mb-3 col-12 col-md-6">

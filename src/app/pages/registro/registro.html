@@ -53,6 +53,8 @@
               <div>El usuario es obligatorio.</div>
               } @if (userForm.get('username')?.errors?.['minlength']) {
               <div>Mínimo 3 caracteres.</div>
+              }@if (userForm.get('email')?.errors?.['serverError']) {
+              <div>{{ userForm.get('email')?.errors?.['serverError'] }}</div>
               }
             </div>
             }
@@ -72,6 +74,8 @@
               <div>El email es obligatorio.</div>
               } @if (userForm.get('email')?.errors?.['email']) {
               <div>Formato de email inválido.</div>
+              } @if (userForm.get('email')?.errors?.['serverError']) {
+              <div>{{ userForm.get('email')?.errors?.['serverError'] }}</div>
               }
             </div>
             }

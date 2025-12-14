@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { FavoritesService } from '../../../core/services/favorites';
@@ -9,7 +9,7 @@ import { TripService } from '../../../core/services/viajes';
 import { RatingsService } from '../../../core/services/ratings';
 import { Iuser } from '../../../interfaces/iuser';
 import { NotificationsService, NotificationDto } from '../../../core/services/notifications';
-import { RouterLink } from '@angular/router';
+import { ParticipationService } from '../../../core/services/participations';
 
 @Component({
   selector: 'app-perfil',
@@ -21,6 +21,7 @@ import { RouterLink } from '@angular/router';
 export class Perfil {
   private auth = inject(AuthService);
   private tripsService = inject(TripService);
+  private participationService = inject(ParticipationService);
   private favorites = inject(FavoritesService);
   private ratingsService = inject(RatingsService);
   private notificationsService = inject(NotificationsService);
@@ -79,6 +80,14 @@ export class Perfil {
   }
 
   private async loadLoggedUserData(userId: number): Promise<void> {
+    this.tripsCount = 0;
+    this.favoritesCount = 0;
+    this.createdTrips = [];
+    this.nextTrip = null;
+    this.nextTripDestination = null;
+    this.nextTripDate = null;
+    this.daysToNextTrip = null;
+
     try {
       const fullUser = await this.auth.getUserById(userId);
       if (!fullUser) {
@@ -144,18 +153,17 @@ export class Perfil {
   }
 
   private loadCreatedTrips(userId: number): void {
-    this.tripsService.getTripsByUser(userId).subscribe({
+    this.participationService.getMyCreatedTrips().subscribe({
       next: (res: any) => {
-        this.createdTrips = res?.results || [];
-
-        if (!this.tripsCount) {
-          this.tripsCount = this.createdTrips.length;
-        }
-
+        this.createdTrips = res.data || [];
+        this.tripsCount = this.createdTrips.length;
         this.calculateNextTrip();
       },
       error: (err: any) => {
-        console.error('Error cargando viajes del usuario (creados o participados)', err);
+        console.error('Error cargando viajes creados por mí', err);
+        this.createdTrips = [];
+        this.tripsCount = 0;
+        this.calculateNextTrip();
       },
     });
   }
@@ -166,6 +174,8 @@ export class Perfil {
       this.nextTripDestination = null;
       this.nextTripDate = null;
       this.daysToNextTrip = null;
+      this.portadaImageUrl = 'images/coverDefault.jpg';
+      this.portadaImageAlt = 'Imagen de portada';
       return;
     }
 
@@ -183,6 +193,8 @@ export class Perfil {
       this.nextTripDestination = null;
       this.nextTripDate = null;
       this.daysToNextTrip = null;
+      this.portadaImageUrl = 'images/coverDefault.jpg';
+      this.portadaImageAlt = 'Imagen de portada';
       return;
     }
 
@@ -197,9 +209,8 @@ export class Perfil {
     const diffMs = next.startDate.getTime() - today.getTime();
     this.daysToNextTrip = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 
-    if (this.nextTrip && this.nextTrip.id) {
-      this.cargarImagenes(this.nextTrip.id);
-    }
+    this.portadaImageUrl = next.trip_image_url || 'images/coverDefault.jpg';
+    this.portadaImageAlt = next.title || 'Imagen de portada';
   }
 
   private cargarImagenes(tripId: number): void {
