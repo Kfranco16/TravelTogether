@@ -74,7 +74,6 @@ export class CardViaje implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Normalizar flags de favorito por si vienen “ensuciados”
     this.trip.isFavorite = !!this.trip.isFavorite;
     this.trip.favoriteId = this.trip.favoriteId ?? null;
 
@@ -94,7 +93,6 @@ export class CardViaje implements OnInit, OnDestroy {
       if (globalUser && this.trip?.id) {
         const token = this.authService.gettoken();
         if (token) {
-          // Opción 1: obtener los favoritos del usuario y filtrar por trip.id
           this.favoritesService
             .getFavoritesByUser(globalUser.id, token)
             .pipe(takeUntil(this.destroy$))
@@ -115,14 +113,9 @@ export class CardViaje implements OnInit, OnDestroy {
               },
             });
 
-          // Si en el futuro cambias el back para que /favorites/trip/:id
-          // devuelva sólo el favorito del usuario actual, podrías usar:
-          // this.favoritesService.isFavoriteByTrip(this.trip.id, token).subscribe(...)
-
           this.checkSolicitudEnviada(this.trip.id, globalUser.id);
         }
       } else {
-        // Si no hay usuario logueado, asegurarse de que no se marque como favorito
         this.trip.isFavorite = false;
         this.trip.favoriteId = null;
       }
@@ -177,6 +170,21 @@ export class CardViaje implements OnInit, OnDestroy {
     });
   }
 
+  isTripClosedByDate(): boolean {
+    if (!this.trip?.end_date) return false;
+    const today = new Date();
+    const end = new Date(this.trip.end_date);
+    return end.getTime() < today.setHours(0, 0, 0, 0);
+  }
+
+  isLastDays(): boolean {
+    if (!this.trip?.start_date) return false;
+    const today = new Date();
+    const start = new Date(this.trip.start_date);
+    const diffDays = Math.ceil((start.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return diffDays > 0 && diffDays <= 15;
+  }
+
   irADetalleUsuario() {
     if (this.usuario && this.usuario.id) {
       this.router.navigate([`perfil/${this.usuario.id}`]);
@@ -197,6 +205,14 @@ export class CardViaje implements OnInit, OnDestroy {
   }
 
   getBadgeClass(status: string): string {
+    if (this.isTripClosedByDate()) {
+      return 'bg-secondary';
+    }
+
+    if (this.isLastDays()) {
+      return 'bg-danger';
+    }
+
     switch (status) {
       case 'open':
         return 'bg-success';
@@ -208,6 +224,14 @@ export class CardViaje implements OnInit, OnDestroy {
   }
 
   getBadgeText(status: string): string {
+    if (this.isTripClosedByDate()) {
+      return 'Cerrado';
+    }
+
+    if (this.isLastDays()) {
+      return 'Últimos días';
+    }
+
     switch (status) {
       case 'open':
         return 'Abierto';
