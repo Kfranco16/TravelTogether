@@ -1,0 +1,286 @@
+<section class="tt-profile-wrapper">
+  <div class="tt-profile-logout-mobile d-block d-md-none mb-3">
+    <button
+      type="button"
+      class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2"
+      (click)="onLogout()"
+    >
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Cerrar sesión</span>
+    </button>
+  </div>
+
+  @if (notif.notificaciones) {
+  <div class="tt-mobile-notifications d-block d-md-none mb-3">
+    <div class="tt-mobile-notifications-card">
+      <p class="tt-mobile-notifications-title mb-2">Mis notificaciones nuevas.</p>
+
+      @if (notif.misViajes) {
+      <button
+        type="button"
+        class="tt-mobile-notif-row"
+        (click)="goToSection('misViajes', '/dashboard/gestion-viajes')"
+      >
+        <span><i class="bi bi-bell"></i> Tienes una notificación en tus viajes</span>
+        <span class="tt-dot"></span>
+      </button>
+      } @if (notif.favoritos) {
+      <button
+        type="button"
+        class="tt-mobile-notif-row"
+        (click)="goToSection('favoritos', '/dashboard/favoritos')"
+      >
+        <span><i class="bi bi-bell"></i> Tienes una notificación en tus favoritos</span>
+        <span class="tt-dot"></span>
+      </button>
+      } @if (notif.reservas) {
+      <button
+        type="button"
+        class="tt-mobile-notif-row"
+        (click)="goToSection('reservas', '/dashboard/reservas')"
+      >
+        <span><i class="bi bi-bell"></i> Tienes una notificación en tus reservas</span>
+        <span class="tt-dot"></span>
+      </button>
+      } @if (notif.foros) {
+      <a
+        class="tt-mobile-notif-row"
+        [routerLink]="['/gestion-viajes']"
+        [queryParams]="{ tab: 'myTrips', from: 'forum' }"
+        (click)="onSectionOpen('foros')"
+      >
+        <span><i class="bi bi-bell"></i> Tienes mensajes nuevos</span>
+        <span class="tt-dot"></span>
+      </a>
+      }
+    </div>
+  </div>
+  }
+
+  <header class="tt-profile-header">
+    <div class="tt-profile-main position-relative">
+      <button
+        type="button"
+        class="tt-profile-edit-btn"
+        (click)="goToEditProfile()"
+        aria-label="Editar perfil"
+      >
+        <i class="bi bi-pencil-square"></i>
+        <span> Editar perfil</span>
+      </button>
+
+      <div class="tt-profile-photo-block">
+        <div class="tt-profile-photo-ring">
+          <img
+            class="tt-photo-img"
+            [src]="user?.image || defaultAvatar"
+            [alt]="user?.username || 'Foto de perfil'"
+          />
+        </div>
+
+        <div class="tt-profile-actions">
+          <button
+            type="button"
+            class="tt-btn tt-btn-sm tt-btn-danger"
+            (click)="openDeletePhotoModal()"
+          >
+            Eliminar foto
+          </button>
+
+          <label class="tt-btn tt-btn-sm tt-btn-gradient">
+            Subir foto
+            <input type="file" accept="image/*" (change)="onUploadPhoto($event)" hidden />
+          </label>
+        </div>
+      </div>
+
+      <div class="tt-profile-main-info">
+        <h1 class="tt-profile-name">
+          {{ user?.username || 'Tu nombre' }}
+        </h1>
+
+        <div class="tt-profile-rating">
+          <div class="d-flex align-items-center gap-1 text-shadow-black mt-1">
+            @if (usuarioValoracion != null) { @for (estrella of getEstrellas(usuarioValoracion);
+            track estrella.icon + estrella.color + $index) {
+            <i class="bi {{ estrella.icon }} {{ estrella.color }}"></i>
+            }
+            <span class="ms-2">{{ usuarioValoracion }}</span>
+            } @else {
+            <span>Aún por valorar</span>
+            }
+          </div>
+        </div>
+
+        <p class="tt-profile-label">Lo que ven tus seguidores</p>
+
+        <h4>Mi biografía</h4>
+        <p class="tt-profile-bio">
+          {{ user?.bio || 'Mi biografía' }}
+        </p>
+
+        <h4>Mis intereses</h4>
+        <p class="tt-profile-bio">
+          {{ user?.interests || 'Mis intereses' }}
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <div class="tt-stats-wrapper">
+    <h2 class="tt-stats-title mb-3">Mis estadísticas</h2>
+
+    <section class="tt-stats-grid">
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-calendar-event"></i>
+        </div>
+        <div class="fs-8">
+          <p class="tt-stat-label">Miembro desde:</p>
+          <p class="tt-stat-value">
+            @if (user?.created_at) {
+            {{ user?.created_at | date : 'dd MMMM, y' : 'es' }}
+            } @else { — }
+          </p>
+        </div>
+      </article>
+
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-geo-alt"></i>
+        </div>
+        <p class="tt-stat-label">Mis viajes totales</p>
+        <p class="tt-stat-value">{{ tripsCount }}</p>
+      </article>
+
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-calendar-event"></i>
+        </div>
+        <p class="tt-stat-label">Mis viajes pendientes a realizar</p>
+        <p class="tt-stat-value">{{ pendingToDoTripsCount }}</p>
+      </article>
+
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <p class="tt-stat-label">Mis viajes como organizador</p>
+        <p class="tt-stat-value">{{ organizerTripsCount }}</p>
+      </article>
+
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-hourglass-split"></i>
+        </div>
+        <p class="tt-stat-label">Viajes pendientes de aceptar</p>
+        <p class="tt-stat-value">{{ pendingTripsCount }}</p>
+      </article>
+
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-check2-circle"></i>
+        </div>
+        <p class="tt-stat-label">Mis viajes realizados</p>
+        <p class="tt-stat-value">{{ completedTripsCount }}</p>
+      </article>
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon tt-stat-icon-heart">
+          <i class="bi bi-heart"></i>
+        </div>
+        <p class="tt-stat-label" (click)="goToFavoritesPage()">Viajes en favoritos</p>
+        <p class="tt-stat-value">{{ favoritesCount }}</p>
+      </article>
+
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-hand-thumbs-up-fill text-warning"></i>
+        </div>
+        <p class="tt-stat-label">Valoraciones recibidas</p>
+        <p class="tt-stat-value">{{ ratingsReceivedCount }}</p>
+      </article>
+
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-hand-thumbs-up text-warning"></i>
+        </div>
+        <p class="tt-stat-label">Valoraciones otorgadas</p>
+        <p class="tt-stat-value">{{ ratingsGivenCount }}</p>
+      </article>
+    </section>
+  </div>
+
+  <section class="tt-next-trip-card mb-3 tt-rate-card">
+    <div class="tt-next-trip-left" (click)="goToValorarPage()">
+      <h2 class="tt-next-trip-destination">Gestiona tus valoraciones</h2>
+
+      <p class="tt-next-trip-date tt-next-trip-date--muted">
+        Revisa qué viajes tienes pendientes de valorar, cuáles están en marcha y en cuáles ya has
+        dejado tu opinión a tus compañeros.
+      </p>
+    </div>
+  </section>
+
+  <section class="tt-next-trip-card tt-next-trip-card-main">
+    <div class="tt-next-trip-left d-flex gap-3 tt-next-trip-main-left">
+      <div class="tt-next-trip-thumb" (click)="irADetalleViaje()" style="flex-shrink: 0">
+        <img
+          class="tt-next-trip-thumb-img"
+          [src]="portadaImageUrl || 'images/coverDefault.jpg'"
+          [alt]="portadaImageAlt || nextTripDestination || 'Próximo viaje'"
+        />
+      </div>
+    </div>
+
+    <div class="tt-next-trip-text">
+      <p class="tt-next-trip-label">Mi próximo viaje</p>
+
+      <h2 class="tt-next-trip-destination" (click)="nextTrip && irADetalleViaje()">
+        {{ nextTripDestination || 'Aún no tienes un viaje reservado' }}
+      </h2>
+
+      @if (nextTripDate) {
+      <p class="tt-next-trip-date">
+        {{ nextTripDate | date : "d 'de' MMMM, y" : 'es' }}
+      </p>
+      } @else {
+      <p class="tt-next-trip-date tt-next-trip-date--muted">
+        Cuando reserves tu próximo viaje aparecerá aquí.
+      </p>
+      }
+    </div>
+
+    <div class="tt-next-trip-right">
+      <div class="tt-next-trip-badge">
+        <p class="tt-next-trip-days">
+          {{ daysToNextTrip !== null ? daysToNextTrip : '—' }}
+        </p>
+        <p class="tt-next-trip-caption">
+          {{ daysToNextTrip !== null ? 'días restantes' : 'sin fecha' }}
+        </p>
+      </div>
+    </div>
+  </section>
+</section>
+
+@if (showDeletePhotoModal) {
+<div class="tt-modal-overlay">
+  <div class="tt-modal">
+    <h3 class="tt-modal-title">Eliminar foto de perfil</h3>
+    <p class="tt-modal-text">¿Seguro que quieres eliminar tu foto de perfil?</p>
+
+    <div class="tt-modal-buttons">
+      <button
+        class="tt-btn tt-btn-secondary btn btn-sm"
+        type="button"
+        (click)="cancelDeletePhoto()"
+      >
+        Volver y cancelar
+      </button>
+      <button class="tt-btn tt-btn-primary btn btn-sm" type="button" (click)="confirmDeletePhoto()">
+        Confirmar
+      </button>
+    </div>
+  </div>
+</div>
+}

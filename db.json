@@ -1,0 +1,82 @@
+{
+  "usuarios": [
+    {
+      "id": "1",
+      "nombre": "Elena Vargas",
+      "email": "elena@viajera.com",
+      "password": "hashed_password_1",
+      "biografia": "Exploradora de montañas y culturas. Fotógrafa aficionada.",
+      "fechaNacimiento": "1992-08-20"
+    },
+    {
+      "id": "2",
+      "nombre": "Marco Diaz",
+      "email": "marco@viajero.com",
+      "password": "hashed_password_2",
+      "biografia": "Apasionado por la historia y la gastronomía. Siempre en busca del plato perfecto.",
+      "fechaNacimiento": "1988-03-12"
+    },
+    {
+      "id": 3,
+      "nombre": "kevin franco",
+      "email": "kevin@viajera.com",
+      "password": "hashed_password_1",
+      "biografia": "Exploradora de montañas y culturas. Fotógrafa aficionada.",
+      "fechaNacimiento": "1992-08-20"
+    }
+  ],
+  "viajes": [
+    {
+      "id": "101",
+      "titulo": "Aventura en Costa Rica: Volcanes y Selva",
+      "destino": "La Fortuna, Costa Rica",
+      "plazas": 8,
+      "presupuesto": 1800,
+      "itinerario": "Recorrido de 10 días explorando el volcán Arenal, las cataratas de La Fortuna y la reserva de Monteverde.",
+      "usuarioId": 1
+    },
+    {
+      "id": "102",
+      "titulo": "Ruta de los Templos de Kioto",
+      "destino": "Kioto, Japón",
+      "plazas": 6,
+      "presupuesto": 3200,
+      "itinerario": "Inmersión cultural de 7 días visitando Kinkaku-ji, Fushimi Inari y el bosque de bambú de Arashiyama.",
+      "usuarioId": 2
+    }
+  ],
+  "solicitudes": [
+    {
+      "id": "1",
+      "viajeId": 102,
+      "usuarioId": 1,
+      "estado": "pendiente"
+    }
+  ],
+  "participantes": [
+    {
+      "id": "1",
+      "viajeId": 101,
+      "usuarioId": 2
+    }
+  ],
+  "mensajesForo": [
+    {
+      "id": "1",
+      "viajeId": 101,
+      "usuarioId": 2,
+      "mensaje": "¡Qué ganas de empezar! ¿Alguien ha mirado ya vuelos?",
+      "fecha": "2025-11-01T10:00:00Z"
+    }
+  ],
+  "valoraciones": [
+    {
+      "id": "1",
+      "valoradorId": 1,
+      "valoradoId": 2,
+      "viajeId": 101,
+      "puntuacion": 5,
+      "comentario": "¡Un compañero de viaje excelente! Muy organizado y divertido."
+    }
+  ]
+}

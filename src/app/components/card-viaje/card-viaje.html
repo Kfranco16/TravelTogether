@@ -1,1 +1,216 @@
-<p>card-viaje works!</p>
+@if (mostrarToast()) {
+<div class="toast-container position-fixed top-50 start-50 translate-middle p-3 z-1050">
+  <div
+    [ngClass]="toastClass()"
+    role="alert"
+    aria-live="polite"
+    aria-atomic="true"
+    class="alert alert-dismissible fade"
+    [class.show]="!ocultandoToast()"
+    [class.hide]="ocultandoToast()"
+  >
+    <div class="d-flex align-items-start gap-3">
+      <div class="flex-shrink-0">
+        <i class="bi" [ngClass]="toastIcon()" style="font-size: 1.5rem"></i>
+      </div>
+
+      <div class="flex-grow-1">
+        <strong>{{ mensajeToast() }}</strong>
+
+        @if (detalleToast()) {
+        <div class="small mt-1">{{ detalleToast() }}</div>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="btn-close flex-shrink-0"
+        (click)="ocultarToast()"
+        aria-label="Cerrar notificación"
+      ></button>
+    </div>
+  </div>
+</div>
+}
+
+<div class="container my-3 g-4">
+  <section class="">
+    <div class="col">
+      <article
+        class="card h-100 shadow-sm rounded-4 overflow-hidden position-relative viaje-card"
+        style="height: 330px"
+      >
+        <div class="layer-base position-absolute top-0 start-0 w-100 h-100">
+          <div class="position-relative w-100 h-100">
+            <img
+              [src]="portadaImageUrl"
+              [alt]="portadaImageAlt"
+              style="height: 100%; width: 100%; object-fit: cover; display: block card-img-zoom"
+              class="img-fluid card-img-zoom"
+            />
+
+            <div class="position-absolute top-0 start-0 w-100 text-white px-3 pt-2 lh-1">
+              <div class="fw-semibold fs-4 me-5 text-shadow-black">
+                {{ trip?.title | capitalizeFirst }}
+              </div>
+
+              <div class="user-link mt-2" (click)="irADetalleUsuario()">
+                <app-card-usuario [usuario]="usuario"></app-card-usuario>
+              </div>
+
+              <div class="fw-bold fs-6 mt-2">
+                <a
+                  [href]="getGoogleMapsUrl(trip.latitude, trip.longitude, 12)"
+                  target="_blank"
+                  rel="noopener"
+                  class="text-decoration-none text-white text-shadow-black"
+                >
+                  <i class="bi bi-geo-alt"></i> {{ trip?.destination }}
+                </a>
+              </div>
+
+              <div class="card-img-shake">
+                @if (getShowDaysBadge(trip?.start_date)) {
+                <div class="d-flex align-items-center mt-3">
+                  <span class="badge bg-danger text-white">
+                    <i class="bi bi-clock"></i>
+                    ¡Date prisa! Quedan {{ getDaysLeft(trip?.start_date) }} días.
+                  </span>
+                </div>
+                }
+              </div>
+            </div>
+
+            <button
+              type="button"
+              class="btn p-0 position-absolute top-0 end-0 m-2"
+              style="z-index: 10"
+              (click)="toggleFavorito(trip)"
+              [attr.disabled]="!isLoggedIn() ? true : null"
+              [disabled]="!isLoggedIn() || (currentUser && trip.creator_id === currentUser.id)"
+            >
+              <i class="fs-2 fav-icon-hover {{ getFavoriteIconClass(trip?.isFavorite) }}"></i>
+            </button>
+          </div>
+        </div>
+
+        <div
+          class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
+        >
+          @if (isLoggedIn()) {
+
+          <div
+            class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
+            style="background: rgba(255, 255, 255)"
+          >
+            <div
+              class="badge {{ getBadgeClass(trip?.status) }} mb-2"
+              style="font-size: 1rem; padding: 0.5em 1em"
+            >
+              {{ getBadgeText(trip?.status) }}
+            </div>
+
+            <div class="mb-2 text-muted text-center w-100">
+              <i class="bi bi-calendar3"></i>
+              {{ trip.start_date | date : 'dd/MM/yyyy' }} -
+              {{ trip.end_date | date : 'dd/MM/yyyy' }}
+            </div>
+
+            <div class="mb-2 color-principal text-center w-100">
+              <i class="bi bi-arrow-left-right"></i>
+              {{ trip?.transport }}
+            </div>
+
+            <div class="mb-2 text-center w-100">
+              <i class="bi bi-people"></i>
+              Máximo {{ trip?.min_participants }} viajeros
+            </div>
+
+            <div class="mb-2 color-principal fw-bold text-center w-100">
+              <i class="bi bi-cash-coin"></i>
+              {{ trip.estimated_cost | number : '0.0' }}€ por persona
+            </div>
+
+            <div class="mb-3 text-2lines text-muted text-center w-100">
+              {{ trip?.description }}
+            </div>
+            <div class="d-flex gap-2 w-100 justify-content-center mt-auto mb-2">
+              <button (click)="irADetalleViaje()" class="btn btn-outline-secondary btn-morado w-50">
+                Ver detalles
+              </button>
+
+              <button
+                class="btn btn-sm btn-solicitud w-50 text-nowrap"
+                type="button"
+                [ngClass]="{
+                  'btn-morado text-white':
+                    !solicitudStatus() &&
+                    !esCreador &&
+                    !isTripClosedByDate() &&
+                    !isTripInProgress(),
+                  'btn-secondary text-white':
+                    esCreador || isTripClosedByDate() || isTripInProgress(),
+                  'btn-warning text-dark': solicitudStatus() === 'pending',
+                  'btn-success text-white': solicitudStatus() === 'accepted',
+                  'btn-danger text-white': solicitudStatus() === 'rejected'
+                }"
+                [disabled]="
+                  cargandoSolicitudStatus() ||
+                  enviandoSolicitud() ||
+                  solicitudStatus() === 'pending' ||
+                  solicitudStatus() === 'accepted' ||
+                  esCreador ||
+                  isTripClosedByDate() ||
+                  isTripInProgress()
+                "
+                (click)="handleSolicitud()"
+              >
+                @if (cargandoSolicitudStatus()) {
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Cargando estado... } @else if (esCreador) { Tu viaje } @else if
+                (isTripClosedByDate()) { Viaje cerrado } @else if (isTripInProgress()) { Viaje en
+                curso } @else if (enviandoSolicitud()) {
+                <span
+                  class="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Enviando solicitud... } @else if (solicitudStatus() === 'pending') {
+                <i class="bi bi-hourglass-split"></i> Solicitud enviada } @else if
+                (solicitudStatus() === 'accepted') { <i class="bi bi-check-circle"></i> Solicitud
+                aceptada } @else if (solicitudStatus() === 'rejected') {
+                <i class="bi bi-x-circle"></i> Solicitud rechazada } @else { Solicitar unirme }
+              </button>
+            </div>
+          </div>
+
+          } @else {
+
+          <div
+            class="layer-info position-absolute bottom-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center px-4 py-3"
+            style="background: rgb(255, 255, 255)"
+          >
+            <div class="mb-2 text-success text-center w-100">
+              <i class="bi bi-calendar3"></i>
+              {{ trip.start_date | date : 'dd/MM/yyyy' }} -
+              {{ trip.end_date | date : 'dd/MM/yyyy' }}
+            </div>
+
+            <div class="mb-2 text-2lines text-muted text-center w-100">
+              {{ trip?.description }}
+            </div>
+
+            <div class="mt-2 w-100" style="max-width: 360px">
+              <app-minilogin></app-minilogin>
+            </div>
+          </div>
+          }
+        </div>
+      </article>
+    </div>
+  </section>
+</div>

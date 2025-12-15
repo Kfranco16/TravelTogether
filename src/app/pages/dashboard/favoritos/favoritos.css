@@ -1,0 +1,137 @@
+.tt-title-morado {
+  color: #6f42c1;
+  font-weight: 600;
+}
+
+.tt-subtitle-small {
+  font-size: 0.95rem;
+  color: #6c757d;
+}
+
+.tt-text-muted {
+  color: #6c757d;
+}
+
+.tt-text-error {
+  color: #dc3545;
+}
+
+.tt-fav-meta {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.tt-fav-date {
+  margin-bottom: 0.25rem;
+}
+
+.tt-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+.tt-modal {
+  background: #ffffff;
+  border-radius: 0.75rem;
+  padding: 1.5rem 1.75rem;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15);
+}
+
+.tt-modal-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #6f42c1;
+}
+
+.tt-modal-text {
+  margin-bottom: 1.25rem;
+  font-size: 0.95rem;
+  color: #495057;
+}
+
+.tt-modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.tt-btn.tt-btn-secondary.btn {
+  background-color: #ffffff;
+  border: 1px solid #6c757d;
+  color: #6c757d;
+}
+
+.tt-btn.tt-btn-primary.btn {
+  background-color: #6f42c1;
+  border-color: #6f42c1;
+  color: #ffffff;
+}
+
+.tt-btn.tt-btn-secondary.btn:hover {
+  background-color: #f8f9fa;
+}
+
+.tt-btn.tt-btn-primary.btn:hover {
+  background-color: #5a32a3;
+  border-color: #5a32a3;
+}
+
+.tt-btn.tt-btn-danger.btn {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: #ffffff;
+}
+
+.tt-fav-card-wrapper {
+  background: #ffffff;
+  border-radius: 1.5rem;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.tt-fav-card-wrapper app-card-viaje {
+  display: block;
+}
+
+.tt-fav-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem 1.2rem;
+  background: #ffffff;
+  border-top: 1px solid #f1f1f1;
+}
+
+.tt-fav-footer-text {
+  font-size: 0.9rem;
+  color: #6c757d;
+  line-height: 1.2;
+}
+
+.tt-fav-footer-btn {
+  border: none;
+  outline: none;
+  border-radius: 999px;
+  padding: 0.4rem 1.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #c0392b;
+  background: #ffe3e3;
+  box-shadow: 0 0 20px rgba(255, 99, 132, 0.35);
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.tt-fav-footer-btn:hover {
+  background: #ffd0d0;
+  box-shadow: 0 0 24px rgba(255, 99, 132, 0.45);
+  transform: translateY(-1px);
+}

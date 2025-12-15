@@ -1,0 +1,259 @@
+.tt-panel {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.tt-panel-header,
+.tt-title-center {
+  text-align: center;
+  margin-top: 60px;
+  margin-bottom: 30px;
+}
+
+.tt-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(90deg, #a259ff, #6c5ce7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.tt-empty-state {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.tt-empty-text {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0 auto 1.5rem;
+}
+
+.tt-btn-gradient {
+  padding: 0.7rem 1.8rem;
+  border-radius: 999px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(90deg, #a259ff, #6c5ce7);
+  color: white;
+  transition: opacity 0.25s ease-in-out, transform 0.15s ease;
+  box-shadow: 0 10px 25px rgba(162, 89, 255, 0.35);
+}
+
+.tt-btn-gradient:hover {
+  opacity: 0.85;
+  transform: translateY(-2px);
+}
+
+.tt-text-muted {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.tt-text-error {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.tt-trips-list {
+  border-radius: 18px;
+  background-color: #f9fafb;
+  padding: 0.5rem 0;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, 0.05);
+}
+
+.tt-trip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1.25rem;
+  cursor: pointer;
+  background-color: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.tt-trip-row:first-child {
+  border-radius: 18px 18px 0 0;
+}
+
+.tt-trip-row:last-child {
+  border-bottom: 0;
+  border-radius: 0 0 18px 18px;
+}
+
+.tt-trip-row:hover {
+  background-color: #f3f4ff;
+}
+
+.tt-trip-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.tt-trip-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.tt-trip-destination {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+/* Columna derecha */
+.tt-trip-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.tt-trip-date {
+  color: #6b7280;
+}
+
+/* Estados del viaje */
+.tt-trip-status {
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tt-trip-status--open {
+  background-color: #ecfdf5;
+  color: #15803d;
+}
+
+.tt-trip-status--draft {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.tt-trip-status--closed {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.tt-btn {
+  border-radius: 999px;
+  border: none;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.15s ease, background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.tt-btn-sm {
+  padding-inline: 0.8rem;
+}
+
+.tt-btn-danger {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.tt-btn-danger:hover {
+  background-color: #ef4444;
+  color: #fff;
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.35);
+  transform: translateY(-1px);
+}
+
+.tt-btn-secondary {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.tt-btn-secondary:hover {
+  background-color: #e5e7eb;
+}
+
+/* Botón de confirmación con degradado */
+.tt-btn-danger-gradient {
+  background-image: linear-gradient(90deg, #a259ff, #6c5ce7);
+  color: #ffffff;
+  box-shadow: 0 12px 30px rgba(94, 92, 246, 0.4);
+}
+
+.tt-btn-danger-gradient:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+
+/* MODAL */
+.tt-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(3px);
+  z-index: 50;
+}
+
+.tt-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tt-modal-content {
+  background-color: #ffffff;
+  border-radius: 24px;
+  padding: 1.5rem 1.75rem;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.4);
+}
+
+.tt-modal-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.tt-modal-text {
+  margin: 0 0 1.25rem;
+  font-size: 0.95rem;
+  color: #4b5563;
+}
+
+.tt-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .tt-trip-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+
+  .tt-trip-meta {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .tt-panel {
+    padding-inline: 1rem;
+  }
+}

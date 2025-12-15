@@ -1,0 +1,63 @@
+<section class="tt-panel">
+  <header class="tt-panel-header">
+    <h2 class="tt-title">Mis viajes</h2>
+  </header>
+
+  @if (loading) {
+  <p class="tt-text-muted tt-center">Cargando tus viajes…</p>
+  } @else if (error) {
+  <p class="tt-text-error tt-center">{{ error }}</p>
+  } @else if (hasTrips()) {
+
+  <div class="tt-trips-wrapper">
+    <ul class="tt-trip-list">
+      @for (viaje of viajes; track viaje.id) {
+      <li class="tt-trip-item" (click)="onOpenTrip(viaje.id)">
+        <div class="tt-trip-main">
+          <p class="tt-trip-title">{{ viaje.title }}</p>
+          <p class="tt-trip-subtitle">{{ viaje.destination }}</p>
+        </div>
+
+        <div class="tt-trip-meta">
+          <p class="tt-trip-date">Inicio: {{ viaje.start_date | date : 'dd/MM/yyyy' }}</p>
+
+          <button
+            type="button"
+            class="tt-btn tt-btn-danger tt-btn-sm"
+            (click)="onAskRemoveTrip(viaje, $event)"
+          >
+            Quitar
+          </button>
+        </div>
+      </li>
+      }
+    </ul>
+  </div>
+
+  } @else {
+
+  <div class="tt-empty-state">
+    <p class="tt-empty-text">
+      Todavía no has creado ningún viaje.<br />
+      Publica tu primera aventura para verla aquí.
+    </p>
+
+    <button class="tt-btn tt-btn-gradient tt-empty-btn" routerLink="/crear-viaje">
+      + Crear viaje
+    </button>
+  </div>
+
+  } @if (showConfirmModal && tripToDelete) {
+  <div class="tt-modal-backdrop">
+    <div class="tt-modal">
+      <h3 class="tt-modal-title">Eliminar viaje</h3>
+      <p class="tt-modal-text">¿Seguro que quieres eliminar este viaje?</p>
+
+      <div class="tt-modal-actions">
+        <button class="tt-btn tt-btn-secondary" (click)="closeConfirmModal()">Anular</button>
+        <button class="tt-btn tt-btn-danger" (click)="onConfirmRemoveTrip()">Confirmar</button>
+      </div>
+    </div>
+  </div>
+  }
+</section>

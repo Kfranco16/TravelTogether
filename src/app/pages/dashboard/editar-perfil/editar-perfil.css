@@ -1,0 +1,16 @@
+.tt-datos-page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.tt-datos-inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.tt-datos-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #5c3af3;
+}

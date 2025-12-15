@@ -1,0 +1,132 @@
+.text-shadow {
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+}
+
+.carousel-container-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 20px;
+}
+
+.carousel-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  padding: 30px 0 50px 0;
+  margin-top: -20px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.carousel-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel-inner {
+  display: flex;
+  flex-wrap: nowrap !important;
+  gap: 1.5rem;
+  width: max-content;
+  padding: 0 1rem;
+}
+
+.carousel-card {
+  flex: 0 0 280px;
+  scroll-snap-align: start;
+  transition: transform 0.3s ease;
+  animation: cardFadeIn 0.6s ease-out;
+  overflow: visible;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-recommendation {
+  border-radius: 0.875rem;
+  background: white;
+  height: 100%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+.card-recommendation:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.carousel-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #e0e0e0;
+  background: #e0e0e0;
+  padding: 0;
+  transition: all 0.3s;
+}
+
+.carousel-indicator.active {
+  background: #7b61ff;
+  border-color: #7b61ff;
+  transform: scale(1.2);
+  box-shadow: 0 4px 10px rgba(123, 97, 255, 0.3);
+}
+
+.testimonials-arrow {
+  transition: background 0.3s ease, color 0.3s ease, transform 0.15s ease;
+  background: transparent;
+  color: rgb(74, 1, 74);
+  border: none;
+  box-shadow: 0 4px 15px rgba(123, 97, 255, 0.4);
+  transition: all 0.3s ease;
+}
+
+.testimonials-arrow:hover {
+  background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.testimonials-arrow:focus {
+  box-shadow: 0 0 0 0.25rem rgba(123, 97, 255, 0.25);
+  outline: none;
+}
+
+@media (max-width: 992px) {
+  .carousel-card {
+    flex: 0 0 320px;
+  }
+}
+
+@media (max-width: 768px) {
+  .carousel-wrapper {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 30px 0 50px 0;
+  }
+
+  .carousel-inner {
+    gap: 1rem;
+    padding: 0 7.5vw;
+  }
+
+  .carousel-card {
+    flex: 0 0 85vw;
+    width: 85vw;
+    max-width: 400px;
+    scroll-snap-align: center;
+    margin-right: 0;
+  }
+
+  .carousel-container-wrapper .d-flex.justify-content-center {
+    margin-top: 0 !important;
+    padding-bottom: 10px;
+  }
+}

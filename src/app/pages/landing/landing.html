@@ -1,1 +1,368 @@
-<p>landing works!</p>
+<div
+  class="container-fluid hero-bg px-4 py-5 text-center text-white opacity-55"
+  style="position: relative"
+  [style.minHeight.px]="420"
+  [style.backgroundSize]="'cover'"
+  [style.backgroundPosition]="'center'"
+  [style.backgroundRepeat]="'no-repeat'"
+  [style.transition]="'background-image 1s ease-in-out'"
+  [style.backgroundImage]="'url(' + heroImages()[currentImageIndex()].url + ')'"
+>
+  <div
+    class="hero-overlay"
+    style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.35); z-index: 0"
+  ></div>
+
+  <div class="container px-4 py-5 text-center" style="position: relative; z-index: 1">
+    @if(!isAuthenticated){
+
+    <h1 class="display-5 fw-bold text-shadow-1px text-shadow">
+      VIAJAR EN GRUPO NUNCA FUE TAN FÁCIL
+    </h1>
+    <div class="col-lg-8 mx-auto">
+      <h5 class="mb-4 text-shadow">
+        Conecta, comparte y descubre el mundo con viajeros que tienen tus mismos intereses. Organiza
+        o únete a viajes grupales y ahorra en tu próxima gran aventura.
+      </h5>
+    </div>
+    } @if(isAuthenticated){
+
+    <h1 class="display-1 fw-bold text-shadow-1px text-shadow mb-4">
+      ¡Hola de nuevo<br />
+      {{ currentUser?.username }}!
+    </h1>
+    <div class="col-lg-8 mx-auto">
+      <h2 class="mb-4 text-shadow">
+        Explora nuevos destinos y conecta con otros viajeros para planear tu próxima aventura
+        juntos.
+      </h2>
+    </div>
+    }
+
+    <div class="row g-4 pt-4 row-cols-1 row-cols-lg-3">
+      @if (!isAuthenticated){
+      <div class="feature col text-white hidden">
+        <div
+          class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3 rounded-circle"
+          style="
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+          "
+        >
+          <i class="bi bi-search"></i>
+        </div>
+        <h2 class="text-shadow">1. Explora Viajes</h2>
+        <h5 class="text-shadow">
+          Encuentra tu aventura ideal entre cientos de propuestas creadas por nuestra comunidad.
+        </h5>
+      </div>
+
+      <div class="feature col text-white">
+        <div
+          class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3 rounded-circle"
+          style="
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+          "
+        >
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <h2 class="text-shadow">2. Únete al Grupo</h2>
+        <h5 class="text-shadow">
+          Aplica al viaje que te interese y coordina con el creador y los demás viajeros.
+        </h5>
+      </div>
+
+      <div class="feature col text-white">
+        <div
+          class="feature-icon d-inline-flex align-items-center justify-content-center fs-2 mb-3 rounded-circle"
+          style="
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+          "
+        >
+          <i class="bi bi-airplane-fill"></i>
+        </div>
+        <h2 class="text-shadow">3. ¡A Viajar!</h2>
+        <h5 class="text-shadow">
+          Disfruta de una experiencia única compartiendo gastos y creando recuerdos inolvidables.
+        </h5>
+      </div>
+      }
+    </div>
+  </div>
+</div>
+<hr />
+
+<!-- ==================== BLOQUE 2: BUSCADOR Y GALERÍA DE VIAJES ==================== -->
+<div class="container py-5">
+  <!-- ========== Barra de Búsqueda y Filtros ========== -->
+  <!-- Esta sección contiene los controles interactivos para buscar y filtrar viajes -->
+  <div class="row mb-4 g-3 align-items-center">
+    <!-- INPUT DE BÚSQUEDA: Permite al usuario buscar por destino, título, descripción, etc -->
+    <div class="col-md-6">
+      <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Buscar viajes por destino, título..."
+          (input)="onBusquedaChange($event)"
+          [value]="busquedaInput()"
+        />
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <select
+        class="form-select"
+        (change)="onFiltroDuracionChange($event)"
+        [value]="filtroDuracion()"
+      >
+        <!-- Opción por defecto sin filtro -->
+        <option value="">Duración</option>
+        <option value="expres">Menos de 1 semana</option>
+        <option value="corta">1 semana</option>
+        <option value="media">2 semanas</option>
+        <option value="larga">Más de 2 semanas</option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <select
+        class="form-select"
+        (change)="onFiltroRangoPreciosChange($event)"
+        [value]="filtroRangoPrecios()"
+      >
+        <!-- Opción por defecto sin filtro -->
+        <option value="">Precios</option>
+        <!-- Rango 1: $0 a $500 -->
+        <option value="0-500">0 € - 500 €</option>
+        <!-- Rango 2: $500 a $1000 -->
+        <option value="500-1000">500 € - 1000 €</option>
+        <!-- Rango 3: $1000 a $2000 -->
+        <option value="1000-2000">1000 € - 2000 €</option>
+        <!-- Rango 4: $2000 en adelante -->
+        <option value="2000+">2000 €+</option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <select class="form-select" (change)="onOrdenamientoChange($event)" [value]="ordenamiento()">
+        <!-- Opción por defecto sin ordenamiento -->
+        <option value="">Ordenar</option>
+        <!-- Ordenar por precio de menor a mayor -->
+        <option value="precio-asc">Precio (menor a mayor)</option>
+        <!-- Ordenar por fecha de inicio (próximas primero) -->
+        <option value="fecha-asc">Fecha (próximas primero)</option>
+      </select>
+    </div>
+  </div>
+
+  <section class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @if (isLoadingTrips) {
+    <div class="col-12 text-center py-5">
+      <p>Cargando viajes...</p>
+    </div>
+
+    } @else if (hasTripsError) {
+    <div class="col-12 text-center py-5 text-danger align-items-center">
+      <p>Error al cargar los viajes. Por favor, inténtalo de nuevo más tarde.</p>
+    </div>
+
+    } @else if (visibleTrips.length === 0) {
+    <div class="col-12 text-center py-5">
+      <p>No hay viajes disponibles.</p>
+    </div>
+
+    } @else { @for (trip of viajesVisibles; track trip.id) {
+    <app-card-viaje [trip]="trip"></app-card-viaje>
+    } }
+  </section>
+
+  @if (hayMasViajes) {
+  <div class="text-center mt-4">
+    <button
+      (click)="mostrarMasViajes()"
+      class="btn btn-lg px-4 text-white"
+      style="
+        background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+        border: none;
+        box-shadow: 0 4px 14px rgba(111, 66, 193, 0.25);
+      "
+    >
+      <i class="bi bi-plus-circle me-2"></i>
+      Mostrar más viajes
+    </button>
+  </div>
+  }
+  <hr />
+</div>
+
+<div class="container">
+  @if (!isAuthenticated){
+  <h2 class="pb-2 border-bottom text-center">Lo que nuestros viajeros dicen</h2>
+
+  <div class="position-relative">
+    <button
+      class="btn testimonials-arrow position-absolute start-0 top-50 translate-middle-y d-none d-lg-block shadow bg-white rounded-circle"
+      (click)="mostrarTestimoniosAnteriores()"
+      style="z-index: 10; width: 45px; height: 45px"
+    >
+      <i class="bi bi-chevron-left fs-4"></i>
+    </button>
+
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3 px-5">
+      @for (testimonio of testimonios().slice(testimonioActual(), testimonioActual() + 3); track
+      testimonio.nombre) {
+      <div class="col">
+        <div class="card h-100 shadow">
+          <div class="card-body">
+            <p class="card-text">"{{ testimonio.texto }}"</p>
+          </div>
+          <div class="card-footer bg-transparent border-top-0 d-flex align-items-center">
+            <img
+              [src]="'https://i.pravatar.cc/40?img=' + testimonio.avatarId"
+              class="rounded-circle me-3"
+              [alt]="'Avatar de ' + testimonio.nombre"
+            />
+            <div>
+              <h6 class="mb-0">{{ testimonio.nombre }}</h6>
+              <small class="text-muted">{{ testimonio.viaje }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+    </div>
+
+    <button
+      class="btn testimonials-arrow position-absolute end-0 top-50 translate-middle-y d-none d-lg-block shadow bg-white rounded-circle"
+      (click)="mostrarSiguientesTestimonios()"
+      style="z-index: 10; width: 45px; height: 45px"
+    >
+      <i class="bi bi-chevron-right fs-4"></i>
+    </button>
+  </div>
+  <hr />
+  }@if(isAuthenticated) {
+
+  <div class="container">
+    <div class="container">
+      <div class="row justify-content-center text-center mb-5">
+        <div class="col-lg-7">
+          <h2 class="display-6 fw-bold mb-3">Prepárate para tu próximo viaje</h2>
+          <p class="fs-4 text-muted">
+            Descubre recomendaciones prácticas para que tu experiencia sea segura, cómoda y
+            memorable. Desliza para ver todas.
+          </p>
+        </div>
+      </div>
+
+      <div class="position-relative carousel-container-wrapper">
+        <button
+          class="btn testimonials-arrow position-absolute start-0 top-50 translate-middle-y d-none d-lg-block shadow bg-white rounded-circle"
+          (click)="moverCarrusel('izquierda')"
+          style="z-index: 10; width: 45px; height: 45px"
+          aria-label="Anterior"
+        >
+          <i class="bi bi-chevron-left fs-4"></i>
+        </button>
+
+        <button
+          class="btn testimonials-arrow position-absolute end-0 top-50 translate-middle-y d-none d-lg-block shadow bg-white rounded-circle"
+          (click)="moverCarrusel('derecha')"
+          style="z-index: 10; width: 45px; height: 45px"
+          aria-label="Siguiente"
+        >
+          <i class="bi bi-chevron-right fs-4"></i>
+        </button>
+
+        <div class="carousel-wrapper" #carouselContainer (scroll)="alHacerScroll($event)">
+          <div class="carousel-inner">
+            @for (recomendacion of recomendacionesViajeros(); track recomendacion.id) {
+            <div class="carousel-card">
+              <div class="card h-100 border-0 shadow-sm card-recommendation">
+                <!-- Header -->
+                <div
+                  class="card-header border-0 bg-{{
+                    recomendacion.color
+                  }} bg-opacity-10 py-5 d-flex align-items-center justify-content-center"
+                >
+                  <i class="bi {{ recomendacion.icono }} fs-1 text-{{ recomendacion.color }}"></i>
+                </div>
+
+                <!-- Body -->
+                <div class="card-body d-flex flex-column p-4">
+                  <h5 class="card-title fw-bold mb-3">{{ recomendacion.titulo }}</h5>
+                  <p class="card-text text-muted small mb-4 flex-grow-1">
+                    {{ recomendacion.descripcion }}
+                  </p>
+
+                  <!-- Consejo -->
+                  <div
+                    class="alert alert-{{ recomendacion.color }} py-2 px-3 mb-0 alert-consejo"
+                    role="alert"
+                  >
+                    <small class="d-block">
+                      <i class="bi bi-lightbulb-fill me-2"></i> <strong>Consejo:</strong>
+                      {{ recomendacion.consejo }}
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- Indicadores (Dots) -->
+        <div class="d-flex justify-content-center gap-2 mt-5">
+          @for (item of recomendacionesViajeros(); track item.id; let i = $index) {
+          <button
+            class="carousel-indicator"
+            [class.active]="indiceCarruselRecomendaciones() === i"
+            (click)="irARecomendacion(i)"
+            [attr.aria-label]="'Ir a recomendación ' + (i + 1)"
+          ></button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  }
+</div>
+
+<!--  Bloque 5: "SOCIOS" - Publicidad Sutil  -->
+
+<div class="container py-5 text-center">
+  <h2 class="pb-2 border-bottom">Partners Oficiales</h2>
+  <p class="lead">Colaboramos con las mejores empresas para facilitar tu aventura.</p>
+  <div class="d-flex flex-wrap justify-content-center align-items-center gap-4 mt-4">
+    <!-- Logos  -->
+    <img
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Logo_Vueling.svg/1200px-Logo_Vueling.svg.png"
+      alt="Logo Aerolínea"
+      style="height: 30px; object-fit: contain"
+    />
+    <img
+      src="https://tse1.mm.bing.net/th/id/OIP.kfIYtECFFGxMosvul2OSFAHaEK?rs=1&pid=ImgDetMain&o=7&rm=3"
+      alt="Logo Hotel"
+      style="height: 50px; object-fit: contain"
+    />
+    <img
+      src="https://logodix.com/logo/874813.png"
+      alt="Logo Renta de Carros"
+      style="height: 50px; object-fit: contain"
+    />
+    <img
+      src="https://clubthrifty.com/wp-content/uploads/2018/11/axa-travel-insurance-logo-300x167.png"
+      alt="Logo Seguro de Viaje"
+      style="height: 50px; object-fit: contain"
+    />
+  </div>
+</div>

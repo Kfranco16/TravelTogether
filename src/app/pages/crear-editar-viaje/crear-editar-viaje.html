@@ -1,1 +1,505 @@
-<p>crear-editar-viaje works!</p>
+<div class="container my-4">
+  <form
+    [formGroup]="tripForm"
+    (ngSubmit)="onSubmit()"
+    class="trip-form bg-white shadow-sm rounded-4 p-4 p-md-5"
+  >
+    <section class="py-4 py-md-4 mb-4 bg-light rounded-3 px-3 px-md-4">
+      <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-3">
+        <div
+          class="rounded-circle bg-white shadow-sm d-flex align-items-center justify-content-center flex-shrink-0"
+          style="width: 56px; height: 56px"
+        >
+          <i class="bi bi-geo-alt-fill text-primary fs-3"></i>
+        </div>
+
+        <div>
+          <p
+            class="text-uppercase text-secondary fw-semibold mb-1 small d-flex align-items-center gap-2"
+          >
+            <i class="bi bi-stars"></i>
+            {{ modoEdicion ? 'Edición de viaje' : 'Registro de viaje' }}
+          </p>
+
+          <h1 class="h3 mb-2 color-principal">
+            {{ modoEdicion ? 'Edita tu viaje' : 'Crea un nuevo viaje' }}
+          </h1>
+
+          <p class="mb-2 text-muted">
+            Crea un título que atrape, elige fotos que muestren la mejor cara de tu aventura y
+            resume en pocas palabras por qué será inolvidable para tu grupo.
+          </p>
+
+          <p class="mb-0 text-muted small">
+            ¿Listo? Completa los detalles clave y comparte tu próximo destino con la comunidad.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div class="bg-light border-start border-3 border-primary ps-3 mb-4">
+      <h2 class="h5 mb-1 d-flex align-items-center gap-2">
+        <i class="bi bi-pencil-square text-primary"></i>
+        Información básica
+      </h2>
+      <p class="text-muted small mb-0">
+        Define el título, el origen, el destino y las fechas de tu viaje.
+      </p>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Título para el viaje:</label>
+      <input type="text" formControlName="title" class="form-control" />
+      @if (tripForm.get('title')?.invalid && tripForm.get('title')?.touched) {
+      <div class="text-danger small mt-1">
+        <i class="bi bi-exclamation-circle me-1"></i>
+        El título es obligatorio.
+      </div>
+      }
+    </div>
+
+    <div class="row">
+      <div class="mb-3 col-12 col-md-6">
+        <label for="origen" class="form-label fw-semibold">Origen:</label>
+        <input
+          type="text"
+          formControlName="origin"
+          class="form-control"
+          id="origen"
+          #originInput
+          autocomplete="off"
+          spellcheck="false"
+        />
+        @if (tripForm.get('origin')?.invalid && tripForm.get('origin')?.touched) {
+        <div class="text-danger small mt-1">
+          <i class="bi bi-exclamation-circle me-1"></i>
+          El origen es obligatorio.
+        </div>
+        }
+      </div>
+
+      <div class="mb-3 col-12 col-md-6">
+        <label for="destino" class="form-label fw-semibold">Destino:</label>
+        <input
+          type="text"
+          formControlName="destination"
+          class="form-control"
+          id="destino"
+          placeholder="Escribe y selecciona la ciudad para autocompletarla correctamente."
+          #destinationInput
+          autocomplete="off"
+          spellcheck="false"
+        />
+        @if (tripForm.get('destination')?.invalid && tripForm.get('destination')?.touched) {
+        <div class="text-danger small mt-1">
+          <i class="bi bi-exclamation-circle me-1"></i>
+          El destino es obligatorio.
+        </div>
+        }
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="mb-3 col-12 col-md-6">
+        <label class="form-label fw-semibold">Fecha de inicio</label>
+        <input type="date" formControlName="start_date" class="form-control" [attr.min]="today" />
+        @if (tripForm.get('start_date')?.errors?.['dateError'] &&
+        tripForm.get('start_date')?.touched) {
+        <div class="text-danger small mt-1">
+          <i class="bi bi-exclamation-circle me-1"></i>
+          La fecha de inicio no puede ser anterior a hoy.
+        </div>
+        }
+      </div>
+
+      <div class="mb-3 col-12 col-md-6">
+        <label class="form-label fw-semibold">Fecha de fin</label>
+        <input
+          type="date"
+          formControlName="end_date"
+          class="form-control"
+          [attr.min]="tripForm.get('start_date')?.value || today"
+        />
+        @if (tripForm.get('end_date')?.errors?.['dateError'] && tripForm.get('end_date')?.touched) {
+        <div class="text-danger small mt-1">
+          <i class="bi bi-exclamation-circle me-1"></i>
+          La fecha de fin no puede ser anterior a hoy ni a la fecha de inicio.
+        </div>
+        }
+      </div>
+    </div>
+
+    <div class="bg-light border-start border-3 border-primary ps-3 mb-4 mt-4">
+      <h2 class="h5 mb-1 d-flex align-items-center gap-2">
+        <i class="bi bi-journal-text text-primary"></i>
+        Descripción e itinerario
+      </h2>
+      <p class="text-muted small mb-0">
+        Cuenta la historia del viaje y organiza las actividades por días.
+      </p>
+    </div>
+
+    <div class="mb-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <label class="form-label fw-semibold mb-0">Descripción del viaje</label>
+        @if (tripForm.get('description')?.invalid && tripForm.get('description')?.touched) {
+        <span class="text-danger small">
+          <i class="bi bi-exclamation-circle me-1"></i>
+          Obligatorio
+        </span>
+        }
+      </div>
+      <textarea
+        formControlName="description"
+        rows="3"
+        class="form-control"
+        placeholder="Resume en pocas líneas el objetivo y el ambiente del viaje..."
+      ></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">
+        Itinerario del viaje
+        <span class="text-muted d-block small">
+          Recuerda: cada día debe empezar por la palabra <strong>Dia</strong>.
+        </span>
+      </label>
+      @if (tripForm.get('itinerary')?.invalid && tripForm.get('itinerary')?.touched) {
+      <div class="text-danger small mb-1">
+        <i class="bi bi-exclamation-circle me-1"></i>
+        El itinerario es obligatorio.
+      </div>
+      }
+      <textarea
+        formControlName="itinerary"
+        rows="4"
+        class="form-control"
+        placeholder="Dia 1: Llegada..."
+      ></textarea>
+    </div>
+
+    <div class="bg-light border-start border-3 border-primary ps-3 mb-4 mt-4">
+      <h2 class="h5 mb-1 d-flex align-items-center gap-2">
+        <i class="bi bi-list-check text-primary"></i>
+        Requisitos y servicios incluidos
+      </h2>
+      <p class="text-muted small mb-0">Aclara qué se necesita y qué está cubierto en el viaje.</p>
+    </div>
+
+    <div class="row g-4 mb-3">
+      <div class="col-12 col-lg-5">
+        <div class="h-100 p-3 p-lg-4 rounded-3 bg-light bg-opacity-50">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <label class="form-label fw-semibold mb-0 d-flex align-items-center gap-2">
+              <i class="bi bi-clipboard-check text-primary"></i>
+              Requisitos mínimos
+            </label>
+            <small class="text-muted">
+              {{ tripForm.get('requirements')?.value?.length || 0 }}/100 caracteres
+            </small>
+          </div>
+
+          @if (tripForm.get('requirements')?.invalid && tripForm.get('requirements')?.touched) {
+          <div class="text-danger small mb-2">
+            <i class="bi bi-exclamation-circle me-1"></i>
+            Los requisitos mínimos son obligatorios.
+          </div>
+          }
+
+          <textarea
+            formControlName="requirements"
+            class="form-control"
+            [maxlength]="100"
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-7">
+        <div class="h-100 p-3 p-lg-4 rounded-3 bg-light bg-opacity-25">
+          <label class="form-label fw-semibold d-flex align-items-center gap-2 mb-2">
+            <i class="bi bi-bag-check text-primary"></i>
+            ¿Qué incluye?
+          </label>
+
+          @if (tripForm.get('includes')?.invalid && tripForm.get('includes')?.touched) {
+          <div class="text-danger small mb-2">
+            <i class="bi bi-exclamation-circle me-1"></i>
+            Debes seleccionar al menos una opción.
+          </div>
+          }
+
+          <div class="row row-cols-1 row-cols-sm-2 g-2">
+            <div class="col">
+              <label
+                class="include-card h-100 w-100 px-3 py-2 d-flex align-items-center rounded-3 border bg-white bg-opacity-75"
+                for="flights"
+              >
+                <input
+                  class="form-check-input me-2"
+                  type="checkbox"
+                  formControlName="flights"
+                  id="flights"
+                />
+                <span class="include-icon me-2 text-primary"><i class="bi bi-airplane"></i></span>
+                <span class="flex-grow-1 small">Transporte (Vuelos, Tren, Bus...)</span>
+              </label>
+            </div>
+
+            <div class="col">
+              <label
+                class="include-card h-100 w-100 px-3 py-2 d-flex align-items-center rounded-3 border bg-white bg-opacity-75"
+                for="tickets"
+              >
+                <input
+                  class="form-check-input me-2"
+                  type="checkbox"
+                  formControlName="tickets"
+                  id="tickets"
+                />
+                <span class="include-icon me-2 text-primary"
+                  ><i class="bi bi-ticket-detailed"></i
+                ></span>
+                <span class="flex-grow-1 small">Tickets</span>
+              </label>
+            </div>
+
+            <div class="col">
+              <label
+                class="include-card h-100 w-100 px-3 py-2 d-flex align-items-center rounded-3 border bg-white bg-opacity-75"
+                for="visits"
+              >
+                <input
+                  class="form-check-input me-2"
+                  type="checkbox"
+                  formControlName="visits"
+                  id="visits"
+                />
+                <span class="include-icon me-2 text-primary"><i class="bi bi-binoculars"></i></span>
+                <span class="flex-grow-1 small">Visitas</span>
+              </label>
+            </div>
+
+            <div class="col">
+              <label
+                class="include-card h-100 w-100 px-3 py-2 d-flex align-items-center rounded-3 border bg-white bg-opacity-75"
+                for="full_board"
+              >
+                <input
+                  class="form-check-input me-2"
+                  type="checkbox"
+                  formControlName="full_board"
+                  id="full_board"
+                />
+                <span class="include-icon me-2 text-primary"><i class="bi bi-cup-straw"></i></span>
+                <span class="flex-grow-1 small">Pensión completa</span>
+              </label>
+            </div>
+
+            <div class="col">
+              <label
+                class="include-card h-100 w-100 px-3 py-2 d-flex align-items-center rounded-3 border bg-white bg-opacity-75"
+                for="travel_insurance"
+              >
+                <input
+                  class="form-check-input me-2"
+                  type="checkbox"
+                  formControlName="travel_insurance"
+                  id="travel_insurance"
+                />
+                <span class="include-icon me-2 text-primary"
+                  ><i class="bi bi-shield-check"></i
+                ></span>
+                <span class="flex-grow-1 small">Seguro de viaje</span>
+              </label>
+            </div>
+
+            <div class="col">
+              <label
+                class="include-card h-100 w-100 px-3 py-2 d-flex align-items-center rounded-3 border bg-white bg-opacity-75"
+                for="tour_guide"
+              >
+                <input
+                  class="form-check-input me-2"
+                  type="checkbox"
+                  formControlName="tour_guide"
+                  id="tour_guide"
+                />
+                <span class="include-icon me-2 text-primary"
+                  ><i class="bi bi-person-badge"></i
+                ></span>
+                <span class="flex-grow-1 small">Guía turístico</span>
+              </label>
+            </div>
+
+            <div class="col">
+              <label
+                class="include-card h-100 w-100 px-3 py-2 d-flex align-items-center rounded-3 border bg-white bg-opacity-75"
+                for="informative_material"
+              >
+                <input
+                  class="form-check-input me-2"
+                  type="checkbox"
+                  formControlName="informative_material"
+                  id="informative_material"
+                />
+                <span class="include-icon me-2 text-primary"
+                  ><i class="bi bi-info-circle"></i
+                ></span>
+                <span class="flex-grow-1 small">Material informativo</span>
+              </label>
+            </div>
+
+            <div class="col">
+              <label
+                class="include-card h-100 w-100 px-3 py-2 d-flex align-items-center rounded-3 border bg-white bg-opacity-75"
+                for="breakfast"
+              >
+                <input
+                  class="form-check-input me-2"
+                  type="checkbox"
+                  formControlName="breakfast"
+                  id="breakfast"
+                />
+                <span class="include-icon me-2 text-primary"><i class="bi bi-egg-fried"></i></span>
+                <span class="flex-grow-1 small">Desayuno</span>
+              </label>
+            </div>
+
+            <div class="col">
+              <label
+                class="include-card h-100 w-100 px-3 py-2 d-flex align-items-center rounded-3 border bg-white bg-opacity-75"
+                for="visas"
+              >
+                <input
+                  class="form-check-input me-2"
+                  type="checkbox"
+                  formControlName="visas"
+                  id="visas"
+                />
+                <span class="include-icon me-2 text-primary"><i class="bi bi-passport"></i></span>
+                <span class="flex-grow-1 small">Visados</span>
+              </label>
+            </div>
+
+            <div class="col">
+              <label
+                class="include-card h-100 w-100 px-3 py-2 d-flex align-items-center rounded-3 border bg-white bg-opacity-75"
+                for="assistance24"
+              >
+                <input
+                  class="form-check-input me-2"
+                  type="checkbox"
+                  formControlName="assistance24"
+                  id="assistance24"
+                />
+                <span class="include-icon me-2 text-primary"
+                  ><i class="bi bi-telephone-forward"></i
+                ></span>
+                <span class="flex-grow-1 small">Asistencia 24h</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-start border-3 border-primary ps-3 mb-4 mt-4">
+      <h2 class="h5 mb-1 d-flex align-items-center gap-2">
+        <i class="bi bi-people text-primary"></i>
+        Participantes y presupuesto
+      </h2>
+      <p class="text-muted small mb-0">
+        Define cuántas personas pueden viajar y el coste aproximado.
+      </p>
+    </div>
+
+    <div class="row">
+      <div class="mb-3 col-12 col-md-6">
+        <label class="form-label fw-semibold">Nº máximo de participantes</label>
+        <input type="number" min="1" formControlName="min_participants" class="form-control" />
+        @if (tripForm.get('min_participants')?.invalid && tripForm.get('min_participants')?.touched)
+        {
+        <div class="text-danger small mt-1">
+          <i class="bi bi-exclamation-circle me-1"></i>
+          El número máximo de participantes debe ser de al menos 2 personas.
+        </div>
+        }
+      </div>
+      <div class="mb-3 col-12 col-md-6">
+        <label class="form-label fw-semibold">Precio estimado por persona</label>
+        @if (tripForm.get('estimated_cost')?.invalid && tripForm.get('estimated_cost')?.touched) {
+        <div class="text-danger small mt-1">
+          <i class="bi bi-exclamation-circle me-1"></i>
+          El precio estimado es obligatorio.
+        </div>
+        }
+        <div class="input-group">
+          <span class="input-group-text">€</span>
+          <input type="number" step="0.01" formControlName="estimated_cost" class="form-control" />
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-light border-start border-3 border-primary ps-3 mb-4 mt-4">
+      <h2 class="h5 mb-1 d-flex align-items-center gap-2">
+        <i class="bi bi-compass text-primary"></i>
+        Transporte y alojamiento
+      </h2>
+      <p class="text-muted small mb-0">Indica cómo os moveréis y dónde os alojaréis.</p>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Transporte</label>
+      @if (tripForm.get('transport')?.invalid && tripForm.get('transport')?.touched) {
+      <div class="text-danger small mb-1">
+        <i class="bi bi-exclamation-circle me-1"></i>
+        El transporte es obligatorio.
+      </div>
+      }
+      <input type="text" formControlName="transport" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Tipo de alojamiento</label>
+      @if (tripForm.get('accommodation')?.invalid && tripForm.get('accommodation')?.touched) {
+      <div class="text-danger small mb-1">
+        <i class="bi bi-exclamation-circle me-1"></i>
+        El tipo de alojamiento es obligatorio.
+      </div>
+      }
+      <input type="text" formControlName="accommodation" class="form-control" />
+    </div>
+
+    <div class="bg-light border-start border-3 border-primary ps-3 mb-4 mt-4">
+      <h2 class="h5 mb-1 d-flex align-items-center gap-2">
+        <i class="bi bi-image text-primary"></i>
+        Imágenes del viaje
+      </h2>
+      <p class="text-muted small mb-0">
+        Elige fotos que transmitan el ambiente y el estilo de la experiencia.
+      </p>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Foto de portada</label>
+      <input type="file" class="form-control" (change)="onPhotoChange($event, 'cover_photo')" />
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Foto principal</label>
+      <input type="file" class="form-control" (change)="onPhotoChange($event, 'main_photo')" />
+    </div>
+
+    <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+      <button
+        class="btn btn-morado w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2"
+        type="submit"
+        [disabled]="tripForm.invalid"
+      >
+        <i class="bi bi-send-fill"></i>
+        {{ modoEdicion ? 'Actualizar y guardar' : 'Aceptar y publicar viaje' }}
+      </button>
+    </div>
+  </form>
+</div>

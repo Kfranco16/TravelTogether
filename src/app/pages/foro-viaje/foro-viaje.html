@@ -1,1 +1,210 @@
-<p>foro-viaje works!</p>
+<div class="container my-5">
+  <div class="row">
+    <div class="col-12 col-lg-9 mx-auto">
+      <div class="mb-4 d-flex justify-content-between align-items-center gap-2">
+        <button
+          class="btn btn-sm btn-outline-primary"
+          (click)="goBackToMisViajes()"
+          title="Volver a Mis Viajes"
+        >
+          <i class="bi bi-arrow-left me-1"></i>
+          <span class="d-none d-sm-inline">Volver</span>
+        </button>
+
+        <div class="flex-grow-1"></div>
+
+        @if (!isLoading()) {
+        <button
+          class="btn btn-sm btn-outline-primary"
+          (click)="refreshMessages()"
+          title="Refrescar mensajes"
+        >
+          <i class="bi bi-arrow-clockwise"></i>
+        </button>
+        }
+      </div>
+
+      @if (accessDenied()) {
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <strong>Acceso Denegado</strong>
+        <p class="mb-0">{{ errorMessage() }}</p>
+        <hr />
+        <p class="mb-0 small text-muted">Serás redirigido al dashboard...</p>
+      </div>
+      } @else {
+
+      <div class="card modern-foro-card">
+        <div class="card-header modern-foro-header text-white">
+          <div class="d-flex justify-content-center align-items-center gap-2">
+            <h4 class="mb-0 d-flex align-items-center">
+              @if (isLoading()) {
+              <span
+                class="spinner-border spinner-border-sm me-2"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              <span>Cargando foro...</span>
+              } @else {
+              <i class="bi bi-rocket-takeoff me-2"></i>
+              <span class="text-truncate">Foro: {{ tripTitle() || 'Viaje no encontrado' }}</span>
+              }
+            </h4>
+          </div>
+        </div>
+
+        <div class="card-body modern-foro-body">
+          @if (!canReadMessages()) {
+          <div class="alert alert-warning">
+            <i class="bi bi-lock me-2"></i>
+            <strong>No tienes permiso</strong> para ver los mensajes de este foro.
+          </div>
+          } @else if (isLoading()) {
+          <div class="text-center py-5">
+            <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+            <p class="mt-3 text-muted">Cargando mensajes...</p>
+          </div>
+          } @else if (errorMessage()) {
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            {{ errorMessage() }}
+            <button class="btn btn-sm btn-outline-danger mt-2" (click)="refreshMessages()">
+              Reintentar
+            </button>
+          </div>
+          } @else if (messages().length === 0) {
+          <div class="text-center py-5">
+            <i class="bi bi-chat-dots" style="font-size: 3rem; color: #ccc"></i>
+            <p class="mt-3 text-muted">No hay mensajes aún. ¡Sé el primero en escribir!</p>
+          </div>
+          } @else {
+
+          <div class="system-message">
+            <span>Total de {{ messages().length }} mensajes</span>
+          </div>
+
+          <div class="messages-container">
+            @for (msg of messages(); track msg.id) { @if (isOwnMessage(msg)) {
+
+            <div class="d-flex align-items-end justify-content-end mb-3 message-group">
+              @if (canDeleteMessage(msg)) {
+              <div class="me-2 d-flex gap-2">
+                <button
+                  class="btn btn-sm btn-outline-danger delete-btn"
+                  (click)="deleteMessage(msg)"
+                  title="Eliminar mensaje"
+                  [disabled]="isSendingMessage()"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+              }
+              <div class="modern-message modern-self-message">
+                <p class="mb-1">{{ msg.message }}</p>
+                <div class="text-end">
+                  <small class="message-time">{{ formatDate(msg.created_at) }}</small>
+                </div>
+              </div>
+            </div>
+            } @else {
+
+            <div class="d-flex align-items-end mb-3 message-group">
+              <div class="d-flex flex-column">
+                <div class="d-flex align-items-center mb-1">
+                  <strong class="text-dark">{{ getSenderName(msg) }}</strong>
+                </div>
+                <div class="modern-message modern-other-message">
+                  <p class="mb-1">{{ msg.message }}</p>
+                  <div class="text-end">
+                    <small class="message-time">{{ formatDate(msg.created_at) }}</small>
+                  </div>
+                </div>
+              </div>
+
+              @if (canDeleteMessage(msg)) {
+              <div class="ms-2 d-flex">
+                <button
+                  class="btn btn-sm btn-outline-danger delete-btn"
+                  (click)="deleteMessage(msg)"
+                  title="Eliminar mensaje"
+                  [disabled]="isSendingMessage()"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+              }
+            </div>
+            } }
+          </div>
+          }
+        </div>
+
+        <div class="card-footer modern-foro-footer">
+          @if (canWriteMessages()) {
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Escribe un mensaje..."
+              aria-label="Escribe un mensaje"
+              [disabled]="isSendingMessage()"
+              [(ngModel)]="newMessage"
+              (keyup.enter)="sendMessage()"
+            />
+            <button
+              class="btn btn-send"
+              type="button"
+              [disabled]="isSendingMessage()"
+              (click)="sendMessage()"
+              [title]="isSendingMessage() ? 'Enviando...' : 'Enviar mensaje (Enter)'"
+            >
+              @if (isSendingMessage()) {
+              <span
+                class="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
+              } @else {
+              <i class="bi bi-send-fill"></i>
+              }
+            </button>
+          </div>
+          } @else {
+          <div class="alert alert-info mb-0">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Solo lectura:</strong> No tienes permiso para escribir en este foro.
+          </div>
+          }
+        </div>
+      </div>
+
+      @if (mostrarToastConfirmacion()) {
+      <div
+        class="toast-confirmation"
+        [class.toast-confirming]="!ocultandoToastConfirmacion()"
+        [class.toast-hiding]="ocultandoToastConfirmacion()"
+      >
+        <div class="toast-body">
+          <div class="toast-icon">
+            <i class="bi bi-exclamation-triangle"></i>
+          </div>
+          <div class="toast-content">
+            <h6 class="toast-title">Confirmar eliminación</h6>
+            <p class="toast-message">{{ mensajeConfirmacion() }}</p>
+          </div>
+          <div class="toast-actions">
+            <button class="btn btn-sm btn-outline-secondary" (click)="cancelarEliminacion()">
+              <i class="bi bi-x-lg"></i>
+              Cancelar
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="confirmarEliminacionMensaje()">
+              <i class="bi bi-trash"></i>
+              Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+      } }
+    </div>
+  </div>
+</div>

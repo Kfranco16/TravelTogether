@@ -1,0 +1,14 @@
+<div class="d-flex align-items-center gap-3">
+  <div
+    class="logo-circle d-flex align-items-center justify-content-center"
+    [style.width.px]="size"
+    [style.height.px]="size"
+  >
+    <i class="bi bi-airplane-fill text-white" [style.fontSize.px]="size * 0.55" aria-hidden="true">
+    </i>
+  </div>
+
+  @if (showText) {
+  <h1 class="logo-text mb-0" (click)="onLogoClick()">TravelTogether</h1>
+  }
+</div>

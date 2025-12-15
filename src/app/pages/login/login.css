@@ -1,0 +1,22 @@
+.btn-morado {
+  background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%);
+  color: #fff;
+}
+.btn-morado :hover {
+  filter: brightness(1.05);
+}
+
+.color-principal {
+  color: #5223b9;
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #ccc;
+  display: inline-block;
+}
+
+.active-dot {
+  background-color: #6f42c1;
+}
