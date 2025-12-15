@@ -76,9 +76,9 @@ export class Landing {
     },
     {
       id: 3,
-      url: 'https://mochilerosentailandia.com/wp-content/uploads/2016/11/1-6.jpg',
+      url: 'https://www.iscaschool.com/wp-content/uploads/2020/09/isca-exeter-eto-documents.jpg',
       alt: 'Viajeros caminando por un sendero en medio de la naturaleza',
-      caption: 'Comparte aventuras únicas',
+      caption: 'Descubre destinos increíbles',
     },
   ]);
 
