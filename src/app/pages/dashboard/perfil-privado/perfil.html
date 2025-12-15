@@ -150,7 +150,15 @@
           <i class="bi bi-geo-alt"></i>
         </div>
         <p class="tt-stat-label">Mis viajes totales</p>
-        <p class="tt-stat-value">{{ tripsCount ?? 0 }}</p>
+        <p class="tt-stat-value">{{ tripsCount }}</p>
+      </article>
+
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-calendar-event"></i>
+        </div>
+        <p class="tt-stat-label">Mis viajes pendientes a realizar</p>
+        <p class="tt-stat-value">{{ pendingToDoTripsCount }}</p>
       </article>
 
       <article class="tt-stat-card">
@@ -176,13 +184,28 @@
         <p class="tt-stat-label">Mis viajes realizados</p>
         <p class="tt-stat-value">{{ completedTripsCount }}</p>
       </article>
-
       <article class="tt-stat-card">
         <div class="tt-stat-icon tt-stat-icon-heart">
           <i class="bi bi-heart"></i>
         </div>
         <p class="tt-stat-label" (click)="goToFavoritesPage()">Viajes en favoritos</p>
-        <p class="tt-stat-value">{{ favoritesCount ?? 0 }}</p>
+        <p class="tt-stat-value">{{ favoritesCount }}</p>
+      </article>
+
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-hand-thumbs-up-fill text-warning"></i>
+        </div>
+        <p class="tt-stat-label">Valoraciones recibidas</p>
+        <p class="tt-stat-value">{{ ratingsReceivedCount }}</p>
+      </article>
+
+      <article class="tt-stat-card">
+        <div class="tt-stat-icon">
+          <i class="bi bi-hand-thumbs-up text-warning"></i>
+        </div>
+        <p class="tt-stat-label">Valoraciones otorgadas</p>
+        <p class="tt-stat-value">{{ ratingsGivenCount }}</p>
       </article>
     </section>
   </div>

@@ -42,9 +42,11 @@ export class RatingsService {
   }
 
   getRatingsByRatedUser(ratedUserId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${environment.apiUrl}/rated_user/${ratedUserId}`, {
-      headers: this.getHeaders(),
-    });
+    return this.http
+      .get<any>(`${environment.apiUrl}/ratings/rated_user/${ratedUserId}`, {
+        headers: this.getHeaders(),
+      })
+      .pipe(map((resp) => resp.results?.results ?? resp.data ?? resp ?? []));
   }
 
   getRatingScoreByRatedUser(ratedUserId: number): Observable<any> {

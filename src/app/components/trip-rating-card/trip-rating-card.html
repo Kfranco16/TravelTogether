@@ -1,6 +1,6 @@
 <div class="card border-0 rounded-3 overflow-hidden mb-5 shadow-sm">
   <div class="row g-0">
-    <div class="col-md-4">
+    <div class="col-md-4 d-flex align-items-center">
       <img
         [src]="trip.imageUrl"
         [alt]="trip.tripName"
@@ -24,7 +24,6 @@
           </span>
         </div>
 
-        <!-- ORGANIZADOR -->
         <div class="fw-semibold mb-2">Organizador:</div>
         <div class="row">
           <div class="col-md-6 mb-3">
@@ -90,7 +89,6 @@
           </div>
         </div>
 
-        <!-- COMPAÑEROS -->
         <div class="fw-semibold mb-3 mt-3">Compañeros de viaje:</div>
 
         <div class="row">
@@ -146,7 +144,7 @@
                   </button>
                   } } @else {
                   <button
-                    class="text-white btn btn-outline-secondary btn-sm fw-semibold shadow btn-rate-adapt"
+                    class="text-white btn btn-outline-secondary btn-morado btn-sm fw-semibold shadow btn-rate-adapt"
                     disabled
                   >
                     Valorar

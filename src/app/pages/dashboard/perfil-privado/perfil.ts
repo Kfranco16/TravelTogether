@@ -33,13 +33,14 @@ export class Perfil {
   usuarioValoracion: number | null = null;
   stars = [1, 2, 3, 4, 5];
 
-  tripsCount: number | null = null;
+  tripsCount: number = 0;
 
   organizerTripsCount: number = 0;
 
   completedTripsCount: number = 0;
 
   pendingTripsCount: number = 0;
+  pendingToDoTripsCount: number = 0;
 
   favoritesCount: number | null = null;
 
@@ -50,6 +51,8 @@ export class Perfil {
   daysToNextTrip: number | null = null;
 
   pendingRatingsCount = 0;
+  ratingsReceivedCount: number = 0;
+  ratingsGivenCount: number = 0;
 
   portadaImageUrl: string = 'images/coverDefault.jpg';
   portadaImageAlt: string = 'Imagen de portada';
@@ -97,6 +100,10 @@ export class Perfil {
     this.organizerTripsCount = 0;
     this.completedTripsCount = 0;
     this.pendingTripsCount = 0;
+    this.loadUserRating(userId);
+    this.loadFavoritesCount(userId);
+    this.loadCreatedTrips(userId);
+    this.loadRatingsStats(userId);
 
     try {
       const fullUser = await this.auth.getUserById(userId);
@@ -121,6 +128,33 @@ export class Perfil {
       console.error('Error cargando usuario logueado con getUserById', error);
       this.router.navigate(['/home']);
     }
+  }
+
+  private loadRatingsStats(userId: number): void {
+    const token = this.auth.gettoken() || '';
+    if (!token) {
+      this.ratingsReceivedCount = 0;
+      this.ratingsGivenCount = 0;
+      return;
+    }
+
+    this.ratingsService.getRatingsByRatedUser(userId).subscribe({
+      next: (received) => {
+        this.ratingsReceivedCount = received?.length ?? 0;
+      },
+      error: () => {
+        this.ratingsReceivedCount = 0;
+      },
+    });
+
+    this.ratingsService.getRatingsByAuthor(userId).subscribe({
+      next: (given) => {
+        this.ratingsGivenCount = given?.length ?? 0;
+      },
+      error: () => {
+        this.ratingsGivenCount = 0;
+      },
+    });
   }
 
   private loadUserRating(userId: number): void {
@@ -167,23 +201,25 @@ export class Perfil {
       next: (res: any) => {
         this.createdTrips = res?.data || [];
 
-        // total de participaciones, TODO!
         this.tripsCount = this.createdTrips.length;
 
         const today = new Date();
 
-        // viajes YA realizados: aceptados y con fecha anterior a hoy
+        this.pendingToDoTripsCount = this.createdTrips.filter((trip: any) => {
+          const start = new Date(trip.start_date || trip.startDate);
+          return start.getTime() > today.getTime();
+        }).length;
+
         this.completedTripsCount = this.createdTrips.filter((trip: any) => {
           if (trip.status !== 'accepted' || !trip.end_date) return false;
           const end = new Date(trip.end_date);
           return end.getTime() < today.getTime();
         }).length;
 
-        // mis viajes SOLO como organizador
         this.organizerTripsCount = this.createdTrips.filter(
           (trip: any) => trip.creator_id === userId
         ).length;
-        // viajes pendientes de aceptar
+
         this.pendingTripsCount = this.createdTrips.filter(
           (trip: any) => trip.status === 'pending'
         ).length;
