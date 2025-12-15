@@ -1,0 +1,43 @@
+{
+  // --- Personalización Visual ---
+  "workbench.iconTheme": "material-icon-theme", // Establece el tema de iconos 'Material Icon Theme'.
+  "material-icon-theme.activeIconPack": "angular", // Activa el paquete de iconos específico para Angular dentro del tema.
+
+  // --- Configuración del Editor de Texto ---
+  "editor.wordWrap": "on", // Ajusta automáticamente las líneas largas para que quepan en la ventana.
+  "editor.wordWrapColumn": 120, // Define el número máximo de caracteres por línea antes de ajustar.
+  "editor.wrappingIndent": "same", // Mantiene la misma indentación para las líneas ajustadas.
+  "files.autoSave": "onFocusChange", // Guarda automáticamente los archivos cuando sales de la ventana del editor.
+
+  // --- Configuración de Formateo y Calidad de Código ---
+  // Establece 'Prettier' (esbenp.prettier-vscode) como el formateador por defecto para todos los archivos.
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  // Activa el formateo automático cada vez que guardas un archivo.s
+  "editor.formatOnSave": true,
+
+  // Ejecuta acciones de código al guardar. Específicamente, le pide a ESLint que intente arreglar todos los problemas que pueda.
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // --- Anulaciones por Lenguaje ---
+  // Asegura que Prettier sea el formateador para estos tipos de archivo específicos,
+  // evitando conflictos si otra extensión intenta formatearlos.
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "typescript.updateImportsOnFileMove.enabled": "always"
+}

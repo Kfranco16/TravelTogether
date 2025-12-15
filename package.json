@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "start:api": "json-server --watch db.json --port 3001"
   },
   "prettier": {
     "printWidth": 100,
@@ -28,8 +29,12 @@
     "@angular/forms": "^20.3.0",
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
+    "@googlemaps/js-api-loader": "^2.0.2",
     "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
+    "icons": "^1.0.0",
+    "lucide-angular": "^0.552.0",
+    "ngx-sonner": "^3.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

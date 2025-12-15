@@ -1,0 +1,63 @@
+:host {
+  display: block;
+}
+
+.tt-fixed {
+  width: 100%;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  z-index: 1050;
+}
+
+.tt-fixed .tt-header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .tt-fixed {
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+
+  body {
+    padding-top: 80px;
+    padding-bottom: 64px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .tt-fixed {
+    position: static;
+  }
+
+  .tt-fixed .tt-header-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+  }
+
+  .tt-header-logo-link {
+    margin-top: 0.5rem;
+    justify-content: center;
+  }
+
+  body {
+    padding-top: 0;
+    padding-bottom: 0.3rem;
+  }
+}
+
+@supports (backdrop-filter: blur(6px)) {
+  @media (min-width: 768px) {
+    .tt-fixed {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: saturate(160%) blur(6px);
+    }
+  }
+}

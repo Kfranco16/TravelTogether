@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { Navbar } from '../navbar/navbar';
+import { Logo } from '../logo/logo';
 
 @Component({
   selector: 'app-header',
-  imports: [],
+  imports: [RouterLink, Navbar, Logo],
   templateUrl: './header.html',
-  styleUrl: './header.css',
+  standalone: true,
+  styleUrls: ['./header.css'],
 })
-export class Header {
-
-}
+export class Header {}

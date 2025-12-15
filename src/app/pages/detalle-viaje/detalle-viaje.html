@@ -1,1 +1,459 @@
-<p>detalle-viaje works!</p>
+@if (viaje; as trip) { @if (mostrarToast()) {
+<div class="toast-container position-fixed top-50 start-50 translate-middle p-3 z-1050">
+  <div
+    [ngClass]="toastClass()"
+    role="alert"
+    aria-live="polite"
+    aria-atomic="true"
+    class="alert alert-dismissible fade"
+    [class.show]="!ocultandoToast()"
+    [class.hide]="ocultandoToast()"
+  >
+    <div class="d-flex align-items-start gap-3">
+      <div class="flex-shrink-0">
+        <i class="bi" [ngClass]="toastIcon()" style="font-size: 1.5rem"></i>
+      </div>
+      <div class="flex-grow-1">
+        <strong>{{ mensajeToast() }}</strong>
+        @if (detalleToast()) {
+        <div class="small mt-1">{{ detalleToast() }}</div>
+        }
+      </div>
+      <button
+        type="button"
+        class="btn-close"
+        (click)="ocultarToast()"
+        aria-label="Cerrar notificación"
+      ></button>
+    </div>
+  </div>
+</div>
+}
+
+<div class="card border-0 rounded-3 overflow-hidden mb-4">
+  <img
+    [src]="portadaImageUrl"
+    [alt]="portadaImageAlt"
+    class="card-img-top object-fit-cover img-fluid portada-img"
+  />
+
+  <div class="container pt-3 pb-0">
+    @if (esCreador) {
+    <div class="tt-trip-actions-wrapper d-flex justify-content-center">
+      <div class="tt-trip-actions-bar px-3 px-md-4 py-2 w-100">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+          <div class="d-flex align-items-center gap-2">
+            <div
+              class="rounded-pill px-2 py-1 d-flex align-items-center gap-1 tt-trip-actions-label"
+            >
+              <i class="bi bi-gear-fill"></i>
+              <span class="small fw-semibold text-uppercase">Panel del organizador</span>
+            </div>
+            <span class="text-muted d-none d-md-inline"> Gestiona este viaje y sus viajeros. </span>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2">
+            <button
+              class="btn btn-sm tt-trip-btn tt-trip-btn-manage d-flex align-items-center gap-1"
+              type="button"
+              (click)="openDeleteModal()"
+            >
+              <i class="bi bi-trash"></i>
+              <span>Eliminar</span>
+            </button>
+
+            <button
+              class="btn btn-sm tt-trip-btn tt-trip-btn-edit d-flex align-items-center gap-1"
+              type="button"
+              [routerLink]="['/viaje/editar', trip.id]"
+            >
+              <i class="bi bi-pencil-square"></i>
+              <span>Editar</span>
+            </button>
+
+            <button
+              class="btn btn-sm tt-trip-btn tt-trip-btn-manage d-flex align-items-center gap-1"
+              type="button"
+              routerLink="/gestion-viajes"
+              (click)="goToMyTrip()"
+            >
+              <i class="bi bi-people"></i>
+              <span>Gestionar viajeros</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @if (showDeleteModal) {
+    <div class="tt-modal-overlay" (click)="cancelDelete()">
+      <div class="tt-modal" (click)="$event.stopPropagation()">
+        <h3 class="tt-modal-title">Eliminar viaje</h3>
+        <p class="tt-modal-text">¿Seguro que quieres eliminar este viaje?</p>
+        <div class="tt-modal-buttons">
+          <button class="tt-btn tt-btn-secondary btn btn-sm" (click)="cancelDelete()">
+            Volver y cancelar
+          </button>
+          <button class="tt-btn tt-btn-primary btn btn-sm" (click)="confirmDelete()">
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+    } }
+  </div>
+
+  <div class="container my-4 justify-content-center">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="position-relative rounded overflow-hidden">
+          <img
+            [src]="mainImageUrl"
+            [alt]="mainImageAlt"
+            class="img-fluid w-100"
+            style="max-height: 300px; object-fit: cover"
+          />
+          <div
+            class="position-absolute bottom-0 start-0 w-100 bg-gradient-dark text-white p-3 d-flex flex-wrap align-items-center"
+          >
+            <div
+              class="position-absolute bottom-0 start-0 w-100 bg-gradient-dark text-white p-3 d-flex flex-column align-items-start"
+            >
+              <div class="fw-bold fs-2 mb-2 text-shadow-black">{{ trip.title }}</div>
+              <div class="d-flex flex-wrap align-items-center gap-2">
+                <a
+                  [href]="getGoogleMapsUrl(trip.latitude, trip.longitude, 12)"
+                  target="_blank"
+                  rel="noopener"
+                  class="badge bg-light text-dark text-decoration-none"
+                  ><i class="bi bi-geo-alt"></i> {{ trip?.destination }}
+                </a>
+                <span class="badge bg-light text-dark"
+                  >{{ trip.start_date | date : 'd MMM' }} -
+                  {{ trip.end_date | date : 'd MMM' }}</span
+                >
+                <span class="badge bg-success">
+                  {{ trip.estimated_cost | number : '1.0-0' }}€ /persona
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            class="btn position-absolute top-0 end-0 m-3"
+            type="button"
+            [ngClass]="{
+              'btn-morado text-white':
+                !solicitudStatus() && !esCreador && !isTripClosedByDate() && !isTripInProgress(),
+              'btn-secondary text-white': esCreador || isTripClosedByDate() || isTripInProgress(),
+              'btn-warning text-dark': solicitudStatus() === 'pending',
+              'btn-success text-white': solicitudStatus() === 'accepted',
+              'btn-danger text-white': solicitudStatus() === 'rejected'
+            }"
+            [disabled]="
+              cargandoSolicitudStatus() ||
+              enviandoSolicitud() ||
+              solicitudStatus() === 'pending' ||
+              solicitudStatus() === 'accepted' ||
+              esCreador ||
+              isTripClosedByDate() ||
+              isTripInProgress()
+            "
+            (click)="handleSolicitud()"
+          >
+            @if (cargandoSolicitudStatus()) {
+            <span
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            Cargando estado... } @else if (esCreador) { Tu viaje } @else if (isTripClosedByDate()) {
+            Viaje cerrado } @else if (isTripInProgress()) { Viaje en curso } @else if
+            (enviandoSolicitud()) {
+            <span
+              class="spinner-border spinner-border-sm me-2"
+              role="status"
+              aria-hidden="true"
+            ></span>
+            Enviando solicitud... } @else if (solicitudStatus() === 'pending') {
+            <i class="bi bi-hourglass-split"></i> Solicitud enviada } @else if (solicitudStatus()
+            === 'accepted') { <i class="bi bi-check-circle"></i> Solicitud aceptada } @else if
+            (solicitudStatus() === 'rejected') { <i class="bi bi-x-circle"></i> Solicitud rechazada
+            } @else { Solicitar unirme }
+          </button>
+        </div>
+
+        <section class="mt-4">
+          <div class="fw-semibold fs-5 mb-1">Descripción del Viaje</div>
+          <p class="mb-3">{{ trip.description }}</p>
+        </section>
+
+        <section class="mb-4">
+          <div class="fw-semibold mb-2"><i class="bi bi-list-ul"></i> Itinerario</div>
+          <ul class="list-group">
+            @for (dia of itinerarioPorDia; track dia) {
+            <li class="list-group-item p-2">{{ dia }}</li>
+            }
+          </ul>
+        </section>
+
+        <section class="mb-4">
+          <div class="fw-semibold mb-2 section-title">¿Qué incluye?</div>
+          <div class="row g-2">
+            <div class="col-12 col-md-6">
+              <div class="fw-semibold mb-1 text-success">Incluye</div>
+              @for (service of services; track service.control) { @if (detalleViaje[service.control]
+              === 1) {
+              <div class="text-success mb-1">✓ {{ service.label }}</div>
+              } }
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="fw-semibold mb-1 text-danger">No incluye</div>
+              @for (service of services; track service.control) { @if (detalleViaje[service.control]
+              === 0 || detalleViaje[service.control] === null) {
+              <div class="text-danger mb-1">✗ {{ service.label }}</div>
+              } }
+            </div>
+          </div>
+        </section>
+
+        <section class="mb-4">
+          <div class="fw-semibold mb-2 section-title">
+            <i class="bi bi-exclamation-circle"></i> Requisitos minimos para los viajeros.
+          </div>
+          <p class="mb-3">{{ trip.requirements }}</p>
+        </section>
+      </div>
+
+      <div class="col-lg-4 viaje-sidebar">
+        <span class="badge bg-light text-dark">Organizador</span>
+        <div class="card shadow-sm mb-0 border-0 rounded-4 overflow-hidden">
+          <div
+            class="card-body d-flex align-items-center mb-1"
+            style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
+          >
+            <div class="user-link text-white" (click)="irADetalleUsuario(usuario)">
+              <app-card-usuario [usuario]="usuario"></app-card-usuario>
+            </div>
+          </div>
+          <div
+            class="card-body d-flex align-items-center text-white"
+            style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
+            (click)="irAValoraciones()"
+          >
+            <p class="m-1 fs-5 fw-semibold text-center text-shadow-black">
+              <i class="bi-stars text-warning"></i> Ver valoraciones de
+              {{ usuario?.username }}
+            </p>
+          </div>
+        </div>
+
+        <div class="">
+          <div class="card-body">
+            <div class="fw-semibold text-end small">
+              Ultima actualización: {{ trip.updated_at | date : 'dd/MM/yyyy -  HH:mm' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-3 rounded-4">
+          <div class="card-body p-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <div class="d-flex align-items-center gap-2">
+                <div
+                  class="rounded-circle d-flex align-items-center justify-content-center"
+                  style="width: 32px; height: 32px; background: rgba(139, 92, 246, 0.15)"
+                >
+                  <i class="bi bi-person-lines-fill text-primary"></i>
+                </div>
+                <div class="d-flex flex-column">
+                  <span class="fw-semibold small text-uppercase text-muted">Contacto</span>
+                  <span class="fw-semibold">
+                    {{ usuario?.username }}
+                  </span>
+                </div>
+              </div>
+
+              @if (puedeVerForo) {
+              <span
+                class="badge rounded-pill bg-success-subtle text-success border border-success-subtle"
+              >
+                <i class="bi bi-unlock me-1"></i>
+              </span>
+              } @else {
+              <span
+                class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle"
+              >
+                <i class="bi bi-lock me-1"></i>
+              </span>
+              }
+            </div>
+
+            <hr class="my-2" />
+
+            @if (puedeVerForo) {
+            <div class="d-flex flex-column gap-2">
+              <div class="d-flex align-items-center gap-2">
+                <div
+                  class="rounded-circle d-flex align-items-center justify-content-center bg-light"
+                  style="width: 28px; height: 28px"
+                >
+                  <i class="bi bi-envelope text-primary"></i>
+                </div>
+                <div class="d-flex flex-column">
+                  <span class="small text-muted">Email</span>
+                  <span class="small fw-semibold">{{ usuario?.email }}</span>
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center gap-2">
+                <div
+                  class="rounded-circle d-flex align-items-center justify-content-center bg-light"
+                  style="width: 28px; height: 28px"
+                >
+                  <i class="bi bi-telephone text-primary"></i>
+                </div>
+                <div class="d-flex flex-column">
+                  <span class="small text-muted">Teléfono</span>
+                  <span class="small fw-semibold">{{ usuario?.phone }}</span>
+                </div>
+              </div>
+            </div>
+            } @else {
+            <div class="text-muted">
+              Únete al viaje y podrás ponerte en contacto con el organizador del viaje.
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <div class="fw-semibold mb-3">Detalles</div>
+            <div>
+              <i class="bi bi-geo-alt"></i> <b> Origen:</b>
+              {{ trip.origin }}
+            </div>
+            <div>
+              <i class="bi bi-calendar-date"></i> <b> Fecha de inicio:</b>
+              {{ trip.start_date | date : 'dd/MM/yyyy' }}
+            </div>
+            <div>
+              <i class="bi bi-calendar-date"></i> <b> Fecha de fin:</b>
+              {{ trip.end_date | date : 'dd/MM/yyyy' }}
+            </div>
+            <div class="my-2">
+              <i class="bi bi-currency-euro"></i> <b> Coste por persona:</b>
+
+              {{ trip.estimated_cost | number : '1.0-0' }}€ /persona
+            </div>
+            <div>
+              <i class="bi bi-people"></i> <b> Máximo de viajeros:</b> {{ trip.min_participants }}
+            </div>
+          </div>
+        </div>
+
+        <div class="card shadow-sm mb-3">
+          <div class="card-body">
+            <div class="fw-semibold mb-2"><i class="bi bi-truck"></i> Transporte:</div>
+            <div class="">{{ trip.transport }}</div>
+            <div class="fw-semibold mt-3 mb-2"><i class="bi bi-house"></i> Alojamiento:</div>
+            <div class="">{{ trip.accommodation }}</div>
+          </div>
+        </div>
+
+        <div class="fw-semibold mb-3 mt-3">Compañeros de viaje:</div>
+        @for (participant of participants; track participant.userId) {
+        <div class="card shadow-sm mb-4 border-0 rounded-4 overflow-hidden">
+          <div
+            class="card-body d-flex align-items-center"
+            style="background: linear-gradient(90deg, #a78bfa 0%, #8b5cf6 50%, #3b82f6 100%)"
+          >
+            <div class="user-link text-white" (click)="irADetalleUsuario(participant)">
+              <app-card-usuario [usuario]="participant"></app-card-usuario>
+            </div>
+          </div>
+        </div>
+        }
+
+        <div class="card border-0 shadow-sm mb-3 rounded-4 foro-card">
+          <div
+            class="card-header border-0 rounded-top-4 px-3 py-2 foro-header d-flex justify-content-between align-items-center"
+          >
+            <div class="d-flex align-items-center gap-2 text-white">
+              <i class="bi bi-chat-dots-fill"></i>
+              <span class="fw-semibold">Foro del viaje</span>
+            </div>
+
+            <a
+              class="small text-white-50 text-decoration-none d-flex align-items-center gap-1"
+              [routerLink]="['/foro', viaje.id]"
+              (click)="!puedeVerForo && $event.preventDefault()"
+            >
+              Ver foro completo
+              <i class="bi bi-arrow-right-short"></i>
+            </a>
+          </div>
+
+          <div class="position-relative" [ngClass]="{ 'foro-bloqueado': !puedeVerForo }">
+            @if (!puedeVerForo) {
+            <div class="foro-overlay-text">
+              Una vez aceptado en el viaje podrás chatear con el organizador y tus compañeros.
+            </div>
+            }
+
+            <div class="card-body foro-body" [class.foro-bloqueado-body]="!puedeVerForo">
+              @if (cargandoResumenForo) {
+              <div class="d-flex align-items-center gap-2 small text-muted">
+                <span
+                  class="spinner-border spinner-border-sm text-light"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                <span class="text-light">Cargando últimos comentarios...</span>
+              </div>
+              } @else if (!ultimosMensajes.length) {
+              <div class="small text-black fst-italic">
+                Todavía no hay comentarios en este viaje. ¡Inicia la conversación!
+              </div>
+              } @else {
+              <div class="d-flex flex-column gap-2">
+                @for (msg of ultimosMensajes; track msg.id) {
+                <a
+                  class="text-decoration-none"
+                  [routerLink]="['/foro', viaje.id]"
+                  [queryParams]="{ mensajeId: msg.id }"
+                  [class.disabled-link]="!puedeVerForo"
+                  (click)="!puedeVerForo && $event.preventDefault()"
+                >
+                  <div class="foro-bubble">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span class="small fw-semibold foro-author">
+                        {{ msg.author }}
+                      </span>
+                      <span class="small foro-date">
+                        {{ msg.created_at | date : 'shortTime' }}
+                      </span>
+                    </div>
+                    <div class="small foro-text">
+                      {{ msg.content }}
+                    </div>
+                  </div>
+                </a>
+                }
+              </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+} @else {
+<div class="card border-0 rounded-3 overflow-hidden mb-4 text-center p-5">
+  <span class="spinner-border"></span>
+  <div class="mt-3">Cargando datos del viaje...</div>
+</div>
+}
