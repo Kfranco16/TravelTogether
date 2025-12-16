@@ -283,6 +283,44 @@ export class CrearEditarViaje implements AfterViewInit {
       baseTripData[campo] = this.tripForm.value[campo] ? 1 : 0;
     });
 
+    if (this.modoEdicion && this.tripId) {
+      await lastValueFrom(this.tripService.updateTrip(this.tripId, baseTripData));
+
+      const user = JSON.parse(localStorage.getItem('usuario') || 'null');
+      const userId = user ? user.id : null;
+
+      if (this.selectedCoverPhoto && userId) {
+        try {
+          await this.tripService.uploadImage(
+            this.selectedCoverPhoto,
+            'Foto de portada',
+            this.tripId,
+            userId,
+            false
+          );
+        } catch (e) {
+          console.error('Error subiendo portada (edición):', e);
+        }
+      }
+
+      if (this.selectedMainPhoto && userId) {
+        try {
+          await this.tripService.uploadImage(
+            this.selectedMainPhoto,
+            'Foto principal',
+            this.tripId,
+            userId,
+            true
+          );
+        } catch (e) {
+          console.error('Error subiendo principal (edición):', e);
+        }
+      }
+
+      this.router.navigate(['/viaje', this.tripId]);
+      return;
+    }
+
     try {
       await toast.promise(
         (async () => {
